@@ -1,0 +1,65 @@
+\documentclass[a4paper,11pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{float}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+\hypersetup{pdfstartview={XYZ null null 1.00}}
+
+\usepackage[nottoc]{tocbibind}
+
+\graphicspath{{img/}} % Ruta donde están las imágenes
+
+% Para que no corte las palabras
+
+\pretolerance=2000
+\tolerance=3000
+
+\begin{document}
+
+% Renombramos las figuras y las tablas
+\renewcommand{\contentsname}{Índice}
+\renewcommand{\chaptername}{Capítulo}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\listfigurename}{Índice de figuras}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\listtablename}{Índice de tablas}
+\renewcommand\bibname{Bibliografía}
+
+% Portada
+\pagestyle{empty}
+\input{0_portada.tex}
+\pagebreak
+% Inserción de página en blanco
+\newpage
+\thispagestyle{empty}
+\mbox{}
+% Fin inserción de página en blanco
+\pagestyle{plain}
+% Posible inclusión de primera hoja, agradecimientos, licencia,...
+
+\tableofcontents
+
+\chapter{Introducción}
+\input{1_introduccion.tex}
+
+\chapter{Objetivos}
+\input{2_objetivos.tex}
+
+\chapter{Estado del arte}
+\input{3_estadoArte.tex}
+
+\chapter{Propuesta}
+\input{4_propuesta.tex}
+
+\bibliographystyle{ieeetr}
+\bibliography{bibProyecto}
+
+\end{document}
