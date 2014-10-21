@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<graphml xmlns="http://graphml.graphdrawing.org/xmlns"  
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
 http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-  <key id="tipo_nodo" for="node" attr.name="Tipo de nodo" attr.type="int">
+  <key id="tipo_nodo" for="node" attr.name="Tipo_de_nodo" attr.type="int">
     <default>0</default>
   </key>
-  <key id="pos_x" for="node" attr.name="Coordenada X" attr.type="double">
-  <key id="pos_y" for="node" attr.name="Coordenada Y" attr.type="double">
-  <key id="tipo_cruce" for="node" attr.name="Tipo de cruce" attr.type="int">
+  <key id="pos_x" for="node" attr.name="Coordenada_X" attr.type="double">
+  <key id="pos_y" for="node" attr.name="Coordenada_Y" attr.type="double">
+  <key id="tipo_cruce" for="node" attr.name="Tipo_de_cruce" attr.type="int">
     <default>0</default>
   </key>
-  <key id="nombre_via" for="edge" attr.name="Nombre de la via" attr.type="string">
+  <key id="nombre_via" for="edge" attr.name="Nombre_de_la_via" attr.type="string">
     <default></default>
   </key>
-  <key id="ori_des" for="edge" attr.name="Vias sentido origen destino" attr.type="string">
+  <key id="ori_des" for="edge" attr.name="Vias_sentido_origen_destino" attr.type="string">
     <default>0</default>
   </key>
-  <key id="des_ori" for="edge" attr.name="Vias sentido destino origen" attr.type="string">
+  <key id="des_ori" for="edge" attr.name="Vias_sentido_destino_origen" attr.type="string">
     <default>0</default>
   </key>
   <graph id="ejemplo_topologia" edgedefault="undirected">
