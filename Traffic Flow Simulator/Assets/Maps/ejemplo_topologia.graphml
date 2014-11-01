@@ -3,109 +3,112 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
 http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-  <key id="node_type" for="node" attr.name="Tipo_de_nodo" attr.type="int">
+  <key id="tipo_nodo" for="node" attr.name="Tipo_de_nodo" attr.type="int">
     <default>0</default>
   </key>
   <key id="pos_x" for="node" attr.name="Coordenada_X" attr.type="double">
   <key id="pos_y" for="node" attr.name="Coordenada_Y" attr.type="double">
-  <key id="intersection_type" for="node" attr.name="Tipo_de_cruce" attr.type="int">
+  <key id="tipo_cruce" for="node" attr.name="Tipo_de_cruce" attr.type="int">
     <default>0</default>
   </key>
-  <key id="name" for="edge" attr.name="Nombre_de_la_via" attr.type="string">
+  <key id="nombre_via" for="edge" attr.name="Nombre_de_la_via" attr.type="string">
     <default></default>
   </key>
-  <key id="src_des" for="edge" attr.name="Vias_sentido_origen_destino" attr.type="string">
+  <key id="ori_des" for="edge" attr.name="Vias_sentido_origen_destino" attr.type="string">
     <default>0</default>
   </key>
-  <key id="des_src" for="edge" attr.name="Vias_sentido_destino_origen" attr.type="string">
+  <key id="des_ori" for="edge" attr.name="Vias_sentido_destino_origen" attr.type="string">
     <default>0</default>
   </key>
   <graph id="ejemplo_topologia" edgedefault="undirected">
     <node id="n0"/>
-      <data key="node_type">1</data>
+      <data key="tipo_nodo">1</data>
       <data key="pos_x">2168</data>
       <data key="pos_y">1044</data>
     </node>
     <node id="n1"/>
-      <data key="node_type">2</data>
+      <data key="tipo_nodo">2</data>
       <data key="pos_x">1095</data>
       <data key="pos_y">751</data>
     </node>
     <node id="n2"/>
+      <data key="tipo_nodo">0</data>
       <data key="pos_x">2168</data>
       <data key="pos_y">751</data>
     </node>
     <node id="n3"/>
-      <data key="node_type">1</data>
+      <data key="tipo_nodo">1</data>
       <data key="pos_x">2623</data>
       <data key="pos_y">751</data>
     </node>
     <node id="n4"/>
-      <data key="node_type">1</data>
+      <data key="tipo_nodo">1</data>
       <data key="pos_x">53</data>
       <data key="pos_y">381</data>
     </node>
     <node id="n5"/>
+      <data key="tipo_nodo">0</data>
       <data key="pos_x">1095</data>
       <data key="pos_y">381</data>
     </node>
     <node id="n6"/>
+      <data key="tipo_nodo">0</data>
       <data key="pos_x">2168</data>
       <data key="pos_y">381</data>
     </node>
     <node id="n7"/>
-      <data key="node_type">1</data>
+      <data key="tipo_nodo">1</data>
       <data key="pos_x">2723</data>
       <data key="pos_y">381</data>
     </node>
     <node id="n8"/>
-      <data key="node_type">1</data>
+      <data key="tipo_nodo">1</data>
       <data key="pos_x">1095</data>
       <data key="pos_y">7</data>
     </node>
     <node id="n9"/>
-      <data key="node_type">1</data>
+      <data key="tipo_nodo">1</data>
       <data key="pos_x">2168</data>
       <data key="pos_y">83</data>
     </node>
     <edge id="a0" source="n0" target="n2"/>
-      <data key="src_des">PN</data>
-      <data key="des_src">N</data>
+      <data key="ori_des">PN</data>
+      <data key="des_ori">N</data>
     </edge>
     <edge id="a1" source="n1" target="n2"/>
-      <data key="src_des">N</data>
-      <data key="des_src">N</data>
+      <data key="ori_des">N</data>
+      <data key="des_ori">N</data>
     </edge>
     <edge id="a2" source="n2" target="n3"/>
-      <data key="des_src">NN</data>
+      <data key="des_ori">NN</data>
     </edge>
     <edge id="a3" source="n1" target="n5"/>
-      <data key="src_des">N</data>
-      <data key="des_src">N</data>
+      <data key="ori_des">N</data>
+      <data key="des_ori">N</data>
     </edge>
     <edge id="a4" source="n2" target="n6"/>
-      <data key="src_des">PN</data>
-      <data key="des_src">N</data>
+      <data key="ori_des">PN</data>
+      <data key="des_ori">N</data>
     </edge>
     <edge id="a5" source="n4" target="n5"/>
-      <data key="src_des">PNN</data>
-      <data key="des_src">PNN</data>
+      <data key="ori_des">PNN</data>
+      <data key="des_ori">PNN</data>
     </edge>
     <edge id="a6" source="n5" target="n6"/>
-      <data key="src_des">PNN</data>
-      <data key="des_src">PNN</data>
+      <data key="ori_des">PNN</data>
+      <data key="des_ori">PNN</data>
     </edge>
     <edge id="a7" source="n6" target="n7"/>
-      <data key="src_des">PNN</data>
-      <data key="des_src">PNN</data>
+      <data key="ori_des">PNN</data>
+      <data key="des_ori">PNN</data>
     </edge>
     <edge id="a8" source="n5" target="n8"/>
-      <data key="src_des">N</data>
-      <data key="des_src">N</data>
+      <data key="ori_des">N</data>
+      <data key="des_ori">N</data>
     </edge>
     <edge id="a9" source="n6" target="n9"/>
-      <data key="src_des">PN</data>
-      <data key="des_src">N</data>
+      <data key="ori_des">PN</data>
+      <data key="des_ori">N</data>
     </edge>
   </graph>
 </graphml>
