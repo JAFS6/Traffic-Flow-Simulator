@@ -2,34 +2,39 @@
 using System.Collections;
 using System.Xml;
 using System.IO;
+using System.Collections.Generic;
 
 public class ApplicationController : MonoBehaviour {
 
-	private int nodos_control = 1; // Numero de nodos a procesar en CargadorMapa antes de devolver el control a Unity
+	private int nodos_control = 1; // Numero de nodos a procesar en MapLoader antes de devolver el control a Unity
 	private RoadMap roadMap;
 
 	// Acciones a realizar cuando se inicia la aplicacion
 	void Start () {
-		CargarMapa("ejemplo_topologia");
+		Debug.Log("Starting application");
+		//LoadMap("ejemplo_topologia");
+		roadMap = new RoadMap("ejemplo2");
+		DebugMapLoader();
+		roadMap.draw ();
 	}
 
-	private void CargarMapa (string nombre_fichero_mapa) {
+	private void LoadMap (string nombre_fichero_mapa) {
 		// Liberar recursos en caso de que hubiese un mapa previo
-		Descargar();
+		Unload();
 		
 		// Preparar nombre del fichero del mapa a cargar
 		string nombre_fichero_completo = Application.dataPath + "/Data/Maps/" + nombre_fichero_mapa + ".graphml";
 
 		roadMap = new RoadMap(nombre_fichero_mapa);
 
-		StartCoroutine( CargadorMapa(nombre_fichero_completo) );
+		StartCoroutine( MapLoader(nombre_fichero_completo) );
 	}
 
-	private void Descargar () {
+	private void Unload () {
 		
 	}
 
-	private IEnumerator CargadorMapa (string nombre_fichero_completo) {
+	private IEnumerator MapLoader (string nombre_fichero_completo) {
 
 		// Variables para tomar valores por defecto
 		NodeType node_type_default = NodeType.INTERSECTION;
@@ -250,12 +255,29 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	private void SaveEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src) {
-		roadMap.addEdge(id,source_id,destination_id,name,src_des,des_src);
+		roadMap.addEdge (id, source_id, destination_id, name, src_des, des_src);
 	}
 
 	static byte[] GetBytes (string str) {
 		byte[] bytes = new byte[str.Length * sizeof(char)];
 		System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
 		return bytes;
+	}
+
+	private void DebugMapLoader () {
+		Debug.Log ("Starting DebugMapLoader");
+		
+		roadMap.addNode ("n0", NodeType.CONTINUATION, 500, 1000);
+		roadMap.addNode ("n1", NodeType.LIMIT, 1000, 1000);
+		roadMap.addNode ("n2", NodeType.LIMIT, 0, 500);
+		roadMap.addNode ("n3", NodeType.INTERSECTION, 500, 500, IntersectionType.NORMAL);
+		roadMap.addNode ("n4", NodeType.LIMIT, 1000, 500);
+		roadMap.addNode ("n5", NodeType.LIMIT, 500, 0);
+
+		roadMap.addEdge ("a0", "n0", "n1", "", "PN", "PN");
+		roadMap.addEdge ("a1", "n0", "n3", "", "PN", "PN");
+		roadMap.addEdge ("a2", "n2", "n3", "", "N", "0");
+		roadMap.addEdge ("a3", "n3", "n4", "", "NN", "NN");
+		roadMap.addEdge ("a4", "n3", "n5", "", "NN", "0");
 	}
 }
