@@ -26,7 +26,13 @@ public struct Edge
 }
 
 public class RoadMap {
-	
+
+	public const float lane_width = 3f;
+	public const float line_width = 0.1f;
+	public const float limit_height = 10f;
+	public const float limit_depth = 3f;
+	public const float road_thickness = 0.1f;
+
 	private string map_name;
 	private Dictionary<string, Node> nodes;
 	private Dictionary<string, Edge> edges;
@@ -120,20 +126,67 @@ public class RoadMap {
 	}
 	
 	private void drawNode (string node_id) {
-		
-		GameObject road_prefab = Resources.Load("Prefabs/Road", typeof(GameObject)) as GameObject;
-		
-		if (road_prefab == null) {
-			Debug.Log ("road_prefab is null");
-		}
-		else {
-			Node n = nodes[node_id];
-			
-			Vector3 pos = new Vector3 (n.x, 0, n.y);
-			GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
-			aux_road.name = node_id;
+
+		Node n = nodes[node_id];
+		Vector3 pos = new Vector3 (n.x, 0, n.y);
+
+		if (n.node_type == NodeType.LIMIT) {
+			Edge e = edges[edgeLimit(n.id)];
+			Node src_node = nodes[e.source_id];
+			Node dst_node = nodes[e.destination_id];
+
+			// Vector direccion del arco
+			Vector3 direction = new Vector3 (dst_node.x - src_node.x, 0, dst_node.y - src_node.y);
+			// Vector del nodo limite
+			Vector3 dir = new Vector3 (0,0,1);
+
+			int lane_num = lanes (e.id);
+
+			float width = (lane_num*lane_width) + 2*lane_width; // Para que sobresalga por ambos lados
+
+			Material black_material = Resources.Load ("Materials/Simple_Black", typeof(Material)) as Material;
+
+			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			aux_road.name = node_id + " - limit";
+			pos.y += (limit_height/2);
+			aux_road.transform.position = pos;
+			aux_road.transform.localScale = new Vector3(width,limit_height,limit_depth);
+			aux_road.transform.rotation = Quaternion.Euler(0,RotationAngle(dir,direction),0);
+			aux_road.AddComponent<MeshFilter>();
+			aux_road.AddComponent<MeshRenderer>();
+			aux_road.renderer.material = black_material;
 			objects.Add (node_id, aux_road);
 		}
+		else {
+			GameObject road_prefab = Resources.Load("Prefabs/Road", typeof(GameObject)) as GameObject;
+			
+			if (road_prefab == null) {
+				Debug.Log ("road_prefab is null");
+			}
+			else {
+				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
+				if (n.node_type == NodeType.CONTINUATION) {
+					aux_road.name = node_id + " - continuation";
+				}
+				else if (n.node_type == NodeType.INTERSECTION) {
+					aux_road.name = node_id + " - intersection";
+				}
+				else {
+					aux_road.name = node_id + " - unknown type";
+				}
+				objects.Add (node_id, aux_road);
+			}
+		}
+	}
+
+	// Devuelve el id del arco que llega al nodo limite pasado como argumento
+	private string edgeLimit (string node_id) {
+		foreach (KeyValuePair<string, Edge> edge in edges){
+			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+				return edge.Value.id;
+			}
+		}
+		return "";
 	}
 	
 	private void drawEdge (string edge_id) {
@@ -143,15 +196,7 @@ public class RoadMap {
 		Debug.Log ("Drawing edge "+edge_id);
 		Edge e = edges[edge_id];
 
-		int lane_num = 0;
-
-		if (e.src_des != "0") {
-			lane_num += e.src_des.Length;
-		}
-
-		if (e.des_src != "0") {
-			lane_num += e.des_src.Length;
-		}
+		int lane_num = lanes (edge_id);
 
 		Node src_node = nodes[e.source_id];
 		Node dst_node = nodes[e.destination_id];
@@ -168,14 +213,31 @@ public class RoadMap {
 		aux_road.name = edge_id;
 		aux_road.transform.position = pos;
 		float lenght = Distance(src_node_position,dst_node_position);
-		float wide = 3*lane_num;
-		aux_road.transform.localScale = new Vector3(wide,0.1f,lenght);
+		aux_road.transform.localScale = new Vector3(3*lane_num,0.1f,lenght);
 		aux_road.transform.rotation = Quaternion.Euler(0,RotationAngle(dir_pref,direction),0);
 		aux_road.AddComponent<MeshFilter>();
 		aux_road.AddComponent<MeshRenderer>();
 		aux_road.renderer.material = asphalt_material;
 		aux_road.renderer.material.mainTextureScale = new Vector2(aux_road.transform.localScale.x,aux_road.transform.localScale.z);
 		objects.Add (edge_id, aux_road);
+	}
+
+	// Calcula el numero total de carriles del arco
+	private int lanes (string edge_id) {
+		string src_des = edges [edge_id].src_des;
+		string des_src = edges [edge_id].des_src;
+		
+		int lane_num = 0;
+		
+		if (src_des != "0") {
+			lane_num += src_des.Length;
+		}
+		
+		if (des_src != "0") {
+			lane_num += des_src.Length;
+		}
+
+		return lane_num;
 	}
 
 	private float Distance (Vector3 p1, Vector3 p2) {
