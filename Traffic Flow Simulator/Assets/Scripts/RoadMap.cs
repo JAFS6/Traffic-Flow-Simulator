@@ -29,6 +29,7 @@ public class RoadMap {
 
 	public const float lane_width = 3f;
 	public const float line_width = 0.1f;
+	public const float hard_shoulder_width = 1.5f;
 	public const float limit_height = 10f;
 	public const float limit_depth = 3f;
 	public const float road_thickness = 0.1f;
@@ -36,14 +37,14 @@ public class RoadMap {
 	private string map_name;
 	private Dictionary<string, Node> nodes;
 	private Dictionary<string, Edge> edges;
-	private Dictionary<string, GameObject> objects;
+	//private Dictionary<string, GameObject> objects;
 	
 	// Constructor
 	public RoadMap (string map_name) {
 		this.map_name = map_name;
 		this.nodes = new Dictionary<string, Node> ();
 		this.edges = new Dictionary<string, Edge> ();
-		this.objects = new Dictionary<string, GameObject> ();
+		//this.objects = new Dictionary<string, GameObject> ();
 	}
 	
 	/**
@@ -152,10 +153,7 @@ public class RoadMap {
 			aux_road.transform.position = pos;
 			aux_road.transform.localScale = new Vector3(width,limit_height,limit_depth);
 			aux_road.transform.rotation = Quaternion.Euler(0,RotationAngle(dir,direction),0);
-			aux_road.AddComponent<MeshFilter>();
-			aux_road.AddComponent<MeshRenderer>();
 			aux_road.renderer.material = black_material;
-			objects.Add (node_id, aux_road);
 		}
 		else {
 			GameObject road_prefab = Resources.Load("Prefabs/Road", typeof(GameObject)) as GameObject;
@@ -174,7 +172,7 @@ public class RoadMap {
 				else {
 					aux_road.name = node_id + " - unknown type";
 				}
-				objects.Add (node_id, aux_road);
+				//objects.Add (node_id, aux_road);
 			}
 		}
 	}
@@ -192,6 +190,7 @@ public class RoadMap {
 	private void drawEdge (string edge_id) {
 
 		Material asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
+		Material asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
 
 		Debug.Log ("Drawing edge "+edge_id);
 		Edge e = edges[edge_id];
@@ -207,19 +206,42 @@ public class RoadMap {
 		Vector3 direction = new Vector3 (dst_node_position.x - src_node_position.x, 0, dst_node_position.z - src_node_position.z);
 		// Vector del prefab
 		Vector3 dir_pref = new Vector3 (0,0,1);
+		// Longitud del arco
+		float lenght = Distance(src_node_position,dst_node_position);
+		// Anchura del arco
+		float width = (3 * lane_num) + ((lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
 		
 		Vector3 pos = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
-		GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		aux_road.name = edge_id;
-		aux_road.transform.position = pos;
-		float lenght = Distance(src_node_position,dst_node_position);
-		aux_road.transform.localScale = new Vector3(3*lane_num,0.1f,lenght);
-		aux_road.transform.rotation = Quaternion.Euler(0,RotationAngle(dir_pref,direction),0);
-		aux_road.AddComponent<MeshFilter>();
-		aux_road.AddComponent<MeshRenderer>();
-		aux_road.renderer.material = asphalt_material;
-		aux_road.renderer.material.mainTextureScale = new Vector2(aux_road.transform.localScale.x,aux_road.transform.localScale.z);
-		objects.Add (edge_id, aux_road);
+		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		platform.name = edge_id;
+		platform.transform.localScale = new Vector3(width,road_thickness,lenght);
+
+		// Marcas viales
+		GameObject line1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		line1.name = "line1";
+		line1.transform.localScale = new Vector3(line_width,road_thickness,lenght);
+		Vector3 line1_pos = line1.transform.position;
+		line1_pos.x -= (width / 2) - hard_shoulder_width;
+		line1.transform.position = line1_pos;
+		line1.transform.parent = platform.transform;
+		line1.renderer.material = asphalt_white_material;
+		line1.renderer.material.mainTextureScale = new Vector2(line1.transform.localScale.x,line1.transform.localScale.z);
+
+		GameObject line2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		line2.name = "line2";
+		line2.transform.localScale = new Vector3(line_width,road_thickness,lenght);
+		Vector3 line2_pos = line2.transform.position;
+		line2_pos.x += (width / 2) - hard_shoulder_width;
+		line2.transform.position = line2_pos;
+		line2.transform.parent = platform.transform;
+		line2.renderer.material = asphalt_white_material;
+		line2.renderer.material.mainTextureScale = new Vector2(line2.transform.localScale.x,line2.transform.localScale.z);
+		// Fin marcas viales
+
+		platform.transform.rotation = Quaternion.Euler(0,RotationAngle(dir_pref,direction),0);
+		platform.transform.position = pos;
+		platform.renderer.material = asphalt_material;
+		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x,platform.transform.localScale.z);
 	}
 
 	// Calcula el numero total de carriles del arco
