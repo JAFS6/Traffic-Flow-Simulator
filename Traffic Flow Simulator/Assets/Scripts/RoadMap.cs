@@ -29,10 +29,12 @@ public class RoadMap {
 
 	public const float lane_width = 3f;
 	public const float line_width = 0.1f;
-	public const float hard_shoulder_width = 1.5f;
+	public const float hard_shoulder_width = 1f;
 	public const float limit_height = 10f;
 	public const float limit_depth = 3f;
 	public const float road_thickness = 0.1f;
+	public const float line_thickness = 0.01f;
+	public const float intersection_margin = 20f;
 
 	private string map_name;
 	private Dictionary<string, Node> nodes;
@@ -207,7 +209,7 @@ public class RoadMap {
 		// Vector del prefab
 		Vector3 dir_pref = new Vector3 (0,0,1);
 		// Longitud del arco
-		float lenght = Distance(src_node_position,dst_node_position);
+		float lenght = Distance(src_node_position,dst_node_position)-intersection_margin;
 		// Anchura del arco
 		float width = (3 * lane_num) + ((lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
 		
@@ -217,29 +219,52 @@ public class RoadMap {
 		platform.transform.localScale = new Vector3(width,road_thickness,lenght);
 
 		// Marcas viales
+		// Lineas de los arcenes
 		GameObject line1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		line1.name = "line1";
-		line1.transform.localScale = new Vector3(line_width,road_thickness,lenght);
-		Vector3 line1_pos = line1.transform.position;
+		line1.transform.localScale = new Vector3(line_width,line_thickness,lenght);
+		Vector3 line1_pos = platform.transform.position;
 		line1_pos.x -= (width / 2) - hard_shoulder_width;
+		line1_pos.y += (road_thickness/2)+(line_thickness/2);
 		line1.transform.position = line1_pos;
 		line1.transform.parent = platform.transform;
-		line1.renderer.material = asphalt_white_material;
-		line1.renderer.material.mainTextureScale = new Vector2(line1.transform.localScale.x,line1.transform.localScale.z);
+		line1.renderer.material.color = Color.white;
+		//line1.renderer.material = asphalt_white_material;
+		//line1.renderer.material.mainTextureScale = new Vector2(line1.transform.localScale.x,line1.transform.localScale.z);
 
 		GameObject line2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		line2.name = "line2";
-		line2.transform.localScale = new Vector3(line_width,road_thickness,lenght);
-		Vector3 line2_pos = line2.transform.position;
+		line2.transform.localScale = new Vector3(line_width,line_thickness,lenght);
+		Vector3 line2_pos = platform.transform.position;
 		line2_pos.x += (width / 2) - hard_shoulder_width;
+		line2_pos.y += (road_thickness/2)+(line_thickness/2);
 		line2.transform.position = line2_pos;
 		line2.transform.parent = platform.transform;
-		line2.renderer.material = asphalt_white_material;
-		line2.renderer.material.mainTextureScale = new Vector2(line2.transform.localScale.x,line2.transform.localScale.z);
+		line1.renderer.material.color = Color.white;
+		//line2.renderer.material = asphalt_white_material;
+		//line2.renderer.material.mainTextureScale = new Vector2(line2.transform.localScale.x,line2.transform.localScale.z);
+		// Fin lineas arcenes
+
+		// Linea central
+		if (e.src_des != "0" && e.des_src != "0") {
+			GameObject line3 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			line3.name = "line3";
+			line3.transform.localScale = new Vector3(line_width,line_thickness,lenght);
+			Vector3 line3_pos = platform.transform.position;
+			line3_pos.y += (road_thickness/2)+(line_thickness/2);
+			line3.transform.position = line3_pos;
+			line3.transform.parent = platform.transform;
+			line1.renderer.material.color = Color.white;
+			//line3.renderer.material = asphalt_white_material;
+			//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
+		}
+		// Fin Linea central
+
 		// Fin marcas viales
 
 		platform.transform.rotation = Quaternion.Euler(0,RotationAngle(dir_pref,direction),0);
 		platform.transform.position = pos;
+		platform.renderer.material.color = Color.gray;
 		platform.renderer.material = asphalt_material;
 		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x,platform.transform.localScale.z);
 	}
