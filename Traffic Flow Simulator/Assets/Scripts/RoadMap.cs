@@ -29,6 +29,7 @@ public class RoadMap {
 
 	public const float lane_width = 3f;
 	public const float line_width = 0.1f;
+	public const float public_transport_line_width = 0.3f;
 	public const float hard_shoulder_width = 1f;
 	public const float limit_height = 10f;
 	public const float limit_depth = 3f;
@@ -61,7 +62,6 @@ public class RoadMap {
 	public void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.NORMAL) {
 		
 		if ( !nodes.ContainsKey (id) ) {
-			
 			Node newnode = new Node ();
 			newnode.id = id;
 			newnode.node_type = node_type;
@@ -127,7 +127,11 @@ public class RoadMap {
 			drawNode (node.Key);
 		}
 	}
-	
+
+	/**
+	 * @brief Dibuja el nodo con id "nodo_id" en el entorno 3D
+	 * @param[in] node_id Identificador del nodo a dibujar
+	 */
 	private void drawNode (string node_id) {
 
 		Node n = nodes[node_id];
@@ -179,7 +183,11 @@ public class RoadMap {
 		}
 	}
 
-	// Devuelve el id del arco que llega al nodo limite pasado como argumento
+	/**
+	 * @brief Devuelve el id del arco que llega al nodo limite pasado como argumento
+	 * @param[in] node_id Identificador del nodo limite
+	 * @return Un string con el id del arco buscado
+	 */
 	private string edgeLimit (string node_id) {
 		foreach (KeyValuePair<string, Edge> edge in edges){
 			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
@@ -188,7 +196,11 @@ public class RoadMap {
 		}
 		return "";
 	}
-	
+
+	/**
+	 * @brief Dibuja el arco con id "edge_id" en el entorno 3D
+	 * @param[in] edge_id Identificador del arco a dibujar
+	 */
 	private void drawEdge (string edge_id) {
 
 		Material asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
@@ -269,7 +281,11 @@ public class RoadMap {
 		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x,platform.transform.localScale.z);
 	}
 
-	// Calcula el numero total de carriles del arco
+	/**
+	 * @brief Calcula el numero total de carriles del arco cuyo identificador se pasa como argumento
+	 * @param[in] edge_id Identificador del arco
+	 * @return El numero entero de carriles que tiene el arco
+	 */
 	private int lanes (string edge_id) {
 		string src_des = edges [edge_id].src_des;
 		string des_src = edges [edge_id].des_src;
@@ -287,6 +303,12 @@ public class RoadMap {
 		return lane_num;
 	}
 
+	/**
+	 * @brief Calcula la distancia minima entre dos puntos del espacio tridimensional
+	 * @param[in] p1 Un vector (x,y,z) con las coordenadas del primer punto
+	 * @param[in] p2 Un vector (x,y,z) con las coordenadas del segundo punto
+	 * @return La distancia minima entre los dos puntos
+	 */
 	private float Distance (Vector3 p1, Vector3 p2) {
 		float dx = p2.x - p1.x;
 		float dy = p2.y - p1.y;
@@ -301,12 +323,17 @@ public class RoadMap {
 		return d;
 	}
 
-	// Devuelve el angulo en grados
-	private float RotationAngle (Vector3 p1, Vector3 p2) {
-		float scalar_product = Mathf.Abs(p1.x * p2.x + p1.y * p2.y + p1.z * p2.z);
-		float p1_module = Mathf.Sqrt (p1.x*p1.x + p1.y*p1.y + p1.z*p1.z);
-		float p2_module = Mathf.Sqrt (p2.x*p2.x + p2.y*p2.y + p2.z*p2.z);
-		float angle = Mathf.Acos(scalar_product / (p1_module*p2_module));
+	/**
+	 * @brief Calcula el angulo en grados entre dos vectores
+	 * @param[in] v1 El primer vector
+	 * @param[in] v2 El segundo vector
+	 * @return El angulo en grados entre ambos vectores [0,360]
+	 */
+	private float RotationAngle (Vector3 v1, Vector3 v2) {
+		float scalar_product = Mathf.Abs(v1.x * v2.x + v1.y * v2.y + v1.z * v2.z);
+		float v1_module = Mathf.Sqrt (v1.x*v1.x + v1.y*v1.y + v1.z*v1.z);
+		float v2_module = Mathf.Sqrt (v2.x*v2.x + v2.y*v2.y + v2.z*v2.z);
+		float angle = Mathf.Acos(scalar_product / (v1_module*v2_module));
 		return ((angle * 180f) / Mathf.PI);
 	}
 }
