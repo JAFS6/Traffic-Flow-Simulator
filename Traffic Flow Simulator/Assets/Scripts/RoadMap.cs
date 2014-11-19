@@ -37,6 +37,7 @@ public class RoadMap {
 	public const float line_thickness = 0.01f;
 	public const float intersection_margin = 20f;
 	public const float center_lines_separation = 0.2f;
+	public const float discontinuous_line_length = 2f;
 
 	private string map_name;
 	private Dictionary<string, Node> nodes;
@@ -238,7 +239,6 @@ public class RoadMap {
 		Vector3 position;
 		/*
 		Debug
-		 */
 		GameObject debug = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		debug.name = "debug";
 		debug.transform.localScale = new Vector3(5,5,5);
@@ -249,7 +249,7 @@ public class RoadMap {
 		debug.transform.position = position;
 		debug.renderer.material.color = Color.red;
 		debug.transform.parent = platform.transform;
-
+		*/
 
 		// Marcas viales
 
@@ -289,7 +289,7 @@ public class RoadMap {
 			for (int i=0; i<e.src_des.Length-1; i++) {
 				position.x = platform.transform.position.x + ((width / 2) - hard_shoulder_width) - ((lane_width + line_width) * (i+1));
 				char lane_type = e.src_des[i];
-				draw_lane_line (lane_type, public_transport_line_width, line_thickness, length, position, platform);
+				draw_lane_line (lane_type, length, position, platform);
 
 			}
 		}
@@ -298,7 +298,7 @@ public class RoadMap {
 			for (int i=0; i<e.des_src.Length-1; i++) {
 				position.x = platform.transform.position.x - ((width / 2) - hard_shoulder_width) + ((lane_width + line_width) * (i+1));
 				char lane_type = e.des_src[i];
-				draw_lane_line (lane_type, public_transport_line_width, line_thickness, length, position, platform);
+				draw_lane_line (lane_type, length, position, platform);
 			}
 		}
 
@@ -311,19 +311,17 @@ public class RoadMap {
 	/**
 	 * @brief Dibuja una linea de carril segun su tipo
 	 * @param[in] lane_type Tipo de carril (P: Transporte publico, N: Normal, A: Aparcamiento, V: Carril Bus/VAO)
-	 * @param[in] width Ancho de la linea
-	 * @param[in] height Grosor de la linea
 	 * @param[in] length Longitud de la linea
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private void draw_lane_line (char lane_type, float width, float height, float length, Vector3 position, GameObject parent) {
+	private void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
 
 		switch (lane_type) {
 			case 'P':
-				draw_continuous_line (width, height, length, position, "Public transport lane line", parent);
+				draw_continuous_line (public_transport_line_width, line_thickness, length, position, "Public transport lane line", parent);
 				break;
 			case 'N':
-				draw_discontinuous_line (width, height, length, position, "Normal lane line", parent);
+				draw_discontinuous_line (line_width, line_thickness, length, position, "Normal lane line", parent);
 				break;
 			case 'A':
 				Debug.Log("Parking not designed yet");
@@ -366,15 +364,24 @@ public class RoadMap {
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
 	private void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
-		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		line.name = name;
-		line.transform.localScale = new Vector3(width, height, length);
-		line.transform.position = position;
-		line.renderer.material.color = Color.yellow;
-		//Material asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
-		//line3.renderer.material = asphalt_white_material;
-		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
-		line.transform.parent = parent.transform;
+		int piece_num = (int)((length / discontinuous_line_length) / 2);
+		Vector3 pos_aux = position;
+		pos_aux.z -= length/2 - discontinuous_line_length;
+
+		for (int i=0; i < piece_num; i++) {
+
+			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			line.name = name;
+			line.transform.localScale = new Vector3(width, height, discontinuous_line_length);
+			line.transform.position = pos_aux;
+			line.renderer.material.color = Color.white;
+			//Material asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
+			//line3.renderer.material = asphalt_white_material;
+			//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
+			line.transform.parent = parent.transform;
+
+			pos_aux.z += discontinuous_line_length * 2;
+		}
 	}
 
 	/**
