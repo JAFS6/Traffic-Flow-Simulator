@@ -36,6 +36,7 @@ public class RoadMap {
 	public const float road_thickness = 0.1f;
 	public const float line_thickness = 0.01f;
 	public const float intersection_margin = 20f;
+	public const float center_lines_separation = 0.2f;
 
 	private string map_name;
 	private Dictionary<string, Node> nodes;
@@ -143,9 +144,9 @@ public class RoadMap {
 			Node dst_node = nodes[e.destination_id];
 
 			// Vector direccion del arco
-			Vector3 direction = new Vector3 (dst_node.x - src_node.x, 0, dst_node.y - src_node.y);
+			Vector2 direction = new Vector2 (dst_node.x - src_node.x, dst_node.y - src_node.y);
 			// Vector del nodo limite
-			Vector3 dir = new Vector3 (0,0,1);
+			Vector2 dir = new Vector3 (0,1);
 
 			int lane_num = lanes (e.id);
 
@@ -217,13 +218,13 @@ public class RoadMap {
 		Vector3 src_node_position = new Vector3 (src_node.x,0,src_node.y);
 		Vector3 dst_node_position = new Vector3 (dst_node.x,0,dst_node.y);
 		// Vector direccion del arco
-		Vector3 direction = new Vector3 (dst_node_position.x - src_node_position.x, 0, dst_node_position.z - src_node_position.z);
+		Vector2 direction = new Vector2 (dst_node_position.x - src_node_position.x, dst_node_position.z - src_node_position.z);
 		// Vector del prefab
-		Vector3 dir_pref = new Vector3 (0,0,1);
+		Vector2 dir_pref = new Vector2 (0,1);
 		// Longitud del arco
 		float length = Distance(src_node_position,dst_node_position)-intersection_margin;
 		// Anchura del arco
-		float width = (3 * lane_num) + ((lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
+		float width = (lane_width * lane_num) + ((lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
 
 		// Plataforma
 		Vector3 pos = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
@@ -235,30 +236,105 @@ public class RoadMap {
 		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x,platform.transform.localScale.z);
 
 		Vector3 position;
+		/*
+		Debug
+		 */
+		GameObject debug = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		debug.name = "debug";
+		debug.transform.localScale = new Vector3(5,5,5);
+		position = new Vector3();
+		position.x = platform.transform.position.x;
+		position.y = platform.transform.position.y + 2.5f;
+		position.z = platform.transform.position.z - (length/2) + 10;
+		debug.transform.position = position;
+		debug.renderer.material.color = Color.red;
+		debug.transform.parent = platform.transform;
+
 
 		// Marcas viales
+
 		// Lineas de los arcenes
 		position = new Vector3();
 		position.x = platform.transform.position.x - ((width / 2) - hard_shoulder_width);
 		position.y = platform.transform.position.y + (road_thickness/2)+(line_thickness/2);
 		position.z = 0;
-		draw_continuous_line (line_width, line_thickness, length, position, "left line", platform);
+		draw_continuous_line (line_width, line_thickness, length, position, "Left line", platform);
 
 		position.x = platform.transform.position.x + ((width / 2) - hard_shoulder_width);
-		draw_continuous_line (line_width, line_thickness, length, position, "right line", platform);
-		// Fin lineas arcenes
+		draw_continuous_line (line_width, line_thickness, length, position, "Right line", platform);
 
-		// Linea central
-		if (e.src_des != "0" && e.des_src != "0") {
-			position.x = 0;
-			draw_continuous_line (line_width, line_thickness, length, position, "center line", platform);
+		// Lineas centrales
+		if (e.src_des != "0" && e.des_src != "0") { // Si ambos sentidos tienen carriles
+
+			if (e.src_des.Length == e.des_src.Length) { // Mismo numero de carriles en cada sentido
+				position.x = platform.transform.position.x - (center_lines_separation/2);
+				draw_continuous_line (line_width, line_thickness, length, position, "Center line", platform);
+				position.x = platform.transform.position.x + (center_lines_separation/2);
+				draw_continuous_line (line_width, line_thickness, length, position, "Center line", platform);
+			}
+			else { // Distinto numero de carriles en cada sentido
+				int lane_diff = e.src_des.Length - e.des_src.Length;
+
+				position.x = platform.transform.position.x - (center_lines_separation/2) - (lane_diff * (lane_width/2));
+				draw_continuous_line (line_width, line_thickness, length, position, "Center line", platform);
+				position.x = platform.transform.position.x + (center_lines_separation/2) - (lane_diff * (lane_width/2));
+				draw_continuous_line (line_width, line_thickness, length, position, "Center line", platform);
+			}
 		}
-		// Fin Linea central
+
+		// Lineas de carril
+
+		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
+		if (e.src_des != "0") {
+			for (int i=0; i<e.src_des.Length-1; i++) {
+				position.x = platform.transform.position.x + ((width / 2) - hard_shoulder_width) - ((lane_width + line_width) * (i+1));
+				char lane_type = e.src_des[i];
+				draw_lane_line (lane_type, public_transport_line_width, line_thickness, length, position, platform);
+
+			}
+		}
+
+		if (e.des_src != "0") {
+			for (int i=0; i<e.des_src.Length-1; i++) {
+				position.x = platform.transform.position.x - ((width / 2) - hard_shoulder_width) + ((lane_width + line_width) * (i+1));
+				char lane_type = e.des_src[i];
+				draw_lane_line (lane_type, public_transport_line_width, line_thickness, length, position, platform);
+			}
+		}
 
 		// Fin marcas viales
 
 		platform.transform.rotation = Quaternion.Euler(0,RotationAngle(dir_pref,direction),0);
 		platform.transform.position = pos;
+	}
+
+	/**
+	 * @brief Dibuja una linea de carril segun su tipo
+	 * @param[in] lane_type Tipo de carril (P: Transporte publico, N: Normal, A: Aparcamiento, V: Carril Bus/VAO)
+	 * @param[in] width Ancho de la linea
+	 * @param[in] height Grosor de la linea
+	 * @param[in] length Longitud de la linea
+	 * @param[in] parent Objeto padre al que se unira la linea
+	 */
+	private void draw_lane_line (char lane_type, float width, float height, float length, Vector3 position, GameObject parent) {
+
+		switch (lane_type) {
+			case 'P':
+				draw_continuous_line (width, height, length, position, "Public transport lane line", parent);
+				break;
+			case 'N':
+				draw_discontinuous_line (width, height, length, position, "Normal lane line", parent);
+				break;
+			case 'A':
+				Debug.Log("Parking not designed yet");
+				break;
+			case 'V':
+				Debug.Log("Bus/VAO not designed yet");
+				break;
+			default:
+				Debug.Log("Trying to draw invalid type of lane");
+				break;
+		}
 	}
 
 	/**
@@ -275,6 +351,26 @@ public class RoadMap {
 		line.transform.localScale = new Vector3(width, height, length);
 		line.transform.position = position;
 		line.renderer.material.color = Color.white;
+		//Material asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
+		//line3.renderer.material = asphalt_white_material;
+		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
+		line.transform.parent = parent.transform;
+	}
+
+	/**
+	 * @brief Dibuja una linea continua blanca
+	 * @param[in] width Ancho de la linea
+	 * @param[in] height Grosor de la linea
+	 * @param[in] length Longitud de la linea
+	 * @param[in] name Nombre para el objeto
+	 * @param[in] parent Objeto padre al que se unira la linea
+	 */
+	private void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
+		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		line.name = name;
+		line.transform.localScale = new Vector3(width, height, length);
+		line.transform.position = position;
+		line.renderer.material.color = Color.yellow;
 		//Material asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
 		//line3.renderer.material = asphalt_white_material;
 		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
@@ -324,16 +420,39 @@ public class RoadMap {
 	}
 
 	/**
-	 * @brief Calcula el angulo en grados entre dos vectores
+	 * @brief Calcula el angulo en grados que hay que girar el vector 
+	 * v1 para ponerlo en la direccion y sentido del vector v2
 	 * @param[in] v1 El primer vector
 	 * @param[in] v2 El segundo vector
-	 * @return El angulo en grados entre ambos vectores [0,360]
+	 * @return El angulo calculado en grados [0,360)
 	 */
-	private float RotationAngle (Vector3 v1, Vector3 v2) {
-		float scalar_product = Mathf.Abs(v1.x * v2.x + v1.y * v2.y + v1.z * v2.z);
-		float v1_module = Mathf.Sqrt (v1.x*v1.x + v1.y*v1.y + v1.z*v1.z);
-		float v2_module = Mathf.Sqrt (v2.x*v2.x + v2.y*v2.y + v2.z*v2.z);
-		float angle = Mathf.Acos(scalar_product / (v1_module*v2_module));
-		return ((angle * 180f) / Mathf.PI);
+	private float RotationAngle (Vector2 v1, Vector2 v2) {
+
+		float v1_theta = PolarAngle (v1);
+		float v2_theta = PolarAngle (v2);
+		float angle = v1_theta - v2_theta;
+
+		return angle;
+	}
+
+	/**
+	 * @brief Calcula el angulo (en grados) de las coordenadas polares del vector pasado como argumento
+	 * @param[in] v El vector
+	 * @return El angulo calculado en grados
+	 */
+	private float PolarAngle (Vector2 v) {
+		float angle_rad = Mathf.Atan2 (v.y, v.x);
+		float angle_deg = ((angle_rad * 180f) / Mathf.PI);
+
+		if (v.x < 0) {
+			if (v.y >= 0) { // Segundo cuadrante
+				angle_deg += 180f;
+			}
+			else if (v.y < 0) { // Tercer cuadrante
+				angle_deg -= 180f;
+			}
+		}
+
+		return angle_deg;
 	}
 }

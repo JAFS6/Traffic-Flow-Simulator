@@ -274,8 +274,8 @@ public class ApplicationController : MonoBehaviour {
 		roadMap.addNode ("n4", NodeType.LIMIT, 1000, 500);
 		roadMap.addNode ("n5", NodeType.LIMIT, 500, 0);
 
-		roadMap.addEdge ("a0", "n0", "n1", "", "PN", "PN");
-		roadMap.addEdge ("a1", "n0", "n3", "", "PN", "PN");
+		roadMap.addEdge ("a0", "n0", "n1", "", "PNN", "PN");
+		roadMap.addEdge ("a1", "n0", "n3", "", "PN", "PNN");
 		roadMap.addEdge ("a2", "n2", "n3", "", "N", "0");
 		roadMap.addEdge ("a3", "n3", "n4", "", "NN", "NN");
 		roadMap.addEdge ("a4", "n3", "n5", "", "NN", "0");
