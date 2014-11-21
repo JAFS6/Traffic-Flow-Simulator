@@ -23,6 +23,10 @@ public struct Edge
 	public string name;
 	public string src_des;
 	public string des_src;
+	public float length;
+	public float width;
+	public int lane_num;
+	public Vector2 direction;
 }
 
 public class RoadMap {
@@ -35,21 +39,18 @@ public class RoadMap {
 	public const float limit_depth = 3f;
 	public const float road_thickness = 0.1f;
 	public const float line_thickness = 0.01f;
-	public const float intersection_margin = 20f;
 	public const float center_lines_separation = 0.2f;
 	public const float discontinuous_line_length = 2f;
 
 	private string map_name;
 	private Dictionary<string, Node> nodes;
 	private Dictionary<string, Edge> edges;
-	//private Dictionary<string, GameObject> objects;
 	
 	// Constructor
 	public RoadMap (string map_name) {
 		this.map_name = map_name;
 		this.nodes = new Dictionary<string, Node> ();
 		this.edges = new Dictionary<string, Edge> ();
-		//this.objects = new Dictionary<string, GameObject> ();
 	}
 	
 	/**
@@ -120,13 +121,45 @@ public class RoadMap {
 	 * @brief Dibuja el mapa en el entorno 3D
 	 */
 	public void draw () {
+
+		prepareEdges ();
+
 		Debug.Log ("Drawing Edges");
 		foreach (KeyValuePair<string, Edge> edge in edges){
 			drawEdge (edge.Key);
 		}
+
 		Debug.Log ("Drawing Nodes");
 		foreach (KeyValuePair<string, Node> node in nodes){
 			drawNode (node.Key);
+		}
+	}
+
+	/**
+	 * @brief Procesa los arcos calculando su longitud, anchura y numero de carriles
+	 * @pre Este metodo debe ser llamado antes de ejecutar el metodo drawEdge
+	 */
+	private void prepareEdges () {
+		Debug.Log ("Preparing edges");
+
+		List<string> keys = new List<string> (edges.Keys);
+
+		foreach (string key in keys) {
+			Edge e = edges[key];
+			// Numero de carriles
+			e.lane_num = lanes (e.id);
+			Node src_node = nodes[e.source_id];
+			Node dst_node = nodes[e.destination_id];
+			Vector3 src_node_position = new Vector3 (src_node.x,0,src_node.y);
+			Vector3 dst_node_position = new Vector3 (dst_node.x,0,dst_node.y);
+			// Longitud del arco
+			e.length = Distance(src_node_position, dst_node_position) - 20f; //TODO Calcular el padding de la interseccion
+			// Ancho del arco
+			e.width = (lane_width * e.lane_num) + ((e.lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
+			// Vector direccion del arco
+			e.direction = new Vector2 (dst_node_position.x - src_node_position.x, dst_node_position.z - src_node_position.z);
+			// Actualizar el struct
+			edges[e.id] = e;
 		}
 	}
 
@@ -144,14 +177,7 @@ public class RoadMap {
 			Node src_node = nodes[e.source_id];
 			Node dst_node = nodes[e.destination_id];
 
-			// Vector direccion del arco
-			Vector2 direction = new Vector2 (dst_node.x - src_node.x, dst_node.y - src_node.y);
-			// Vector del nodo limite
-			Vector2 dir = new Vector3 (0,1);
-
-			int lane_num = lanes (e.id);
-
-			float width = (lane_num*lane_width) + 2*lane_width; // Para que sobresalga por ambos lados
+			float width = (e.lane_num*lane_width) + 2*lane_width; // Para que sobresalga por ambos lados
 
 			Material black_material = Resources.Load ("Materials/Simple_Black", typeof(Material)) as Material;
 
@@ -160,7 +186,9 @@ public class RoadMap {
 			pos.y += (limit_height/2);
 			aux_road.transform.position = pos;
 			aux_road.transform.localScale = new Vector3(width,limit_height,limit_depth);
-			aux_road.transform.rotation = Quaternion.Euler(0,RotationAngle(dir,direction),0);
+			// Vector del nodo limite
+			Vector2 dir = new Vector3 (0,1);
+			aux_road.transform.rotation = Quaternion.Euler(0,RotationAngle(dir,e.direction),0);
 			aux_road.renderer.material = black_material;
 		}
 		else {
@@ -180,7 +208,6 @@ public class RoadMap {
 				else {
 					aux_road.name = node_id + " - unknown type";
 				}
-				//objects.Add (node_id, aux_road);
 			}
 		}
 	}
@@ -191,7 +218,7 @@ public class RoadMap {
 	 * @return Un string con el id del arco buscado
 	 */
 	private string edgeLimit (string node_id) {
-		foreach (KeyValuePair<string, Edge> edge in edges){
+		foreach (KeyValuePair<string, Edge> edge in edges) {
 			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
 				return edge.Value.id;
 			}
@@ -202,6 +229,7 @@ public class RoadMap {
 	/**
 	 * @brief Dibuja el arco con id "edge_id" en el entorno 3D
 	 * @param[in] edge_id Identificador del arco a dibujar
+	 * @pre Antes de ejecutar este metodo se debe ejecutar una vez el metodo prepareEdges
 	 */
 	private void drawEdge (string edge_id) {
 
@@ -211,74 +239,48 @@ public class RoadMap {
 		Debug.Log ("Drawing edge "+edge_id);
 		Edge e = edges[edge_id];
 
-		int lane_num = lanes (edge_id);
-
 		Node src_node = nodes[e.source_id];
 		Node dst_node = nodes[e.destination_id];
-
-		Vector3 src_node_position = new Vector3 (src_node.x,0,src_node.y);
-		Vector3 dst_node_position = new Vector3 (dst_node.x,0,dst_node.y);
-		// Vector direccion del arco
-		Vector2 direction = new Vector2 (dst_node_position.x - src_node_position.x, dst_node_position.z - src_node_position.z);
-		// Vector del prefab
-		Vector2 dir_pref = new Vector2 (0,1);
-		// Longitud del arco
-		float length = Distance(src_node_position,dst_node_position)-intersection_margin;
-		// Anchura del arco
-		float width = (lane_width * lane_num) + ((lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
 
 		// Plataforma
 		Vector3 pos = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
 		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		platform.name = edge_id;
-		platform.transform.localScale = new Vector3(width,road_thickness,length);
+		platform.transform.localScale = new Vector3(e.width,road_thickness,e.length);
 		platform.renderer.material.color = Color.gray;
 		platform.renderer.material = asphalt_material;
 		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x,platform.transform.localScale.z);
 
 		Vector3 position;
-		/*
-		Debug
-		GameObject debug = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		debug.name = "debug";
-		debug.transform.localScale = new Vector3(5,5,5);
-		position = new Vector3();
-		position.x = platform.transform.position.x;
-		position.y = platform.transform.position.y + 2.5f;
-		position.z = platform.transform.position.z - (length/2) + 10;
-		debug.transform.position = position;
-		debug.renderer.material.color = Color.red;
-		debug.transform.parent = platform.transform;
-		*/
 
 		// Marcas viales
 
 		// Lineas de los arcenes
 		position = new Vector3();
-		position.x = platform.transform.position.x - ((width / 2) - hard_shoulder_width);
+		position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width);
 		position.y = platform.transform.position.y + (road_thickness/2)+(line_thickness/2);
 		position.z = 0;
-		draw_continuous_line (line_width, line_thickness, length, position, "Left line", platform);
+		draw_continuous_line (line_width, line_thickness, e.length, position, "Left line", platform);
 
-		position.x = platform.transform.position.x + ((width / 2) - hard_shoulder_width);
-		draw_continuous_line (line_width, line_thickness, length, position, "Right line", platform);
+		position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width);
+		draw_continuous_line (line_width, line_thickness, e.length, position, "Right line", platform);
 
 		// Lineas centrales
 		if (e.src_des != "0" && e.des_src != "0") { // Si ambos sentidos tienen carriles
 
 			if (e.src_des.Length == e.des_src.Length) { // Mismo numero de carriles en cada sentido
 				position.x = platform.transform.position.x - (center_lines_separation/2);
-				draw_continuous_line (line_width, line_thickness, length, position, "Center line", platform);
+				draw_continuous_line (line_width, line_thickness, e.length, position, "Center line", platform);
 				position.x = platform.transform.position.x + (center_lines_separation/2);
-				draw_continuous_line (line_width, line_thickness, length, position, "Center line", platform);
+				draw_continuous_line (line_width, line_thickness, e.length, position, "Center line", platform);
 			}
 			else { // Distinto numero de carriles en cada sentido
 				int lane_diff = e.src_des.Length - e.des_src.Length;
 
 				position.x = platform.transform.position.x - (center_lines_separation/2) - (lane_diff * (lane_width/2));
-				draw_continuous_line (line_width, line_thickness, length, position, "Center line", platform);
+				draw_continuous_line (line_width, line_thickness, e.length, position, "Center line", platform);
 				position.x = platform.transform.position.x + (center_lines_separation/2) - (lane_diff * (lane_width/2));
-				draw_continuous_line (line_width, line_thickness, length, position, "Center line", platform);
+				draw_continuous_line (line_width, line_thickness, e.length, position, "Center line", platform);
 			}
 		}
 
@@ -287,24 +289,27 @@ public class RoadMap {
 		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
 		if (e.src_des != "0") {
 			for (int i=0; i<e.src_des.Length-1; i++) {
-				position.x = platform.transform.position.x + ((width / 2) - hard_shoulder_width) - ((lane_width + line_width) * (i+1));
+				position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width) - ((lane_width + line_width) * (i+1));
 				char lane_type = e.src_des[i];
-				draw_lane_line (lane_type, length, position, platform);
+				draw_lane_line (lane_type, e.length, position, platform);
 
 			}
 		}
 
 		if (e.des_src != "0") {
 			for (int i=0; i<e.des_src.Length-1; i++) {
-				position.x = platform.transform.position.x - ((width / 2) - hard_shoulder_width) + ((lane_width + line_width) * (i+1));
+				position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width) + ((lane_width + line_width) * (i+1));
 				char lane_type = e.des_src[i];
-				draw_lane_line (lane_type, length, position, platform);
+				draw_lane_line (lane_type, e.length, position, platform);
 			}
 		}
 
 		// Fin marcas viales
 
-		platform.transform.rotation = Quaternion.Euler(0,RotationAngle(dir_pref,direction),0);
+		// Vector del arco recien dibujado
+		Vector2 dir_pref = new Vector2 (0,1);
+
+		platform.transform.rotation = Quaternion.Euler(0,RotationAngle(dir_pref,e.direction),0);
 		platform.transform.position = pos;
 	}
 
@@ -462,4 +467,24 @@ public class RoadMap {
 
 		return angle_deg;
 	}
+
+	/**
+	 * @brief Calcula el hueco a dejar libre entre los finales del arco y el centro de las intersecciones expresado como un vector
+	 * @param[in] edge_id El identificador del arco
+	 * @return Un vector bidimensional que indica cuanto hay que mover el centro del arco y en que direccion, ademas, su modulo es
+	 * la distancia que hay que dejar libre
+	 *
+	private Vector2 intersection_padding(string edge_id) {
+
+		NodeType src_node_type = nodes[ (edges[edge_id].source_id) ].node_type;
+		NodeType dst_node_type = nodes[ (edges[edge_id].destination_id) ].node_type;
+
+		if (src_node_type == NodeType.LIMIT && dst_node_type == NodeType.LIMIT) {
+			Vector2 v = new Vector2();
+			v.x = 0;
+			v.y = 0;
+			return v;
+		}
+
+	}*/
 }

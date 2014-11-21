@@ -268,7 +268,7 @@ public class ApplicationController : MonoBehaviour {
 		Debug.Log ("Starting DebugMapLoader");
 		
 		roadMap.addNode ("n0", NodeType.CONTINUATION, 500, 1000);
-		roadMap.addNode ("n1", NodeType.LIMIT, 1000, 1000);
+		roadMap.addNode ("n1", NodeType.LIMIT, 1000, 1200);
 		roadMap.addNode ("n2", NodeType.LIMIT, 0, 500);
 		roadMap.addNode ("n3", NodeType.INTERSECTION, 500, 500, IntersectionType.NORMAL);
 		roadMap.addNode ("n4", NodeType.LIMIT, 1000, 500);
