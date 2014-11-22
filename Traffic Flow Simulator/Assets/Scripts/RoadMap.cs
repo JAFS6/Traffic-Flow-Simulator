@@ -13,6 +13,7 @@ public struct Node
 	public float x;
 	public float y;
 	public IntersectionType intersection_type;
+	public string widest_edge_id;
 }
 
 public struct Edge
@@ -27,6 +28,7 @@ public struct Edge
 	public float width;
 	public int lane_num;
 	public Vector2 direction;
+	public Vector2 fixed_position;
 }
 
 public class RoadMap {
@@ -136,16 +138,17 @@ public class RoadMap {
 	}
 
 	/**
-	 * @brief Procesa los arcos calculando su longitud, anchura y numero de carriles
+	 * @brief Procesa los arcos calculando su longitud, anchura y numero de carriles, asi como el ajuste de longitud y posicion para las intersecciones
 	 * @pre Este metodo debe ser llamado antes de ejecutar el metodo drawEdge
 	 */
 	private void prepareEdges () {
 		Debug.Log ("Preparing edges");
 
-		List<string> keys = new List<string> (edges.Keys);
+		List<string> edge_keys = new List<string> (edges.Keys);
 
-		foreach (string key in keys) {
-			Edge e = edges[key];
+		// Calcular el numero de carriles, la longitud del arco, la anchura del arco y el vector director del arco
+		foreach (string edge_key in edge_keys) {
+			Edge e = edges[edge_key];
 			// Numero de carriles
 			e.lane_num = lanes (e.id);
 			Node src_node = nodes[e.source_id];
@@ -153,12 +156,76 @@ public class RoadMap {
 			Vector3 src_node_position = new Vector3 (src_node.x,0,src_node.y);
 			Vector3 dst_node_position = new Vector3 (dst_node.x,0,dst_node.y);
 			// Longitud del arco
-			e.length = Distance(src_node_position, dst_node_position) - 20f; //TODO Calcular el padding de la interseccion
+			e.length = Distance(src_node_position, dst_node_position);
 			// Ancho del arco
 			e.width = (lane_width * e.lane_num) + ((e.lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
 			// Vector direccion del arco
 			e.direction = new Vector2 (dst_node_position.x - src_node_position.x, dst_node_position.z - src_node_position.z);
-			// Actualizar el struct
+			// Actualizar el arco
+			edges[e.id] = e;
+		}
+
+		// Actualizar el arco mas ancho en cada nodo
+		List<string> node_keys = new List<string> (nodes.Keys);
+
+		foreach (string node_key in node_keys) {
+			Node n = nodes[node_key];
+			float best_width = 0f;
+
+			foreach (string edge_key in edge_keys) {
+
+				if (edges[edge_key].source_id == n.id || edges[edge_key].destination_id == n.id) {
+
+					if (edges[edge_key].width > best_width) {
+						best_width = edges[edge_key].width;
+						n.widest_edge_id = edge_key;
+					}
+				}
+			}
+			// Actualizar el nodo
+			nodes[n.id] = n;
+		}
+
+		// Calcular el vector de ajuste de posicion del arco
+		foreach (string edge_key in edge_keys) { 
+			Edge e = edges[edge_key];
+			// Obtener el angulo polar del vector director del arco
+			float polar_angle = PolarAngle(e.direction);
+			// Calcular la magnitud del vector de ajuste de posicion segun los nodos en los extremos del arco
+			float fixed_length = 0;
+
+			NodeType src_node_type = nodes[e.source_id].node_type;				// Tipo del nodo de origen
+			NodeType dst_node_type = nodes[e.destination_id].node_type;			// Tipo del nodo de destino
+			string src_id_widest_edge = nodes[e.source_id].widest_edge_id;		// Identificador del arco mas ancho en el nodo de origen
+			string dst_id_widest_edge = nodes[e.destination_id].widest_edge_id;	// Identificador del arco mas ancho en el nodo de destino
+
+			if (src_node_type == NodeType.INTERSECTION || src_node_type == NodeType.CONTINUATION) {
+				float aux_width = edges[ src_id_widest_edge ].width /2;
+				fixed_length += aux_width; // Desplazamiento en el sentido del vector director del arco
+				e.length -= aux_width;
+			}
+			else if (src_node_type == NodeType.LIMIT) {
+				fixed_length += limit_depth*1.5f; // Desplazamiento en el sentido del vector director del arco
+			}
+
+			if (dst_node_type == NodeType.INTERSECTION || dst_node_type == NodeType.CONTINUATION) {
+				float aux_width = edges[ dst_id_widest_edge ].width /2;
+				fixed_length -= aux_width; // Desplazamiento en sentido contrario del vector director del arco
+				e.length -= aux_width;
+			}
+			else if (dst_node_type == NodeType.LIMIT) {
+				fixed_length -= limit_depth*1.5f; // Desplazamiento en sentido contrario del vector director del arco
+			}
+
+			if (fixed_length < 0) {
+				fixed_length = Mathf.Abs(fixed_length);
+				polar_angle = (polar_angle + 180) % 360;
+			}
+
+			// Calcular el vector de ajuste de posicion
+			e.fixed_position = PolarToCartesian (fixed_length, polar_angle);
+			Debug.Log("Fixed position arco "+e.id+": "+e.fixed_position.x+","+e.fixed_position.y);
+			// Actualizar el arco
 			edges[e.id] = e;
 		}
 	}
@@ -183,13 +250,13 @@ public class RoadMap {
 
 			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			aux_road.name = node_id + " - limit";
+			aux_road.renderer.material = black_material;
 			pos.y += (limit_height/2);
-			aux_road.transform.position = pos;
 			aux_road.transform.localScale = new Vector3(width,limit_height,limit_depth);
 			// Vector del nodo limite
-			Vector2 dir = new Vector3 (0,1);
+			Vector2 dir = new Vector2 (0,1);
 			aux_road.transform.rotation = Quaternion.Euler(0,RotationAngle(dir,e.direction),0);
-			aux_road.renderer.material = black_material;
+			aux_road.transform.position = pos;
 		}
 		else {
 			GameObject road_prefab = Resources.Load("Prefabs/Road", typeof(GameObject)) as GameObject;
@@ -199,6 +266,7 @@ public class RoadMap {
 			}
 			else {
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
+				aux_road.transform.localScale = new Vector3(17.6f,road_thickness,17.6f);
 				if (n.node_type == NodeType.CONTINUATION) {
 					aux_road.name = node_id + " - continuation";
 				}
@@ -239,17 +307,13 @@ public class RoadMap {
 		Debug.Log ("Drawing edge "+edge_id);
 		Edge e = edges[edge_id];
 
-		Node src_node = nodes[e.source_id];
-		Node dst_node = nodes[e.destination_id];
-
 		// Plataforma
-		Vector3 pos = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
 		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		platform.name = edge_id;
-		platform.transform.localScale = new Vector3(e.width,road_thickness,e.length);
+		platform.transform.localScale = new Vector3(e.width, road_thickness, e.length);
 		platform.renderer.material.color = Color.gray;
 		platform.renderer.material = asphalt_material;
-		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x,platform.transform.localScale.z);
+		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
 
 		Vector3 position;
 
@@ -308,6 +372,15 @@ public class RoadMap {
 
 		// Vector del arco recien dibujado
 		Vector2 dir_pref = new Vector2 (0,1);
+
+		Node src_node = nodes[e.source_id];
+		Node dst_node = nodes[e.destination_id];
+		Vector3 pos = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
+		Debug.Log ("Arco "+e.id+" - Posicion: "+pos.x+","+pos.z);
+		Debug.Log ("Arco " + e.id + " - Fixed: " + e.fixed_position.x + "," + e.fixed_position.y);
+		pos.x += e.fixed_position.x;
+		pos.z += e.fixed_position.y;
+		Debug.Log ("Arco "+e.id+" - Posicion: "+pos.x+","+pos.z);
 
 		platform.transform.rotation = Quaternion.Euler(0,RotationAngle(dir_pref,e.direction),0);
 		platform.transform.position = pos;
@@ -432,6 +505,15 @@ public class RoadMap {
 	}
 
 	/**
+	 * @brief Calcula el modulo de un vector de dos dimensiones
+	 * @param[in] v Un vector de dos dimensiones
+	 * @return El modulo del vector v
+	 */
+	private float module2D (Vector2 v) {
+		return Mathf.Sqrt (v.x * v.x + v.y * v.y);
+	}
+
+	/**
 	 * @brief Calcula el angulo en grados que hay que girar el vector 
 	 * v1 para ponerlo en la direccion y sentido del vector v2
 	 * @param[in] v1 El primer vector
@@ -469,22 +551,18 @@ public class RoadMap {
 	}
 
 	/**
-	 * @brief Calcula el hueco a dejar libre entre los finales del arco y el centro de las intersecciones expresado como un vector
-	 * @param[in] edge_id El identificador del arco
-	 * @return Un vector bidimensional que indica cuanto hay que mover el centro del arco y en que direccion, ademas, su modulo es
-	 * la distancia que hay que dejar libre
-	 *
-	private Vector2 intersection_padding(string edge_id) {
+	 * @brief Convierte coordenadas polares a cartesianas
+	 * @param[in] magnitude La magnitud del vector
+	 * @param[in] polar_angle El angulo en grados de las coordenadas polares
+	 */
+	private Vector2 PolarToCartesian (float magnitude, float polar_angle) {
+		Vector2 v = new Vector2 ();
 
-		NodeType src_node_type = nodes[ (edges[edge_id].source_id) ].node_type;
-		NodeType dst_node_type = nodes[ (edges[edge_id].destination_id) ].node_type;
+		float polar_angle_rad = (polar_angle * Mathf.PI) / 180;
 
-		if (src_node_type == NodeType.LIMIT && dst_node_type == NodeType.LIMIT) {
-			Vector2 v = new Vector2();
-			v.x = 0;
-			v.y = 0;
-			return v;
-		}
+		v.x = magnitude * Mathf.Cos (polar_angle_rad);
+		v.y = magnitude * Mathf.Sin (polar_angle_rad);
 
-	}*/
+		return v;
+	}
 }
