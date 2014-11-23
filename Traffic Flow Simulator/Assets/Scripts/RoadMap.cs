@@ -98,7 +98,6 @@ public class RoadMap {
 			newedge.name = name;
 			newedge.src_des = src_des;
 			newedge.des_src = des_src;
-			Debug.Log ("Adding edge "+id+": source: "+source_id+" destination: "+destination_id+" name: "+name+" src_des: "+src_des+" des_src: "+des_src);
 			edges.Add (newedge.id, newedge);
 		}
 		Debug.Log ("edges.Count = "+edges.Count);
@@ -224,7 +223,6 @@ public class RoadMap {
 
 			// Calcular el vector de ajuste de posicion
 			e.fixed_position = PolarToCartesian (fixed_length, polar_angle);
-			Debug.Log("Fixed position arco "+e.id+": "+e.fixed_position.x+","+e.fixed_position.y);
 			// Actualizar el arco
 			edges[e.id] = e;
 		}
@@ -376,11 +374,8 @@ public class RoadMap {
 		Node src_node = nodes[e.source_id];
 		Node dst_node = nodes[e.destination_id];
 		Vector3 pos = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
-		Debug.Log ("Arco "+e.id+" - Posicion: "+pos.x+","+pos.z);
-		Debug.Log ("Arco " + e.id + " - Fixed: " + e.fixed_position.x + "," + e.fixed_position.y);
 		pos.x += e.fixed_position.x;
 		pos.z += e.fixed_position.y;
-		Debug.Log ("Arco "+e.id+" - Posicion: "+pos.x+","+pos.z);
 
 		platform.transform.rotation = Quaternion.Euler(0,RotationAngle(dir_pref,e.direction),0);
 		platform.transform.position = pos;
