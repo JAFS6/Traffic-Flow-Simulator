@@ -117,7 +117,67 @@ public class RoadMap {
 			nodes[id] = aux_node;
 		}
 	}
-	
+
+	/**
+	 * @brief Obtiene el nombre del mapa
+	 * @return Una cadena de texto con el nombre del mapa
+	 */
+	public string getMapName () {
+		return map_name;
+	}
+
+	/**
+	 * @brief Obtiene el numero de nodos del mapa
+	 * @return El numero de nodos del mapa
+	 */
+	public int getNodeCount () {
+		return nodes.Count;
+	}
+
+	/**
+	 * @brief Obtiene una lista con los identificadores de los nodos del mapa
+	 * @return Una lista de cadenas de texto
+	 */
+	public List<string> getNodeIDs () {
+		List<string> l = new List<string>(nodes.Keys);
+		return l;
+	}
+
+	/**
+	 * @brief Obtiene la posicion del nodo con identificador n en el plano XZ
+	 * @param[in] node_id El identificador del nodo
+	 * @return Un Vector2 con la posicion del nodo en el plano XZ
+	 * @post Si el identificador no existe se devolvera un vector (0,0)
+	 */
+	public Vector2 getPositionNode(string node_id) {
+
+		Vector2 pos = new Vector2 ();
+
+		if (nodes.ContainsKey (node_id)) {
+			pos.x = nodes [node_id].x;
+			pos.y = nodes [node_id].y;
+		}
+
+		return pos;
+	}
+
+	/**
+	 * @brief Obtiene el numero de arcos del mapa
+	 * @return El numero de arcos del mapa
+	 */
+	public int getEdgeCount () {
+		return edges.Count;
+	}
+
+	/**
+	 * @brief Obtiene una lista con los identificadores de los arcos del mapa
+	 * @return Una lista de cadenas de texto
+	 */
+	public List<string> getEdgeIDs () {
+		List<string> l = new List<string>(edges.Keys);
+		return l;
+	}
+
 	/**
 	 * @brief Dibuja el mapa en el entorno 3D
 	 */
