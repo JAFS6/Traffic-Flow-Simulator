@@ -16,6 +16,17 @@ public class ApplicationController : MonoBehaviour {
 		roadMap = new RoadMap("ejemplo2");
 		DebugMapLoader();
 		roadMap.draw ();
+
+		// Instanciar vehiculo TODO Hacerlo de forma mas ordenada
+
+		GameObject car_prefab = Resources.Load("Prefabs/Sport_Car", typeof(GameObject)) as GameObject;
+		Vector2 n0_pos = roadMap.getNodePosition ("n0");
+		Vector2 dir_prefab = new Vector2 (0,1);
+		Vector2 dir_road = new Vector2 (0,-1);
+		Vector3 pos = new Vector3 (n0_pos.x,RoadMap.road_thickness + 0.5f,n0_pos.y); // 0.75f Para poner el coche sobre la superficie TODO Ponerlo de forma automatica
+		GameObject car = GameObject.Instantiate (car_prefab, pos, Quaternion.Euler(0,MyMathClass.RotationAngle(dir_prefab,dir_road),0)) as GameObject;
+		Vector3 scale = new Vector3 (0.5f, 0.5f, 0.5f);
+		car.transform.localScale = scale;
 	}
 
 	private void LoadMap (string nombre_fichero_mapa) {
