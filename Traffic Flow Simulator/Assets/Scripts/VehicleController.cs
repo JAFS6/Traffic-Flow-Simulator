@@ -3,20 +3,15 @@ using System.Collections;
 
 public class VehicleController : MonoBehaviour {
 
-	public Vector3 direction;
-	public float velocity; // Velocidad en metros por segundo
-	
-	void Start () {
-		this.velocity = 1.38f;
-		this.direction = new Vector3 (0, 0, -1);
-	}
+	private Vector3 direction;
+	private float velocity; // Velocidad en metros por segundo
 
 	/**
 	 * @brief Establece la direccion del vehiculo
 	 * @param[in] d La direccion
 	 */
 	public void setDirection (Vector3 d) {
-		this.direction = d;
+		this.direction = new Vector3(d.x,d.y,d.z);
 	}
 
 	/**
