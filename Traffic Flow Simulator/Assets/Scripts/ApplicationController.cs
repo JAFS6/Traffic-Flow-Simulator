@@ -13,8 +13,13 @@ public class ApplicationController : MonoBehaviour {
 	void Start () {
 		Debug.Log("Starting application");
 		//LoadMap("ejemplo_topologia");
+		// Crear mapa nuevo
 		roadMap = new RoadMap("ejemplo2");
+		// Cargar los datos del mapa
 		DebugMapLoader();
+		// Dibujar el suelo base
+		drawGround ();
+		// Dibujar el mapa
 		roadMap.draw ();
 
 		// Instanciar vehiculo TODO Hacerlo de forma mas ordenada
@@ -292,5 +297,48 @@ public class ApplicationController : MonoBehaviour {
 		roadMap.addEdge ("a2", "n2", "n3", "", "N", "0");
 		roadMap.addEdge ("a3", "n3", "n4", "", "NN", "NN");
 		roadMap.addEdge ("a4", "n3", "n5", "", "NN", "0");
+	}
+
+	/**
+	 * @brief Dibuja el suelo de hierba
+	 */
+	private void drawGround () {
+		List<string> node_IDs = roadMap.getNodeIDs ();
+
+		Vector2 first_pos = roadMap.getNodePosition (node_IDs [0]);
+
+		float min_x = first_pos.x;
+		float max_x = first_pos.x;
+		float min_y = first_pos.y;
+		float max_y = first_pos.y;
+
+		foreach (string ID in node_IDs) {
+			Vector2 pos = roadMap.getNodePosition (ID);
+
+			if (pos.x < min_x) {
+				min_x = pos.x;
+			}
+			else if (pos.x > max_x) {
+				max_x = pos.x;
+			}
+
+			if (pos.y < min_y) {
+				min_y = pos.y;
+			}
+			else if (pos.y > max_y) {
+				max_y = pos.y;
+			}
+		}
+
+		Material grass_material = Resources.Load ("Materials/Grass", typeof(Material)) as Material;
+
+		GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
+		ground.name = "Ground";
+		ground.transform.localScale = new Vector3((max_x-min_x)/10, 1, (max_y-min_y)/10); // Se divide por 10 porque las medidas del plano de unity son 10x10
+		ground.renderer.material = grass_material;
+		ground.renderer.material.mainTextureScale = new Vector2(ground.transform.localScale.x, ground.transform.localScale.z);
+
+		Vector3 ground_position = new Vector3((max_x+min_x)/2,0,(max_y+min_y)/2);
+		ground.transform.position = ground_position;
 	}
 }
