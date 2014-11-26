@@ -8,10 +8,17 @@ public class ApplicationController : MonoBehaviour {
 
 	private int nodos_control = 1; // Numero de nodos a procesar en MapLoader antes de devolver el control a Unity
 	private RoadMap roadMap;
+	private GameObject main_camera;
+	private Vector2[] node_positions;
+	private int camera_node = 0; // Nodo en el que se situa la camara
 
 	// Acciones a realizar cuando se inicia la aplicacion
 	void Start () {
 		Debug.Log("Starting application");
+
+		// Obtener la referencia a la camara del simulador
+		main_camera = GameObject.Find("Main Camera");
+
 		//LoadMap("ejemplo_topologia");
 		// Crear mapa nuevo
 		roadMap = new RoadMap("ejemplo2");
@@ -21,6 +28,10 @@ public class ApplicationController : MonoBehaviour {
 		drawGround ();
 		// Dibujar el mapa
 		roadMap.draw ();
+		// Guardar las posiciones de los nodos para posicionar la camara
+		saveNodePositions ();
+		// Colocar la camara en el nodo 0
+		main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, 5, node_positions[camera_node].y);
 
 		// Instanciar vehiculo TODO Hacerlo de forma mas ordenada
 
@@ -34,6 +45,22 @@ public class ApplicationController : MonoBehaviour {
 		car.transform.localScale = scale;
 		car.GetComponent<VehicleController> ().setVelocity (1.38f);
 		car.GetComponent<VehicleController> ().setDirection (new Vector3(dir_road.x,0,dir_road.y));
+	}
+
+	void Update () {
+
+		if (Input.GetKeyDown (KeyCode.Alpha2)) {
+			camera_node = (camera_node + 1) % roadMap.getNodeCount();
+			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, 5, node_positions[camera_node].y);
+		}
+		else if (Input.GetKeyDown (KeyCode.Alpha1)) {
+			camera_node = (camera_node - 1) % roadMap.getNodeCount();
+
+			if (camera_node < 0) {
+				camera_node = roadMap.getNodeCount() + camera_node;
+			}
+			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, 5, node_positions[camera_node].y);
+		}
 	}
 
 	private void LoadMap (string nombre_fichero_mapa) {
@@ -330,6 +357,11 @@ public class ApplicationController : MonoBehaviour {
 			}
 		}
 
+		max_x += 100;
+		max_y += 100;
+		min_x -= 100;
+		min_y -= 100;
+
 		Material grass_material = Resources.Load ("Materials/Grass", typeof(Material)) as Material;
 
 		GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
@@ -340,5 +372,20 @@ public class ApplicationController : MonoBehaviour {
 
 		Vector3 ground_position = new Vector3((max_x+min_x)/2,0,(max_y+min_y)/2);
 		ground.transform.position = ground_position;
+	}
+
+	private void saveNodePositions () {
+		List<string> node_IDs = roadMap.getNodeIDs ();
+
+		node_positions = new Vector2[node_IDs.Count];
+
+		int i = 0;
+
+		foreach (string ID in node_IDs) {
+			Vector2 pos = roadMap.getNodePosition (ID);
+
+			node_positions[i] = new Vector2(pos.x,pos.y);
+			i++;
+		}
 	}
 }
