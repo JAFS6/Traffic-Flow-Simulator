@@ -6,8 +6,13 @@ using System.Collections.Generic;
 
 public class ApplicationController : MonoBehaviour {
 
-	private int nodos_control = 1; // Numero de nodos a procesar en MapLoader antes de devolver el control a Unity
+	// Variables de control del mapa
 	private RoadMap roadMap;
+
+	// Variables de control de la carga del mapa
+	private int nodos_control = 1; // Numero de nodos a procesar en MapLoader antes de devolver el control a Unity
+
+	// Variables de control de las posiciones predeterminadas de la camara
 	private GameObject main_camera;
 	private Vector2[] node_positions;
 	private int camera_node = 0; // Nodo en el que se situa la camara
@@ -20,31 +25,27 @@ public class ApplicationController : MonoBehaviour {
 		main_camera = GameObject.Find("Main Camera");
 
 		//LoadMap("ejemplo_topologia");
+
 		// Crear mapa nuevo
 		roadMap = new RoadMap("ejemplo2");
+
 		// Cargar los datos del mapa
 		DebugMapLoader();
+
 		// Dibujar el suelo base
 		drawGround ();
+
 		// Dibujar el mapa
 		roadMap.draw ();
+
 		// Guardar las posiciones de los nodos para posicionar la camara
 		saveNodePositions ();
+
 		// Colocar la camara en el nodo 0
 		main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, 5, node_positions[camera_node].y);
 
-		// Instanciar vehiculo TODO Hacerlo de forma mas ordenada
-
-		GameObject car_prefab = Resources.Load("Prefabs/Sport_Car", typeof(GameObject)) as GameObject;
-		Vector2 n0_pos = roadMap.getNodePosition ("n3");
-		Vector2 dir_prefab = new Vector2 (0,1);
-		Vector2 dir_road = new Vector2 (0,-1);
-		Vector3 pos = new Vector3 (n0_pos.x,RoadMap.road_thickness/2,n0_pos.y);
-		GameObject car = GameObject.Instantiate (car_prefab, pos, Quaternion.Euler(0,MyMathClass.RotationAngle(dir_prefab,dir_road),0)) as GameObject;
-		Vector3 scale = new Vector3 (0.5f, 0.5f, 0.5f);
-		car.transform.localScale = scale;
-		car.GetComponent<VehicleController> ().setVelocity (1.38f);
-		car.GetComponent<VehicleController> ().setDirection (new Vector3(dir_road.x,0,dir_road.y));
+		// Instanciar vehiculo de prueba
+		spawnVehicle ();
 	}
 
 	void Update () {
@@ -387,5 +388,16 @@ public class ApplicationController : MonoBehaviour {
 			node_positions[i] = new Vector2(pos.x,pos.y);
 			i++;
 		}
+	}
+
+	private void spawnVehicle () {
+		GameObject car_prefab = Resources.Load("Prefabs/Sport_Car", typeof(GameObject)) as GameObject;
+		Vector2 n0_pos = roadMap.getNodePosition ("n3");
+		Vector2 dir_prefab = new Vector2 (0,1);
+		Vector2 dir_road = new Vector2 (0,-1);
+		Vector3 pos = new Vector3 (n0_pos.x,RoadMap.road_thickness/2,n0_pos.y);
+		GameObject car = GameObject.Instantiate (car_prefab, pos, Quaternion.Euler(0,MyMathClass.RotationAngle(dir_prefab,dir_road),0)) as GameObject;
+		car.GetComponent<VehicleController> ().setVelocity (1.38f);
+		car.GetComponent<VehicleController> ().setDirection (new Vector3(dir_road.x,0,dir_road.y));
 	}
 }
