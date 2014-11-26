@@ -499,7 +499,7 @@ public class RoadMap {
 	private void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
 		int piece_num = (int)((length / discontinuous_line_length) / 2);
 		Vector3 pos_aux = position;
-		pos_aux.z -= length/2 - discontinuous_line_length;
+		pos_aux.z -= (length / 2) - (discontinuous_line_length * 1.5f);
 
 		for (int i=0; i < piece_num; i++) {
 
