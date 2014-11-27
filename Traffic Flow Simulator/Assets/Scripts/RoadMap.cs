@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 using System.Collections;
 using System.IO;
@@ -28,7 +29,8 @@ public struct Edge
 	public float width;
 	public int lane_num;
 	public Vector2 direction;
-	public Vector2 fixed_position;
+	public Vector2 fixed_position_vector; // Vector de ajuste de posicion
+	public Vector3 fixed_position; // Posicion ya ajustada
 }
 
 public class RoadMap {
@@ -47,12 +49,21 @@ public class RoadMap {
 	private string map_name;
 	private Dictionary<string, Node> nodes;
 	private Dictionary<string, Edge> edges;
+
+	// Materials
+	Material black_material;
+	Material asphalt_material;
+	Material asphalt_white_material;
 	
 	// Constructor
 	public RoadMap (string map_name) {
-		this.map_name = map_name;
-		this.nodes = new Dictionary<string, Node> ();
-		this.edges = new Dictionary<string, Edge> ();
+		map_name = map_name;
+		nodes = new Dictionary<string, Node> ();
+		edges = new Dictionary<string, Edge> ();
+
+		black_material = Resources.Load ("Materials/Simple_Black", typeof(Material)) as Material;
+		asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
+		asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
 	}
 	
 	/**
@@ -215,7 +226,7 @@ public class RoadMap {
 			Vector3 src_node_position = new Vector3 (src_node.x,0,src_node.y);
 			Vector3 dst_node_position = new Vector3 (dst_node.x,0,dst_node.y);
 			// Longitud del arco
-			e.length = MyMathClass.Distance(src_node_position, dst_node_position);
+			e.length = MyMathClass.Distance3D(src_node_position, dst_node_position);
 			// Ancho del arco
 			e.width = (lane_width * e.lane_num) + ((e.lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
 			// Vector direccion del arco
@@ -282,7 +293,14 @@ public class RoadMap {
 			}
 
 			// Calcular el vector de ajuste de posicion
-			e.fixed_position = MyMathClass.PolarToCartesian (fixed_length, polar_angle);
+			e.fixed_position_vector = MyMathClass.PolarToCartesian (fixed_length, polar_angle);
+			// Calcular la posicion ya ajustada
+			Node src_node = nodes[e.source_id];
+			Node dst_node = nodes[e.destination_id];
+			e.fixed_position = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
+			e.fixed_position.x += e.fixed_position_vector.x;
+			e.fixed_position.z += e.fixed_position_vector.y;
+
 			// Actualizar el arco
 			edges[e.id] = e;
 		}
@@ -304,8 +322,6 @@ public class RoadMap {
 
 			float width = (e.lane_num*lane_width) + 2*lane_width; // Para que sobresalga por ambos lados
 
-			Material black_material = Resources.Load ("Materials/Simple_Black", typeof(Material)) as Material;
-
 			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			aux_road.name = node_id + " - limit";
 			aux_road.renderer.material = black_material;
@@ -313,7 +329,14 @@ public class RoadMap {
 			aux_road.transform.localScale = new Vector3(width,limit_height,limit_depth);
 			// Vector del nodo limite
 			Vector2 dir = new Vector2 (0,1);
-			aux_road.transform.rotation = Quaternion.Euler(0,MyMathClass.RotationAngle(dir,e.direction),0);
+			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir,e.direction),Vector3.up);
+			aux_road.transform.position = pos;
+		}
+		else if (n.node_type == NodeType.CONTINUATION) {
+			GameObject aux_road = new GameObject();
+			aux_road.name = node_id + " - continuation";
+			float edge_width = nodeWidth(n.id);
+			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id));
 			aux_road.transform.position = pos;
 		}
 		else {
@@ -325,10 +348,8 @@ public class RoadMap {
 			else {
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
 				aux_road.transform.localScale = new Vector3(17.6f,road_thickness,17.6f);
-				if (n.node_type == NodeType.CONTINUATION) {
-					aux_road.name = node_id + " - continuation";
-				}
-				else if (n.node_type == NodeType.INTERSECTION) {
+
+				if (n.node_type == NodeType.INTERSECTION) {
 					aux_road.name = node_id + " - intersection";
 				}
 				else {
@@ -344,7 +365,9 @@ public class RoadMap {
 	 * @return Un string con el id del arco buscado
 	 */
 	private string edgeLimit (string node_id) {
+
 		foreach (KeyValuePair<string, Edge> edge in edges) {
+
 			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
 				return edge.Value.id;
 			}
@@ -353,14 +376,76 @@ public class RoadMap {
 	}
 
 	/**
+	 * @brief Devuelve el ancho de los arcos que llegan el nodo continuacion pasado como argumento (ambos tienen el mismo ancho)
+	 * @param[in] node_id Identificador del nodo continuacion
+	 * @return El ancho buscado
+	 */
+	private float nodeWidth (string node_id) {
+
+		// Dado que el ancho de ambos arcos sera el mismo, en cuanto encontremos el primero se detiene la busqueda
+
+		foreach (KeyValuePair<string, Edge> edge in edges) {
+
+			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+				return edge.Value.width;
+			}
+		}
+		return -1f;
+	}
+
+	/**
+	 * @brief Calcula el angulo que se produce entre los arcos que llegan al nodo de continuacion pasado como argumento
+	 * @param[in] node_id Identificador del nodo continuacion
+	 * @return El angulo calculado en grados [0,360)
+	 */
+	private float nodeAngle (string node_id) {
+		Vector2 edge_1 = new Vector2();
+		Vector2 edge_2 = new Vector2();
+		bool first_found = false;
+		bool second_found = false;
+
+		// Encontrar los dos arcos que llegan al nodo continuacion y guardar sus posiciones
+
+		foreach (KeyValuePair<string, Edge> edge in edges) {
+			
+			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+
+				if (!first_found && !second_found) {
+					first_found = true;
+					edge_1.x = edge.Value.fixed_position.x;
+					edge_1.y = edge.Value.fixed_position.z;
+				}
+				else if (first_found && !second_found) {
+					second_found = true;
+					edge_2.x = edge.Value.fixed_position.x;
+					edge_2.y = edge.Value.fixed_position.z;
+				}
+			}
+
+			if (second_found) {
+				break;
+			}
+		}
+
+		// Calcular dos vectores con origen en la posicion del nodo y vertice en la posicion de los arcos
+		Vector2 vector_1 = new Vector2 (edge_1.x - nodes[node_id].x, edge_1.y - nodes[node_id].y);
+		Vector2 vector_2 = new Vector2 (edge_2.x - nodes[node_id].x, edge_2.y - nodes[node_id].y);
+
+		// Calcular el menor angulo entre los vectores
+		float angle_deg = MyMathClass.RotationAngle (vector_1, vector_2);
+
+		if (angle_deg < 0) {
+			angle_deg += 360f;
+		}
+		return angle_deg;
+	}
+
+	/**
 	 * @brief Dibuja el arco con id "edge_id" en el entorno 3D
 	 * @param[in] edge_id Identificador del arco a dibujar
 	 * @pre Antes de ejecutar este metodo se debe ejecutar una vez el metodo prepareEdges
 	 */
 	private void drawEdge (string edge_id) {
-
-		Material asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
-		Material asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
 
 		Debug.Log ("Drawing edge "+edge_id);
 		Edge e = edges[edge_id];
@@ -431,14 +516,8 @@ public class RoadMap {
 		// Vector del arco recien dibujado
 		Vector2 dir_pref = new Vector2 (0,1);
 
-		Node src_node = nodes[e.source_id];
-		Node dst_node = nodes[e.destination_id];
-		Vector3 pos = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
-		pos.x += e.fixed_position.x;
-		pos.z += e.fixed_position.y;
-
-		platform.transform.rotation = Quaternion.Euler(0,MyMathClass.RotationAngle(dir_pref,e.direction),0);
-		platform.transform.position = pos;
+		platform.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir_pref,e.direction),Vector3.up);
+		platform.transform.position = e.fixed_position;
 	}
 
 	/**
@@ -482,7 +561,6 @@ public class RoadMap {
 		line.transform.localScale = new Vector3(width, height, length);
 		line.transform.position = position;
 		line.renderer.material.color = Color.white;
-		//Material asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
 		//line3.renderer.material = asphalt_white_material;
 		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
 		line.transform.parent = parent.transform;
@@ -508,7 +586,6 @@ public class RoadMap {
 			line.transform.localScale = new Vector3(width, height, discontinuous_line_length);
 			line.transform.position = pos_aux;
 			line.renderer.material.color = Color.white;
-			//Material asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
 			//line3.renderer.material = asphalt_white_material;
 			//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
 			line.transform.parent = parent.transform;
@@ -537,5 +614,167 @@ public class RoadMap {
 		}
 
 		return lane_num;
+	}
+
+	/**
+	 * @brief Crea una malla para los nodos de tipo continuacion. El algoritmo ha sido obtenido de 
+	 * http://wiki.unity3d.com/index.php/ProceduralPrimitives y adaptado a las necesidades de esta aplicacion
+	 * @param[in] radius Radio de la circunferencia circunscrita por los arcos
+	 * @param[in] width Ancho de los arcos
+	 * @param[in] angle Angulo menor que forman los arcos
+	 */
+	private void CreateContinuationNode (GameObject gameObject, float radius, float edge_width, float angle) {
+
+		// TODO Añadir collider
+		gameObject.AddComponent< MeshRenderer > ();
+		gameObject.renderer.material = asphalt_material;
+		MeshFilter filter = gameObject.AddComponent< MeshFilter >();
+		Mesh mesh = filter.mesh;
+		mesh.Clear();
+
+		Vector2 left_point = new Vector2 (-edge_width * .5f, -radius * .5f);
+		Vector2 right_point = new Vector2 (edge_width * .5f, -radius * .5f);
+
+		// Rotar angle grados los puntos left y right
+
+		float angle_rad = (angle * Mathf.PI) / 180f;
+
+		Vector2 left_point_rotated = new Vector2 ();
+		left_point_rotated.x = (left_point.x * Mathf.Cos(angle_rad)) - (left_point.y * Mathf.Sin(angle_rad));
+		left_point_rotated.y = (left_point.x * Mathf.Sin(angle_rad)) + (left_point.y * Mathf.Cos(angle_rad));
+
+		Vector2 right_point_rotated = new Vector2 ();
+		right_point_rotated.x = (right_point.x * Mathf.Cos(angle_rad)) - (right_point.y * Mathf.Sin(angle_rad));
+		right_point_rotated.y = (right_point.x * Mathf.Sin(angle_rad)) + (right_point.y * Mathf.Cos(angle_rad));
+		
+		#region Vertices
+		Vector3 p0 = new Vector3(  right_point_rotated.x,	-road_thickness * .5f,		 right_point_rotated.y );
+		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-road_thickness * .5f,		 left_point_rotated.y );
+		Vector3 p2 = new Vector3(  edge_width * .5f, 		-road_thickness * .5f,		-radius * .5f );
+		Vector3 p3 = new Vector3( -edge_width * .5f,		-road_thickness * .5f,		-radius * .5f );
+		
+		Vector3 p4 = new Vector3(  right_point_rotated.x,	 road_thickness * .5f,   	 right_point_rotated.y );
+		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 road_thickness * .5f,   	 left_point_rotated.y );
+		Vector3 p6 = new Vector3(  edge_width * .5f, 		 road_thickness * .5f,  	-radius * .5f );
+		Vector3 p7 = new Vector3( -edge_width * .5f,	 	 road_thickness * .5f,  	-radius * .5f );
+
+		
+		Vector3[] vertices = new Vector3[]
+		{
+			// Bottom
+			p0, p1, p2, p3,
+			
+			// Left
+			p7, p4, p0, p3,
+			
+			// Front
+			p4, p5, p1, p0,
+			
+			// Back
+			p6, p7, p3, p2,
+			
+			// Right
+			p5, p6, p2, p1,
+			
+			// Top
+			p7, p6, p5, p4
+		};
+		#endregion
+		
+		#region Normales
+		Vector3 up 	= Vector3.up;
+		Vector3 down 	= Vector3.down;
+		Vector3 front 	= Vector3.forward;
+		Vector3 back 	= Vector3.back;
+		Vector3 left 	= Vector3.left;
+		Vector3 right 	= Vector3.right;
+		
+		Vector3[] normales = new Vector3[]
+		{
+			// Bottom
+			down, down, down, down,
+			
+			// Left
+			left, left, left, left,
+			
+			// Front
+			front, front, front, front,
+			
+			// Back
+			back, back, back, back,
+			
+			// Right
+			right, right, right, right,
+			
+			// Top
+			up, up, up, up
+		};
+		#endregion	
+		
+		#region UVs
+		Vector2 _00 = new Vector2( 0f, 0f );
+		Vector2 _10 = new Vector2( 1f, 0f );
+		Vector2 _01 = new Vector2( 0f, 1f );
+		Vector2 _11 = new Vector2( 1f, 1f );
+		
+		Vector2[] uvs = new Vector2[]
+		{
+			// Bottom
+			_11, _01, _00, _10,
+			
+			// Left
+			_11, _01, _00, _10,
+			
+			// Front
+			_11, _01, _00, _10,
+			
+			// Back
+			_11, _01, _00, _10,
+			
+			// Right
+			_11, _01, _00, _10,
+			
+			// Top
+			_11, _01, _00, _10,
+		};
+		#endregion
+		
+		#region Triangles
+		int[] triangles = new int[]
+		{
+			// Bottom
+			3, 1, 0,
+			3, 2, 1,			
+			
+			// Left
+			3 + 4 * 1, 1 + 4 * 1, 0 + 4 * 1,
+			3 + 4 * 1, 2 + 4 * 1, 1 + 4 * 1,
+			
+			// Front
+			3 + 4 * 2, 1 + 4 * 2, 0 + 4 * 2,
+			3 + 4 * 2, 2 + 4 * 2, 1 + 4 * 2,
+			
+			// Back
+			3 + 4 * 3, 1 + 4 * 3, 0 + 4 * 3,
+			3 + 4 * 3, 2 + 4 * 3, 1 + 4 * 3,
+			
+			// Right
+			3 + 4 * 4, 1 + 4 * 4, 0 + 4 * 4,
+			3 + 4 * 4, 2 + 4 * 4, 1 + 4 * 4,
+			
+			// Top
+			3 + 4 * 5, 1 + 4 * 5, 0 + 4 * 5,
+			3 + 4 * 5, 2 + 4 * 5, 1 + 4 * 5,
+			
+		};
+		#endregion
+		
+		mesh.vertices = vertices;
+		mesh.normals = normales;
+		mesh.uv = uvs;
+		mesh.triangles = triangles;
+		
+		mesh.RecalculateBounds();
+		mesh.Optimize();
 	}
 }
