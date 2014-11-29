@@ -6,6 +6,10 @@ using System.Collections.Generic;
 
 public class ApplicationController : MonoBehaviour {
 
+	public float initial_camera_position_x = 500f;
+	public float initial_camera_position_y = 15f;
+	public float initial_camera_position_z = 480f;
+
 	// Variables de control del mapa
 	private RoadMap roadMap;
 
@@ -16,6 +20,7 @@ public class ApplicationController : MonoBehaviour {
 	private GameObject main_camera;
 	private Vector2[] node_positions;
 	private int camera_node = 0; // Nodo en el que se situa la camara
+	private float camera_height = 5f; // Altura de la camara al cambiar de nodo
 
 	// Acciones a realizar cuando se inicia la aplicacion
 	void Start () {
@@ -42,8 +47,8 @@ public class ApplicationController : MonoBehaviour {
 		// Guardar las posiciones de los nodos para posicionar la camara
 		saveNodePositions ();
 
-		// Colocar la camara en el nodo 0
-		main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, 5, node_positions[camera_node].y);
+		// Colocar la camara en la posicion inicial
+		main_camera.GetComponent<MainCameraController> ().goTo (initial_camera_position_x,initial_camera_position_y,initial_camera_position_z);
 
 		// Instanciar vehiculo de prueba
 		spawnVehicle ();
@@ -53,7 +58,7 @@ public class ApplicationController : MonoBehaviour {
 
 		if (Input.GetKeyDown (KeyCode.Alpha2)) {
 			camera_node = (camera_node + 1) % roadMap.getNodeCount();
-			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, 5, node_positions[camera_node].y);
+			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, camera_height, node_positions[camera_node].y);
 		}
 		else if (Input.GetKeyDown (KeyCode.Alpha1)) {
 			camera_node = (camera_node - 1) % roadMap.getNodeCount();
@@ -61,7 +66,7 @@ public class ApplicationController : MonoBehaviour {
 			if (camera_node < 0) {
 				camera_node = roadMap.getNodeCount() + camera_node;
 			}
-			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, 5, node_positions[camera_node].y);
+			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, camera_height, node_positions[camera_node].y);
 		}
 	}
 
