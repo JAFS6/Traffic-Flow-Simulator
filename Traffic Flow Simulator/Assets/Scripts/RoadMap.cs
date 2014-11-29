@@ -54,7 +54,7 @@ public class RoadMap {
 	Material black_material;
 	Material asphalt_material;
 	Material asphalt_white_material;
-	
+
 	// Constructor
 	public RoadMap (string map_name) {
 		map_name = map_name;
@@ -493,22 +493,38 @@ public class RoadMap {
 
 		// Lineas de carril
 
+		Vector3 save_position = new Vector3 (position.x, position.y, position.z);
+
 		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
 		if (e.src_des != "0") {
 			for (int i=0; i<e.src_des.Length-1; i++) {
 				position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width) - ((lane_width + line_width) * (i+1));
 				char lane_type = e.src_des[i];
 				draw_lane_line (lane_type, e.length, position, platform);
-
 			}
+
+			// Lineas de detencion antes del cruce
+			position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width) - (e.src_des.Length * (lane_width + line_width))/2;
+			position.z = platform.transform.position.z + (e.length/2 - public_transport_line_width/2);
+
+			draw_continuous_line (e.src_des.Length * (lane_width + line_width),line_thickness,public_transport_line_width,position,"Detention line",platform); // Intercambiado ancho por largo para hacer linea perpendicular
+
 		}
 
 		if (e.des_src != "0") {
+			position = save_position;
+
 			for (int i=0; i<e.des_src.Length-1; i++) {
 				position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width) + ((lane_width + line_width) * (i+1));
 				char lane_type = e.des_src[i];
 				draw_lane_line (lane_type, e.length, position, platform);
 			}
+
+			// Lineas de detencion antes del cruce
+			position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width) + (e.des_src.Length * (lane_width + line_width))/2;
+			position.z = platform.transform.position.z - (e.length/2 - public_transport_line_width/2);
+			
+			draw_continuous_line (e.des_src.Length * (lane_width + line_width),line_thickness,public_transport_line_width,position,"Detention line",platform); // Intercambiado ancho por largo para hacer linea perpendicular
 		}
 
 		// Fin marcas viales
