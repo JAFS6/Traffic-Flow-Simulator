@@ -467,10 +467,10 @@ public class RoadMap {
 		position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width);
 		position.y = platform.transform.position.y + (road_thickness/2)+(line_thickness/2);
 		position.z = 0;
-		draw_continuous_line (line_width, line_thickness, e.length, position, "Left line", platform);
+		draw_continuous_line (line_width, line_thickness, e.length, position, "Hard shoulder line", platform);
 
 		position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width);
-		draw_continuous_line (line_width, line_thickness, e.length, position, "Right line", platform);
+		draw_continuous_line (line_width, line_thickness, e.length, position, "Hard shoulder line", platform);
 
 		// Lineas centrales
 		if (e.src_des != "0" && e.des_src != "0") { // Si ambos sentidos tienen carriles
