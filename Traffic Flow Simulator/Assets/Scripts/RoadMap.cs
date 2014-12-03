@@ -639,7 +639,12 @@ public class RoadMap {
 	 * @param[in] name Nombre para el objeto
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
+	private void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject new_parent) {
+
+		GameObject discontinuous_line = new GameObject ();
+		discontinuous_line.name = "Discontinuous line";
+		discontinuous_line.transform.parent = new_parent.transform;
+
 		int piece_num = (int)((length / discontinuous_line_length) / 2);
 		Vector3 pos_aux = position;
 		pos_aux.z -= (length / 2) - (discontinuous_line_length * 1.5f);
@@ -653,7 +658,7 @@ public class RoadMap {
 			line.renderer.material.color = Color.white;
 			//line3.renderer.material = asphalt_white_material;
 			//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
-			line.transform.parent = parent.transform;
+			line.transform.parent = discontinuous_line.transform;
 
 			pos_aux.z += discontinuous_line_length * 2;
 		}
