@@ -6,7 +6,10 @@ public enum TurnSide : byte {Left, Right};
 public class VehicleController : MonoBehaviour {
 
 	private Vector3 current_direction; 	// Direccion actual
-	private float current_velocity; 	// Velocidad actual en metros por segundo
+	private float current_speed; 	// Velocidad actual en metros por segundo
+
+	private const float max_speed = 13.88f;		// Maxima velocidad que alcanzara el vehiculo
+	private const float acceleration = 0.1f;
 
 	// Sensores (raycasting)
 	private const float front_sensor_y = 0.5f; // Altura de los sensores frontales
@@ -34,8 +37,8 @@ public class VehicleController : MonoBehaviour {
 	 * @brief Establece la velocidad del vehiculo
 	 * @param[in] v La velocidad del vehiculo en metros por segundo
 	 */
-	public void setVelocity (float v) {
-		this.current_velocity = v;
+	public void setSpeed (float v) {
+		this.current_speed = v;
 	}
 
 	// Update is called once per frame
@@ -66,11 +69,7 @@ public class VehicleController : MonoBehaviour {
 		if (Physics.Raycast(left_ray_pos,left_ray_dir, out left_ray_hit,sensor_length)) {
 			Debug.DrawLine(left_ray_pos,left_ray_hit.point,Color.red);
 
-			if (left_ray_hit.transform.name == "Hard shoulder line") {
-				Turn (TurnSide.Right, 1f);
-			}
-
-			if (left_ray_hit.transform.name == "Normal lane line") {
+			if (left_ray_hit.transform.name == "Hard shoulder line" || left_ray_hit.transform.name == "Normal lane line") {
 				Turn (TurnSide.Right, 1f);
 			}
 		}
@@ -78,15 +77,18 @@ public class VehicleController : MonoBehaviour {
 		if (Physics.Raycast(right_ray_pos,right_ray_dir, out right_ray_hit,sensor_length)) {
 			Debug.DrawLine(right_ray_pos,right_ray_hit.point,Color.green);
 
-			if (right_ray_hit.transform.name == "Hard shoulder line") {
+			if (right_ray_hit.transform.name == "Hard shoulder line" || right_ray_hit.transform.name == "Public transport lane line") {
 				Turn (TurnSide.Left, 1f);
 			}
 		}
 
+		// Increase speed
+		this.current_speed += acceleration;
+
 		// Movement
 
 		Vector3 position = this.transform.position;
-		position += this.current_direction * this.current_velocity * Time.deltaTime;
+		position += this.current_direction * this.current_speed * Time.deltaTime;
 		this.transform.position = position;
 	}
 
