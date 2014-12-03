@@ -50,7 +50,7 @@ public class ApplicationController : MonoBehaviour {
 		main_camera.GetComponent<MainCameraController> ().goTo (initial_camera_position_x,initial_camera_position_y,initial_camera_position_z);
 
 		// Instanciar vehiculo de prueba
-		spawnVehicle ();
+		spawnTestVehicle ();
 	}
 
 	void Update () {
@@ -147,14 +147,41 @@ public class ApplicationController : MonoBehaviour {
 		}
 	}
 
-	private void spawnVehicle () {
+	private void spawnTestVehicle () {
 		GameObject car_prefab = Resources.Load("Prefabs/Sport_Car", typeof(GameObject)) as GameObject;
-		Vector2 n0_pos = roadMap.getNodePosition ("n3");
-		Vector2 dir_prefab = new Vector2 (0,1);
-		Vector2 dir_road = new Vector2 (0.2f,1);
-		Vector3 pos = new Vector3 (n0_pos.x,RoadMap.road_thickness/2,n0_pos.y);
-		GameObject car = GameObject.Instantiate (car_prefab, pos, Quaternion.AngleAxis(MyMathClass.RotationAngle(dir_prefab,dir_road),Vector3.up)) as GameObject;
-		//car.GetComponent<VehicleController> ().setSpeed (1.38f);
-		car.GetComponent<VehicleController> ().setDirection (new Vector3(dir_road.x,0,dir_road.y));
+
+		Vector2 dir_prefab = new Vector3 (0,1);
+		spawnVehicle (car_prefab, dir_prefab, "n1");
+		spawnVehicle (car_prefab, dir_prefab, "n2");
+	}
+
+	/**
+	 * @brief Instancia el vehiculo prefab en el nodo node_id
+	 * @param[in] prefab El prefab a instanciar
+	 * @param[in] prefab_orientation La orientacion del prefab
+	 * @param[in] node_id El identificador del nodo limite donde se instanciara el vehiculo
+	 * @post Si node_id no existe o no es un nodo de tipo limite no se instanciara el vehiculo
+	 */
+	private void spawnVehicle (GameObject prefab, Vector2 prefab_orientation, string node_id) {
+
+		NodeType node_type = roadMap.getNodeType (node_id);
+
+		if (node_type == NodeType.LIMIT) {
+			Vector2 node_position = roadMap.getNodePosition (node_id);
+
+			string edge_id = roadMap.edgeLimit(node_id);
+
+			Vector2 dir_road = roadMap.entryOrientation(node_id);
+
+			Debug.Log("dir_road.x: "+dir_road.x+" dir_road.y: "+dir_road.y);
+
+			Vector3 pos = new Vector3 (node_position.x,RoadMap.road_thickness/2,node_position.y);
+
+			GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.AngleAxis(MyMathClass.RotationAngle(prefab_orientation,dir_road),Vector3.up)) as GameObject;
+			vehicle.GetComponent<VehicleController> ().setDirection (new Vector3(dir_road.x,0,dir_road.y));
+		}
+		else {
+			Debug.Log ("Node ID: "+node_id+" is not a limit node ID");
+		}
 	}
 }

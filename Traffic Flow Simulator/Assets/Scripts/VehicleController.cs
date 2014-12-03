@@ -8,7 +8,7 @@ public class VehicleController : MonoBehaviour {
 	private Vector3 current_direction; 	// Direccion actual
 	private float current_speed; 	// Velocidad actual en metros por segundo
 
-	private const float max_speed = 13.88f;		// Maxima velocidad que alcanzara el vehiculo
+	private const float max_speed = 10f;		// Maxima velocidad que alcanzara el vehiculo
 	private const float acceleration = 0.1f;
 
 	// Sensores (raycasting)
@@ -83,7 +83,9 @@ public class VehicleController : MonoBehaviour {
 		}
 
 		// Increase speed
-		this.current_speed += acceleration;
+		if (this.current_speed < max_speed) {
+			this.current_speed += acceleration;
+		}
 
 		// Movement
 

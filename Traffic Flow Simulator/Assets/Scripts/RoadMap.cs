@@ -4,8 +4,8 @@ using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 
-public enum NodeType : byte {INTERSECTION, LIMIT, CONTINUATION};
-public enum IntersectionType : byte {NORMAL, ROUNDABOUT};
+public enum NodeType : byte {INTERSECTION, LIMIT, CONTINUATION, UNKNOWN};
+public enum IntersectionType : byte {NORMAL, ROUNDABOUT, UNKNOWN};
 
 public struct Node
 {
@@ -155,12 +155,12 @@ public class RoadMap {
 	}
 
 	/**
-	 * @brief Obtiene la posicion del nodo con identificador n en el plano XZ
+	 * @brief Obtiene la posicion del nodo con identificador node_id en el plano XZ
 	 * @param[in] node_id El identificador del nodo
 	 * @return Un Vector2 con la posicion del nodo en el plano XZ
 	 * @post Si el identificador no existe se devolvera un vector (0,0)
 	 */
-	public Vector2 getNodePosition(string node_id) {
+	public Vector2 getNodePosition (string node_id) {
 
 		Vector2 pos = new Vector2 ();
 
@@ -170,6 +170,22 @@ public class RoadMap {
 		}
 
 		return pos;
+	}
+
+	/**
+	 * @brief Obtiene el tipo del nodo con identificador node_id
+	 * @param[in] node_id El identificador del nodo
+	 * @return El tipo del nodo consultado
+	 * @post Si el identificador no existe se devolvera el tipo UNKNOWN
+	 */
+	public NodeType getNodeType (string node_id) {
+
+		if (nodes.ContainsKey (node_id)) {
+			return nodes[node_id].node_type;
+		}
+		else {
+			return NodeType.UNKNOWN;
+		}
 	}
 
 	/**
@@ -205,6 +221,55 @@ public class RoadMap {
 		foreach (KeyValuePair<string, Node> node in nodes){
 			drawNode (node.Key);
 		}
+	}
+
+	/**
+	 * @brief Devuelve el id del arco que llega al nodo limite pasado como argumento
+	 * @param[in] node_id Identificador del nodo limite
+	 * @return Un string con el id del arco buscado
+	 */
+	public string edgeLimit (string node_id) {
+		
+		foreach (KeyValuePair<string, Edge> edge in edges) {
+			
+			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+				return edge.Value.id;
+			}
+		}
+		return "";
+	}
+
+	/**
+	 * @brief Calcula el vector que indica la direccion de entrada al mapa desde el nodo limite pasado como argumento
+	 * @param[in] node_id Identificador del nodo limite
+	 * @return El vector orientacion calculado
+	 * @post Si el identificador no existe o no es nodo limite se devolvera el vector (0,0)
+	 */
+	public Vector2 entryOrientation (string node_id) {
+		Vector3 v = new Vector3 (0,0,0);
+
+		if (nodes.ContainsKey (node_id)) {
+			if (nodes[node_id].node_type == NodeType.LIMIT) {
+				string edge_id = edgeLimit(node_id);
+
+				if (edges[edge_id].source_id == node_id) {
+					// Destino - fuente
+					v.x = nodes[ edges[edge_id].destination_id ].x - nodes[ edges[edge_id].source_id ].x;
+					v.z = nodes[ edges[edge_id].destination_id ].y - nodes[ edges[edge_id].source_id ].y;
+				}
+				else {
+					// Fuente - destino
+					v.x = nodes[ edges[edge_id].source_id ].x - nodes[ edges[edge_id].destination_id ].x;
+					v.z = nodes[ edges[edge_id].source_id ].y - nodes[ edges[edge_id].destination_id ].y;
+				}
+			}
+		}
+
+		v.Normalize ();
+
+		Vector2 orientation = new Vector2 (v.x,v.z);
+
+		return orientation;
 	}
 
 	/**
@@ -357,22 +422,6 @@ public class RoadMap {
 				}
 			}
 		}
-	}
-
-	/**
-	 * @brief Devuelve el id del arco que llega al nodo limite pasado como argumento
-	 * @param[in] node_id Identificador del nodo limite
-	 * @return Un string con el id del arco buscado
-	 */
-	private string edgeLimit (string node_id) {
-
-		foreach (KeyValuePair<string, Edge> edge in edges) {
-
-			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
-				return edge.Value.id;
-			}
-		}
-		return "";
 	}
 
 	/**
