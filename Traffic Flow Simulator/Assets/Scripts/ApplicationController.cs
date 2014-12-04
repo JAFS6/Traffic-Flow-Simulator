@@ -173,12 +173,14 @@ public class ApplicationController : MonoBehaviour {
 
 			Vector2 dir_road = roadMap.entryOrientation(node_id);
 
-			Debug.Log("dir_road.x: "+dir_road.x+" dir_road.y: "+dir_road.y);
+			Quaternion q = Quaternion.AngleAxis(5,new Vector3(0,1,0)); // Rotacion de 5 grados hacia la derecha respecto al eje y
+
+			Vector3 dir_road_fixed = new Vector3(dir_road.x,0,dir_road.y);
+
+			dir_road_fixed = q * dir_road_fixed;
 
 			Vector3 pos = new Vector3 (node_position.x,RoadMap.road_thickness/2,node_position.y);
-
-			GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.AngleAxis(MyMathClass.RotationAngle(prefab_orientation,dir_road),Vector3.up)) as GameObject;
-			vehicle.GetComponent<VehicleController> ().setDirection (new Vector3(dir_road.x,0,dir_road.y));
+			GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.LookRotation(dir_road_fixed)) as GameObject;
 		}
 		else {
 			Debug.Log ("Node ID: "+node_id+" is not a limit node ID");

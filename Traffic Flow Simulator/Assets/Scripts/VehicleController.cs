@@ -5,7 +5,6 @@ public enum TurnSide : byte {Left, Right};
 
 public class VehicleController : MonoBehaviour {
 
-	private Vector3 current_direction; 	// Direccion actual
 	private float current_speed; 	// Velocidad actual en metros por segundo
 
 	private const float max_speed = 10f;		// Maxima velocidad que alcanzara el vehiculo
@@ -26,14 +25,6 @@ public class VehicleController : MonoBehaviour {
 	private RaycastHit right_ray_hit;
 	
 	/**
-	 * @brief Establece la direccion del vehiculo
-	 * @param[in] d La direccion
-	 */
-	public void setDirection (Vector3 d) {
-		this.current_direction = new Vector3(d.x,d.y,d.z);
-	}
-
-	/**
 	 * @brief Establece la velocidad del vehiculo
 	 * @param[in] v La velocidad del vehiculo en metros por segundo
 	 */
@@ -43,6 +34,7 @@ public class VehicleController : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+		Debug.DrawLine(this.transform.position,this.transform.position + this.transform.forward * 6,Color.magenta);
 
 		// Raycasting
 
@@ -80,6 +72,9 @@ public class VehicleController : MonoBehaviour {
 			if (right_ray_hit.transform.name == "Hard shoulder line" || right_ray_hit.transform.name == "Public transport lane line") {
 				Turn (TurnSide.Left, 1f);
 			}
+			else if (right_ray_hit.transform.name == "Center line") {
+				Turn (TurnSide.Right, 10f);
+			}
 		}
 
 		// Increase speed
@@ -90,34 +85,25 @@ public class VehicleController : MonoBehaviour {
 		// Movement
 
 		Vector3 position = this.transform.position;
-		position += this.current_direction * this.current_speed * Time.deltaTime;
+		position += this.transform.forward * this.current_speed * Time.deltaTime;
 		this.transform.position = position;
 	}
 
 	private void Turn (TurnSide t, float degrees) {
-		float current_polar_angle = MyMathClass.PolarAngle (new Vector2 (this.current_direction.x,this.current_direction.z));
 
-		float target_polar_angle = 0;
+		Quaternion rotation = Quaternion.AngleAxis(0f,new Vector3(0,1,0));
 
-		degrees = degrees % 360;
-
-		if (t == TurnSide.Right) {
-			target_polar_angle = current_polar_angle - degrees;
-
-			if (target_polar_angle < 0) {
-				target_polar_angle = target_polar_angle + 360;
-			}
+		if (t == TurnSide.Left) {
+			rotation = Quaternion.AngleAxis(-degrees,new Vector3(0,1,0));
 		}
-		else {
-			target_polar_angle = (current_polar_angle + degrees) % 360;
+		else if (t == TurnSide.Right) {
+			rotation = Quaternion.AngleAxis(degrees,new Vector3(0,1,0));
 		}
-		
-		Vector2 to = MyMathClass.PolarToCartesian (1f,target_polar_angle);
-		Vector3 target_direction = new Vector3 (to.x, this.current_direction.y, to.y);
 
-		Quaternion new_orientation = Quaternion.LookRotation (target_direction, Vector3.up);
-		
-		this.current_direction = target_direction;
-		this.GetComponentInParent<Transform> ().rotation = new_orientation;
+		Vector3 new_rotation_v = rotation * this.transform.forward;
+
+		Quaternion new_rotation_q = Quaternion.LookRotation (new_rotation_v);
+
+		this.transform.rotation = new_rotation_q;
 	}
 }
