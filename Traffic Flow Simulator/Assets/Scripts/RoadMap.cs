@@ -46,6 +46,13 @@ public class RoadMap {
 	public const float center_lines_separation = 0.2f;
 	public const float discontinuous_line_length = 2f;
 
+	public const string hard_shoulder_line_name = "Hard shoulder line";
+	public const string public_transport_lane_line_name = "Public transport lane line";
+	public const string center_line_name = "Center line";
+	public const string detention_line_name = "Detention line";
+	public const string normal_lane_line_name = "Normal lane line";
+	public const string discontinuous_line_name = "Discontinuous line";
+
 	private string map_name;
 	private Dictionary<string, Node> nodes;
 	private Dictionary<string, Edge> edges;
@@ -516,27 +523,27 @@ public class RoadMap {
 		position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width);
 		position.y = platform.transform.position.y + (road_thickness/2)+(line_thickness/2);
 		position.z = 0;
-		draw_continuous_line (line_width, line_thickness, e.length, position, "Hard shoulder line", platform);
+		draw_continuous_line (line_width, line_thickness, e.length, position, hard_shoulder_line_name, platform);
 
 		position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width);
-		draw_continuous_line (line_width, line_thickness, e.length, position, "Hard shoulder line", platform);
+		draw_continuous_line (line_width, line_thickness, e.length, position, hard_shoulder_line_name, platform);
 
 		// Lineas centrales
 		if (e.src_des != "0" && e.des_src != "0") { // Si ambos sentidos tienen carriles
 
 			if (e.src_des.Length == e.des_src.Length) { // Mismo numero de carriles en cada sentido
 				position.x = platform.transform.position.x - (center_lines_separation/2);
-				draw_continuous_line (line_width, line_thickness, e.length, position, "Center line", platform);
+				draw_continuous_line (line_width, line_thickness, e.length, position, center_line_name, platform);
 				position.x = platform.transform.position.x + (center_lines_separation/2);
-				draw_continuous_line (line_width, line_thickness, e.length, position, "Center line", platform);
+				draw_continuous_line (line_width, line_thickness, e.length, position, center_line_name, platform);
 			}
 			else { // Distinto numero de carriles en cada sentido
 				int lane_diff = e.src_des.Length - e.des_src.Length;
 
 				position.x = platform.transform.position.x - (center_lines_separation/2) - (lane_diff * (lane_width/2));
-				draw_continuous_line (line_width, line_thickness, e.length, position, "Center line", platform);
+				draw_continuous_line (line_width, line_thickness, e.length, position, center_line_name, platform);
 				position.x = platform.transform.position.x + (center_lines_separation/2) - (lane_diff * (lane_width/2));
-				draw_continuous_line (line_width, line_thickness, e.length, position, "Center line", platform);
+				draw_continuous_line (line_width, line_thickness, e.length, position, center_line_name, platform);
 			}
 		}
 
@@ -556,7 +563,7 @@ public class RoadMap {
 			position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width) - (e.src_des.Length * (lane_width + line_width))/2;
 			position.z = platform.transform.position.z + (e.length/2 - public_transport_line_width/2);
 
-			draw_continuous_line (e.src_des.Length * (lane_width + line_width),line_thickness,public_transport_line_width,position,"Detention line",platform); // Intercambiado ancho por largo para hacer linea perpendicular
+			draw_continuous_line (e.src_des.Length * (lane_width + line_width),line_thickness,public_transport_line_width,position,detention_line_name,platform); // Intercambiado ancho por largo para hacer linea perpendicular
 
 		}
 
@@ -573,7 +580,7 @@ public class RoadMap {
 			position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width) + (e.des_src.Length * (lane_width + line_width))/2;
 			position.z = platform.transform.position.z - (e.length/2 - public_transport_line_width/2);
 			
-			draw_continuous_line (e.des_src.Length * (lane_width + line_width),line_thickness,public_transport_line_width,position,"Detention line",platform); // Intercambiado ancho por largo para hacer linea perpendicular
+			draw_continuous_line (e.des_src.Length * (lane_width + line_width),line_thickness,public_transport_line_width,position,detention_line_name,platform); // Intercambiado ancho por largo para hacer linea perpendicular
 		}
 
 		// Fin marcas viales
@@ -595,10 +602,10 @@ public class RoadMap {
 
 		switch (lane_type) {
 			case 'P':
-				draw_continuous_line (public_transport_line_width, line_thickness, length, position, "Public transport lane line", parent);
+				draw_continuous_line (public_transport_line_width, line_thickness, length, position, public_transport_lane_line_name, parent);
 				break;
 			case 'N':
-				draw_discontinuous_line (line_width, line_thickness, length, position, "Normal lane line", parent);
+				draw_discontinuous_line (line_width, line_thickness, length, position, normal_lane_line_name, parent);
 				break;
 			case 'A':
 				Debug.Log("Parking not designed yet");
@@ -642,7 +649,7 @@ public class RoadMap {
 	private void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject new_parent) {
 
 		GameObject discontinuous_line = new GameObject ();
-		discontinuous_line.name = "Discontinuous line";
+		discontinuous_line.name = discontinuous_line_name;
 		discontinuous_line.transform.parent = new_parent.transform;
 
 		int piece_num = (int)((length / discontinuous_line_length) / 2);

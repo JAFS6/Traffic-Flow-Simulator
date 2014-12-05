@@ -61,7 +61,7 @@ public class VehicleController : MonoBehaviour {
 		if (Physics.Raycast(left_ray_pos,left_ray_dir, out left_ray_hit,sensor_length)) {
 			Debug.DrawLine(left_ray_pos,left_ray_hit.point,Color.red);
 
-			if (left_ray_hit.transform.name == "Hard shoulder line" || left_ray_hit.transform.name == "Normal lane line") {
+			if (left_ray_hit.transform.name == RoadMap.hard_shoulder_line_name || left_ray_hit.transform.name == RoadMap.normal_lane_line_name) {
 				Turn (TurnSide.Right, 1f);
 			}
 		}
@@ -69,10 +69,10 @@ public class VehicleController : MonoBehaviour {
 		if (Physics.Raycast(right_ray_pos,right_ray_dir, out right_ray_hit,sensor_length)) {
 			Debug.DrawLine(right_ray_pos,right_ray_hit.point,Color.green);
 
-			if (right_ray_hit.transform.name == "Hard shoulder line" || right_ray_hit.transform.name == "Public transport lane line") {
+			if (right_ray_hit.transform.name == RoadMap.hard_shoulder_line_name || right_ray_hit.transform.name == RoadMap.public_transport_lane_line_name) {
 				Turn (TurnSide.Left, 1f);
 			}
-			else if (right_ray_hit.transform.name == "Center line") {
+			else if (right_ray_hit.transform.name == RoadMap.center_line_name) {
 				Turn (TurnSide.Right, 10f);
 			}
 		}
