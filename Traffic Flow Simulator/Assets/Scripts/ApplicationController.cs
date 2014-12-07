@@ -83,12 +83,12 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	private void DebugMapLoader () {
-		roadMap.addNode ("n0", NodeType.CONTINUATION, 500, 1000);
-		roadMap.addNode ("n1", NodeType.LIMIT, 1000, 1200);
-		roadMap.addNode ("n2", NodeType.LIMIT, 0, 500);
+		roadMap.addNode ("n0", NodeType.CONTINUATION, 500, 600);
+		roadMap.addNode ("n1", NodeType.LIMIT, 600, 700);
+		roadMap.addNode ("n2", NodeType.LIMIT, 400, 500);
 		roadMap.addNode ("n3", NodeType.INTERSECTION, 500, 500, IntersectionType.NORMAL);
-		roadMap.addNode ("n4", NodeType.LIMIT, 1000, 500);
-		roadMap.addNode ("n5", NodeType.LIMIT, 500, 0);
+		roadMap.addNode ("n4", NodeType.LIMIT, 600, 500);
+		roadMap.addNode ("n5", NodeType.LIMIT, 500, 400);
 
 		roadMap.addEdge ("a0", "n0", "n1", "", "PNN", "PN");
 		roadMap.addEdge ("a1", "n0", "n3", "", "PN", "PNN");
