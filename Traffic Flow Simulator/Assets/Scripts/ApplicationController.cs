@@ -4,6 +4,13 @@ using System.Xml;
 using System.IO;
 using System.Collections.Generic;
 
+public struct EntryNodeInfo
+{
+	public string id;
+	public TransportType tt; // Transport Type
+	public float tbs; // Time Between Spawns
+}
+
 public class ApplicationController : MonoBehaviour {
 
 	public float initial_camera_position_x = 500f;
@@ -13,6 +20,9 @@ public class ApplicationController : MonoBehaviour {
 	// Variables de control del mapa
 	private RoadMap roadMap;
 	private MapLoader map_loader;
+	
+	// Variables de control para instanciar vehiculos
+	private Dictionary<string, EntryNodeInfo> entryNodes;
 
 	// Variables de control de las posiciones predeterminadas de la camara
 	private GameObject main_camera;
@@ -48,9 +58,12 @@ public class ApplicationController : MonoBehaviour {
 
 		// Colocar la camara en la posicion inicial
 		main_camera.GetComponent<MainCameraController> ().goTo (initial_camera_position_x,initial_camera_position_y,initial_camera_position_z);
-
-		// Instanciar vehiculo de prueba
-		spawnTestVehicle ();
+		
+		// Guardar los identificadores de los nodos de entrada al mapa
+		saveEntryNodes ();
+		
+		// Instanciar vehiculos
+		StartCoroutine(spawnVehicles ());
 	}
 
 	void Update () {
@@ -146,13 +159,36 @@ public class ApplicationController : MonoBehaviour {
 			i++;
 		}
 	}
+	
+	private void saveEntryNodes () {
+		entryNodes = new Dictionary<string, EntryNodeInfo>();
+		
+		List<string> node_IDs = roadMap.getNodeIDs ();
+		TransportType tt;
+		
+		foreach (string ID in node_IDs) {
+		
+			if (roadMap.isEntryNode(ID, out tt)) {
+				
+				EntryNodeInfo new_entry = new EntryNodeInfo();
+				new_entry.id = ID;
+				new_entry.tt = tt;
+				new_entry.tbs = Random.value * 3;
+				
+				entryNodes.Add(ID,new_entry);
+			}
+		}
+	}
 
-	private void spawnTestVehicle () {
+	private IEnumerator spawnVehicles () {
 		GameObject car_prefab = Resources.Load("Prefabs/Sport_Car", typeof(GameObject)) as GameObject;
-
 		Vector2 dir_prefab = new Vector3 (0,1);
-		spawnVehicle (car_prefab, dir_prefab, "n1");
-		spawnVehicle (car_prefab, dir_prefab, "n2");
+		
+		while (true) {
+			spawnVehicle (car_prefab, dir_prefab, "n2");
+			spawnVehicle (car_prefab, dir_prefab, "n1");
+			yield return new WaitForSeconds(5);
+		}
 	}
 
 	/**

@@ -2,7 +2,7 @@
 using System.Collections;
 
 public enum TurnSide : byte {Left, Right};
-public enum TransportType: byte {Public, Private, Mixed};
+public enum TransportType: byte {Public, Private, Mixed, Unknown};
 public enum VehicleType : byte {Car, Bus};
 
 public class VehicleController : MonoBehaviour {

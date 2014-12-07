@@ -254,6 +254,8 @@ public class RoadMap {
 	 */
 	public bool isEntryNode (string node_id, out TransportType tt) {
 		
+		tt = TransportType.Unknown;
+		
 		if (nodes[node_id].node_type == NodeType.LIMIT) {
 			string edge_id = edgeLimit(node_id);
 			
