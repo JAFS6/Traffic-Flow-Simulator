@@ -674,6 +674,7 @@ public class RoadMap {
 	 * @param[in] width Ancho de la linea
 	 * @param[in] height Grosor de la linea
 	 * @param[in] length Longitud de la linea
+	 * @param[in] position Posicion central de la linea
 	 * @param[in] name Nombre para el objeto
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
