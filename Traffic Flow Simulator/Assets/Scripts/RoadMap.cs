@@ -249,17 +249,40 @@ public class RoadMap {
 	/**
 	 * @brief Comprueba si el nodo limite pasado como argumento es un nodo por el que entran vehiculos al mapa
 	 * @param[in] node_id Identificador del nodo limite
+	 * @param[out] tt Tipo de transporte que entrara al mapa a traves de ese nodo
 	 * @return True si hay algun carril de entrada al mapa desde ese nodo, false si no, o si el nodo pasado no es un nodo limite
 	 */
-	public bool isEntryNode (string node_id) {
+	public bool isEntryNode (string node_id, out TransportType tt) {
 		
 		if (nodes[node_id].node_type == NodeType.LIMIT) {
 			string edge_id = edgeLimit(node_id);
 			
 			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != "0") {
+			
+				if (edges[edge_id].src_des.Contains("P") && edges[edge_id].src_des.Contains("N")) { // Contiene P y N
+					tt = TransportType.Mixed;
+				}
+				else if (edges[edge_id].src_des.Contains("P")) { // Contiene solo P
+					tt = TransportType.Public;
+				}
+				else if (edges[edge_id].src_des.Contains("N")) { // Contiene solo N
+					tt = TransportType.Private;
+				}
+				
 				return true;
 			}
 			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != "0") {
+			
+				if (edges[edge_id].des_src.Contains("P") && edges[edge_id].des_src.Contains("N")) { // Contiene P y N
+					tt = TransportType.Mixed;
+				}
+				else if (edges[edge_id].des_src.Contains("P")) { // Contiene solo P
+					tt = TransportType.Public;
+				}
+				else if (edges[edge_id].des_src.Contains("N")) { // Contiene solo N
+					tt = TransportType.Private;
+				}
+				
 				return true;
 			}
 			else {
