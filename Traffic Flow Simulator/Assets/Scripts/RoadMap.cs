@@ -247,6 +247,31 @@ public class RoadMap {
 	}
 
 	/**
+	 * @brief Comprueba si el nodo limite pasado como argumento es un nodo por el que entran vehiculos al mapa
+	 * @param[in] node_id Identificador del nodo limite
+	 * @return True si hay algun carril de entrada al mapa desde ese nodo, false si no, o si el nodo pasado no es un nodo limite
+	 */
+	public bool isEntryNode (string node_id) {
+		
+		if (nodes[node_id].node_type == NodeType.LIMIT) {
+			string edge_id = edgeLimit(node_id);
+			
+			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != "0") {
+				return true;
+			}
+			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != "0") {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+
+	/**
 	 * @brief Calcula el vector que indica la direccion de entrada al mapa desde el nodo limite pasado como argumento
 	 * @param[in] node_id Identificador del nodo limite
 	 * @return El vector orientacion calculado
