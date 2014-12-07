@@ -52,6 +52,10 @@ public class RoadMap {
 	public const string detention_line_name = "Detention line";
 	public const string normal_lane_line_name = "Normal lane line";
 	public const string discontinuous_line_name = "Discontinuous line";
+	
+	public const string limit_node_tag = "Limit_node";
+	public const string continuation_node_tag = "Continuation_node";
+	public const string intersection_node_tag = "Intersection_node";
 
 	private string map_name;
 	private Dictionary<string, Node> nodes;
@@ -446,6 +450,7 @@ public class RoadMap {
 
 			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			aux_road.name = node_id + " - limit";
+			aux_road.tag = limit_node_tag;
 			aux_road.renderer.material = black_material;
 			pos.y += (limit_height/2);
 			aux_road.transform.localScale = new Vector3(width,limit_height,limit_depth);
@@ -457,6 +462,7 @@ public class RoadMap {
 		else if (n.node_type == NodeType.CONTINUATION) {
 			GameObject aux_road = new GameObject();
 			aux_road.name = node_id + " - continuation";
+			aux_road.tag = continuation_node_tag;
 			float edge_width = nodeWidth(n.id);
 			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id));
 			aux_road.transform.position = pos;
@@ -473,6 +479,7 @@ public class RoadMap {
 
 				if (n.node_type == NodeType.INTERSECTION) {
 					aux_road.name = node_id + " - intersection";
+					aux_road.tag = intersection_node_tag;
 				}
 				else {
 					aux_road.name = node_id + " - unknown type";

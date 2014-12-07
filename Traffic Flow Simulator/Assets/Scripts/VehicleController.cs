@@ -61,6 +61,10 @@ public class VehicleController : MonoBehaviour {
 
 		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length)) {
 			Debug.DrawLine(front_ray_pos,front_ray_hit.point,Color.white);
+			
+			if (front_ray_hit.transform.tag == RoadMap.limit_node_tag) {
+				Destroy(this.gameObject);
+			}
 		}
 
 		if (Physics.Raycast(left_ray_pos,left_ray_dir, out left_ray_hit,sensor_length)) {
