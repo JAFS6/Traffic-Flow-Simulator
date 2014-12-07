@@ -2,8 +2,13 @@
 using System.Collections;
 
 public enum TurnSide : byte {Left, Right};
+public enum TransportType: byte {Public, Private};
+public enum VehicleType : byte {Car, Bus};
 
 public class VehicleController : MonoBehaviour {
+
+	public VehicleType vehicle_type;
+	public TransportType transport_type;
 
 	private float current_speed; 	// Velocidad actual en metros por segundo
 
@@ -61,20 +66,78 @@ public class VehicleController : MonoBehaviour {
 		if (Physics.Raycast(left_ray_pos,left_ray_dir, out left_ray_hit,sensor_length)) {
 			Debug.DrawLine(left_ray_pos,left_ray_hit.point,Color.red);
 
-			if (left_ray_hit.transform.name == RoadMap.hard_shoulder_line_name || left_ray_hit.transform.name == RoadMap.normal_lane_line_name) {
-				Turn (TurnSide.Right, 1f);
-			}
+			switch (left_ray_hit.transform.name) {
+
+				case RoadMap.hard_shoulder_line_name:
+					Turn (TurnSide.Right, 1f);
+					break;
+
+				case RoadMap.normal_lane_line_name:
+					
+					if (transport_type == TransportType.Public) {
+						Turn (TurnSide.Right, 1f);
+					}
+					else {
+						Turn (TurnSide.Right, 1f);
+					}
+					
+					break;
+
+				case RoadMap.center_line_name:
+
+					if (transport_type == TransportType.Public) {
+						Turn (TurnSide.Right, 1f);
+					}
+					else {
+						Turn (TurnSide.Right, 1f);
+					}
+					
+					break;
+
+				case RoadMap.public_transport_lane_line_name:
+					
+					if (transport_type == TransportType.Public) {
+						Turn (TurnSide.Right, 1f);
+					}
+					else {
+						Turn (TurnSide.Left, 1f);
+					}
+
+					break;
+			} // End switch (left_ray_hit.transform.name)
 		}
 
 		if (Physics.Raycast(right_ray_pos,right_ray_dir, out right_ray_hit,sensor_length)) {
 			Debug.DrawLine(right_ray_pos,right_ray_hit.point,Color.green);
 
-			if (right_ray_hit.transform.name == RoadMap.hard_shoulder_line_name || right_ray_hit.transform.name == RoadMap.public_transport_lane_line_name) {
-				Turn (TurnSide.Left, 1f);
-			}
-			else if (right_ray_hit.transform.name == RoadMap.center_line_name) {
-				Turn (TurnSide.Right, 10f);
-			}
+			switch (right_ray_hit.transform.name) {
+				
+				case RoadMap.hard_shoulder_line_name:
+					Turn (TurnSide.Left, 1f);
+					break;
+					
+				case RoadMap.normal_lane_line_name:
+					
+					if (transport_type == TransportType.Public) {
+						Turn (TurnSide.Right, 1f);
+					}
+					else {
+						Turn (TurnSide.Right, 1f);
+					}
+					
+					break;
+					
+				case RoadMap.public_transport_lane_line_name:
+					
+					if (transport_type == TransportType.Public) {
+						Turn (TurnSide.Right, 1f);
+					}
+					else {
+						Turn (TurnSide.Left, 1f);
+					}
+					
+					break;
+			} // End switch (right_ray_hit.transform.name)
 		}
 
 		// Increase speed
