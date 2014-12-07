@@ -241,6 +241,7 @@ public class ApplicationController : MonoBehaviour {
 
 			Vector3 pos = new Vector3 (node_position.x,RoadMap.road_thickness/2,node_position.y);
 			GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.LookRotation(dir_road_fixed)) as GameObject;
+			vehicle.tag = "Vehicle";
 		}
 		else {
 			Debug.Log ("Node ID: "+node_id+" is not a limit node ID");
