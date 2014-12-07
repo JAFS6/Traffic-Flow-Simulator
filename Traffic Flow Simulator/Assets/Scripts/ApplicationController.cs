@@ -96,6 +96,30 @@ public class ApplicationController : MonoBehaviour {
 		roadMap.addEdge ("a3", "n3", "n4", "", "NN", "NN");
 		roadMap.addEdge ("a4", "n3", "n5", "", "NN", "0");
 	}
+	
+	private void DebugMapLoader2 () {
+		roadMap.addNode ("n0", NodeType.LIMIT, 2168, 1044);
+		roadMap.addNode ("n1", NodeType.CONTINUATION, 1095, 751);
+		roadMap.addNode ("n2", NodeType.INTERSECTION, 2168, 751, IntersectionType.NORMAL);
+		roadMap.addNode ("n3", NodeType.LIMIT, 2623, 751);
+		roadMap.addNode ("n4", NodeType.LIMIT, 53, 381);
+		roadMap.addNode ("n5", NodeType.INTERSECTION, 1095, 381, IntersectionType.NORMAL);
+		roadMap.addNode ("n6", NodeType.INTERSECTION, 2168, 381, IntersectionType.NORMAL);
+		roadMap.addNode ("n7", NodeType.LIMIT, 2723, 381);
+		roadMap.addNode ("n8", NodeType.LIMIT, 1095, 7);
+		roadMap.addNode ("n9", NodeType.LIMIT, 2168, 83);
+		
+		roadMap.addEdge ("a0", "n0", "n2", "", "PN", "N");
+		roadMap.addEdge ("a1", "n1", "n2", "", "N", "N");
+		roadMap.addEdge ("a2", "n2", "n3", "", "0", "NN");
+		roadMap.addEdge ("a3", "n1", "n5", "", "N", "N");
+		roadMap.addEdge ("a4", "n2", "n6", "", "PN", "N");
+		roadMap.addEdge ("a5", "n4", "n5", "", "PNN", "PNN");
+		roadMap.addEdge ("a6", "n5", "n6", "", "PNN", "PNN");
+		roadMap.addEdge ("a7", "n6", "n7", "", "PNN", "PNN");
+		roadMap.addEdge ("a8", "n5", "n8", "", "N", "N");
+		roadMap.addEdge ("a9", "n6", "n9", "", "PN", "N");
+	}
 
 	/**
 	 * @brief Dibuja el suelo de hierba
