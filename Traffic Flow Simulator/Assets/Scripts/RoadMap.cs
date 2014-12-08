@@ -33,7 +33,7 @@ public struct Edge
 	public Vector3 fixed_position; // Posicion ya ajustada
 }
 
-public class RoadMap {
+public static class RoadMap {
 
 	public const float lane_width = 3f;
 	public const float line_width = 0.1f;
@@ -66,12 +66,11 @@ public class RoadMap {
 	Material asphalt_material;
 	Material asphalt_white_material;
 
-	// Constructor
-	public RoadMap (string map_name) {
+	public static void CreateNewMap (string map_name) {
 		map_name = map_name;
 		nodes = new Dictionary<string, Node> ();
 		edges = new Dictionary<string, Edge> ();
-
+		
 		black_material = Resources.Load ("Materials/Simple_Black", typeof(Material)) as Material;
 		asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
 		asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
@@ -86,7 +85,7 @@ public class RoadMap {
 	 * @param[in] intersection_type Tipo de cruce: normal (0) o rotonda (1) (Solo se aplica a los nodos de tipo cruce)
 	 * @pre El id debe ser distinto a todos los ids ya insertados, si coincide con alguno, el nuevo nodo no se insertará
 	 */
-	public void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.NORMAL) {
+	public static void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.NORMAL) {
 		
 		if ( !nodes.ContainsKey (id) ) {
 			Node newnode = new Node ();
@@ -110,7 +109,7 @@ public class RoadMap {
 	 * @pre El id debe ser distinto a todos los ids ya insertados, si coincide con alguno, el nuevo arco no se añadirá
 	 * @pre Los ids de los nodos origen y destino deben existir, si no existe alguno el arco no se insertará
 	 */
-	public void addEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src) {
+	public static void addEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src) {
 		
 		if ( (!edges.ContainsKey (id)) && nodes.ContainsKey (source_id) && nodes.ContainsKey (destination_id)) {
 			Edge newedge = new Edge ();
@@ -131,7 +130,7 @@ public class RoadMap {
 	 * @param[in] new_intersection_type Nuevo tipo de intersección
 	 * @pre Si el nodo no existe no se hace nada
 	 */
-	public void setIntersectionType (string id, IntersectionType new_intersection_type) {
+	public static void setIntersectionType (string id, IntersectionType new_intersection_type) {
 		
 		if ( nodes.ContainsKey (id) ) {
 			Node aux_node = nodes[id];
@@ -144,7 +143,7 @@ public class RoadMap {
 	 * @brief Obtiene el nombre del mapa
 	 * @return Una cadena de texto con el nombre del mapa
 	 */
-	public string getMapName () {
+	public static string getMapName () {
 		return map_name;
 	}
 
@@ -152,7 +151,7 @@ public class RoadMap {
 	 * @brief Obtiene el numero de nodos del mapa
 	 * @return El numero de nodos del mapa
 	 */
-	public int getNodeCount () {
+	public static int getNodeCount () {
 		return nodes.Count;
 	}
 
@@ -160,7 +159,7 @@ public class RoadMap {
 	 * @brief Obtiene una lista con los identificadores de los nodos del mapa
 	 * @return Una lista de cadenas de texto
 	 */
-	public List<string> getNodeIDs () {
+	public static List<string> getNodeIDs () {
 		List<string> l = new List<string>(nodes.Keys);
 		return l;
 	}
@@ -171,7 +170,7 @@ public class RoadMap {
 	 * @return Un Vector2 con la posicion del nodo en el plano XZ
 	 * @post Si el identificador no existe se devolvera un vector (0,0)
 	 */
-	public Vector2 getNodePosition (string node_id) {
+	public static Vector2 getNodePosition (string node_id) {
 
 		Vector2 pos = new Vector2 ();
 
@@ -189,7 +188,7 @@ public class RoadMap {
 	 * @return El tipo del nodo consultado
 	 * @post Si el identificador no existe se devolvera el tipo UNKNOWN
 	 */
-	public NodeType getNodeType (string node_id) {
+	public static NodeType getNodeType (string node_id) {
 
 		if (nodes.ContainsKey (node_id)) {
 			return nodes[node_id].node_type;
@@ -203,7 +202,7 @@ public class RoadMap {
 	 * @brief Obtiene el numero de arcos del mapa
 	 * @return El numero de arcos del mapa
 	 */
-	public int getEdgeCount () {
+	public static int getEdgeCount () {
 		return edges.Count;
 	}
 
@@ -211,7 +210,7 @@ public class RoadMap {
 	 * @brief Obtiene una lista con los identificadores de los arcos del mapa
 	 * @return Una lista de cadenas de texto
 	 */
-	public List<string> getEdgeIDs () {
+	public static List<string> getEdgeIDs () {
 		List<string> l = new List<string>(edges.Keys);
 		return l;
 	}
@@ -219,7 +218,7 @@ public class RoadMap {
 	/**
 	 * @brief Dibuja el mapa en el entorno 3D
 	 */
-	public void draw () {
+	public static void draw () {
 
 		prepareEdges ();
 
@@ -239,7 +238,7 @@ public class RoadMap {
 	 * @param[in] node_id Identificador del nodo limite
 	 * @return Un string con el id del arco buscado
 	 */
-	public string edgeLimit (string node_id) {
+	public static string edgeLimit (string node_id) {
 		
 		foreach (KeyValuePair<string, Edge> edge in edges) {
 			
@@ -256,7 +255,7 @@ public class RoadMap {
 	 * @param[out] tt Tipo de transporte que entrara al mapa a traves de ese nodo
 	 * @return True si hay algun carril de entrada al mapa desde ese nodo, false si no, o si el nodo pasado no es un nodo limite
 	 */
-	public bool isEntryNode (string node_id, out TransportType tt) {
+	public static bool isEntryNode (string node_id, out TransportType tt) {
 		
 		tt = TransportType.Unknown;
 		
@@ -306,7 +305,7 @@ public class RoadMap {
 	 * @return El vector orientacion calculado
 	 * @post Si el identificador no existe o no es nodo limite se devolvera el vector (0,0)
 	 */
-	public Vector2 entryOrientation (string node_id) {
+	public static Vector2 entryOrientation (string node_id) {
 		Vector3 v = new Vector3 (0,0,0);
 
 		if (nodes.ContainsKey (node_id)) {
@@ -337,7 +336,7 @@ public class RoadMap {
 	 * @brief Procesa los arcos calculando su longitud, anchura y numero de carriles, asi como el ajuste de longitud y posicion para las intersecciones
 	 * @pre Este metodo debe ser llamado antes de ejecutar el metodo drawEdge
 	 */
-	private void prepareEdges () {
+	private staticvoid prepareEdges () {
 		Debug.Log ("Preparing edges");
 
 		List<string> edge_keys = new List<string> (edges.Keys);
@@ -436,7 +435,7 @@ public class RoadMap {
 	 * @brief Dibuja el nodo con id "nodo_id" en el entorno 3D
 	 * @param[in] node_id Identificador del nodo a dibujar
 	 */
-	private void drawNode (string node_id) {
+	private staticvoid drawNode (string node_id) {
 
 		Node n = nodes[node_id];
 		Vector3 pos = new Vector3 (n.x, 0, n.y);
@@ -493,7 +492,7 @@ public class RoadMap {
 	 * @param[in] node_id Identificador del nodo continuacion
 	 * @return El ancho buscado
 	 */
-	private float nodeWidth (string node_id) {
+	private staticfloat nodeWidth (string node_id) {
 
 		// Dado que el ancho de ambos arcos sera el mismo, en cuanto encontremos el primero se detiene la busqueda
 
@@ -511,7 +510,7 @@ public class RoadMap {
 	 * @param[in] node_id Identificador del nodo continuacion
 	 * @return El angulo calculado en grados [0,360)
 	 */
-	private float nodeAngle (string node_id) {
+	private staticfloat nodeAngle (string node_id) {
 		Vector2 edge_1 = new Vector2();
 		Vector2 edge_2 = new Vector2();
 		bool first_found = false;
@@ -558,7 +557,7 @@ public class RoadMap {
 	 * @param[in] edge_id Identificador del arco a dibujar
 	 * @pre Antes de ejecutar este metodo se debe ejecutar una vez el metodo prepareEdges
 	 */
-	private void drawEdge (string edge_id) {
+	private staticvoid drawEdge (string edge_id) {
 
 		Debug.Log ("Drawing edge "+edge_id);
 		Edge e = edges[edge_id];
@@ -655,7 +654,7 @@ public class RoadMap {
 	 * @param[in] length Longitud de la linea
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
+	private staticvoid draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
 
 		switch (lane_type) {
 			case 'P':
@@ -685,7 +684,7 @@ public class RoadMap {
 	 * @param[in] name Nombre para el objeto
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private void draw_continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
+	private staticvoid draw_continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
 		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		line.name = name;
 		line.transform.localScale = new Vector3(width, height, length);
@@ -704,7 +703,7 @@ public class RoadMap {
 	 * @param[in] name Nombre para el objeto
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject new_parent) {
+	private staticvoid draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject new_parent) {
 
 		GameObject discontinuous_line = new GameObject ();
 		discontinuous_line.name = discontinuous_line_name;
@@ -734,7 +733,7 @@ public class RoadMap {
 	 * @param[in] edge_id Identificador del arco
 	 * @return El numero entero de carriles que tiene el arco
 	 */
-	private int lanes (string edge_id) {
+	private staticint lanes (string edge_id) {
 		string src_des = edges [edge_id].src_des;
 		string des_src = edges [edge_id].des_src;
 		
@@ -758,7 +757,7 @@ public class RoadMap {
 	 * @param[in] width Ancho de los arcos
 	 * @param[in] angle Angulo menor que forman los arcos
 	 */
-	private void CreateContinuationNode (GameObject gameObject, float radius, float edge_width, float angle) {
+	private staticvoid CreateContinuationNode (GameObject gameObject, float radius, float edge_width, float angle) {
 
 		// TODO Añadir collider
 		gameObject.AddComponent< MeshRenderer > ();
