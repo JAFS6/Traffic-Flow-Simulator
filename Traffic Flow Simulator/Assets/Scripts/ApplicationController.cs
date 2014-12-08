@@ -16,10 +16,6 @@ public class ApplicationController : MonoBehaviour {
 	public float initial_camera_position_x = 500f;
 	public float initial_camera_position_y = 15f;
 	public float initial_camera_position_z = 480f;
-
-	// Variables de control del mapa
-	private RoadMap roadMap;
-	private MapLoader map_loader;
 	
 	// Variables de control para instanciar vehiculos
 	private Dictionary<string, EntryNodeInfo> entryNodes;
@@ -39,19 +35,18 @@ public class ApplicationController : MonoBehaviour {
 		main_camera = GameObject.Find("Main Camera");
 
 		// Crear mapa nuevo
-		//roadMap = new RoadMap("ejemplo_topologia");
-		roadMap = new RoadMap("ejemplo2");
+		//RoadMap.CreateNewMap("ejemplo_topologia");
+		RoadMap.CreateNewMap("ejemplo2");
 
 		// Cargar los datos del mapa
-		//map_loader = new MapLoader (ref roadMap);
-		//map_loader.LoadMap("ejemplo_topologia");
+		//MapLoader.LoadMap("ejemplo_topologia");
 		DebugMapLoader();
 
 		// Dibujar el suelo base
 		drawGround ();
 
 		// Dibujar el mapa
-		roadMap.draw ();
+		RoadMap.draw ();
 
 		// Guardar las posiciones de los nodos para posicionar la camara
 		saveNodePositions ();
@@ -69,65 +64,65 @@ public class ApplicationController : MonoBehaviour {
 	void Update () {
 
 		if (Input.GetKeyDown (KeyCode.Alpha2)) {
-			camera_node = (camera_node + 1) % roadMap.getNodeCount();
+			camera_node = (camera_node + 1) % RoadMap.getNodeCount();
 			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, camera_height, node_positions[camera_node].y);
 		}
 		else if (Input.GetKeyDown (KeyCode.Alpha1)) {
-			camera_node = (camera_node - 1) % roadMap.getNodeCount();
+			camera_node = (camera_node - 1) % RoadMap.getNodeCount();
 
 			if (camera_node < 0) {
-				camera_node = roadMap.getNodeCount() + camera_node;
+				camera_node = RoadMap.getNodeCount() + camera_node;
 			}
 			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, camera_height, node_positions[camera_node].y);
 		}
 	}
 
 	private void DebugMapLoader () {
-		roadMap.addNode ("n0", NodeType.CONTINUATION, 500, 600);
-		roadMap.addNode ("n1", NodeType.LIMIT, 600, 700);
-		roadMap.addNode ("n2", NodeType.LIMIT, 400, 500);
-		roadMap.addNode ("n3", NodeType.INTERSECTION, 500, 500, IntersectionType.NORMAL);
-		roadMap.addNode ("n4", NodeType.LIMIT, 600, 500);
-		roadMap.addNode ("n5", NodeType.LIMIT, 500, 400);
+		RoadMap.addNode ("n0", NodeType.CONTINUATION, 500, 600);
+		RoadMap.addNode ("n1", NodeType.LIMIT, 600, 700);
+		RoadMap.addNode ("n2", NodeType.LIMIT, 400, 500);
+		RoadMap.addNode ("n3", NodeType.INTERSECTION, 500, 500, IntersectionType.NORMAL);
+		RoadMap.addNode ("n4", NodeType.LIMIT, 600, 500);
+		RoadMap.addNode ("n5", NodeType.LIMIT, 500, 400);
 
-		roadMap.addEdge ("a0", "n0", "n1", "", "PNN", "PN");
-		roadMap.addEdge ("a1", "n0", "n3", "", "PN", "PNN");
-		roadMap.addEdge ("a2", "n2", "n3", "", "N", "0");
-		roadMap.addEdge ("a3", "n3", "n4", "", "NN", "NN");
-		roadMap.addEdge ("a4", "n3", "n5", "", "NN", "0");
+		RoadMap.addEdge ("a0", "n0", "n1", "", "PNN", "PN");
+		RoadMap.addEdge ("a1", "n0", "n3", "", "PN", "PNN");
+		RoadMap.addEdge ("a2", "n2", "n3", "", "N", "0");
+		RoadMap.addEdge ("a3", "n3", "n4", "", "NN", "NN");
+		RoadMap.addEdge ("a4", "n3", "n5", "", "NN", "0");
 	}
 	
 	private void DebugMapLoader2 () {
-		roadMap.addNode ("n0", NodeType.LIMIT, 2168, 1044);
-		roadMap.addNode ("n1", NodeType.CONTINUATION, 1095, 751);
-		roadMap.addNode ("n2", NodeType.INTERSECTION, 2168, 751, IntersectionType.NORMAL);
-		roadMap.addNode ("n3", NodeType.LIMIT, 2623, 751);
-		roadMap.addNode ("n4", NodeType.LIMIT, 53, 381);
-		roadMap.addNode ("n5", NodeType.INTERSECTION, 1095, 381, IntersectionType.NORMAL);
-		roadMap.addNode ("n6", NodeType.INTERSECTION, 2168, 381, IntersectionType.NORMAL);
-		roadMap.addNode ("n7", NodeType.LIMIT, 2723, 381);
-		roadMap.addNode ("n8", NodeType.LIMIT, 1095, 7);
-		roadMap.addNode ("n9", NodeType.LIMIT, 2168, 83);
+		RoadMap.addNode ("n0", NodeType.LIMIT, 2168, 1044);
+		RoadMap.addNode ("n1", NodeType.CONTINUATION, 1095, 751);
+		RoadMap.addNode ("n2", NodeType.INTERSECTION, 2168, 751, IntersectionType.NORMAL);
+		RoadMap.addNode ("n3", NodeType.LIMIT, 2623, 751);
+		RoadMap.addNode ("n4", NodeType.LIMIT, 53, 381);
+		RoadMap.addNode ("n5", NodeType.INTERSECTION, 1095, 381, IntersectionType.NORMAL);
+		RoadMap.addNode ("n6", NodeType.INTERSECTION, 2168, 381, IntersectionType.NORMAL);
+		RoadMap.addNode ("n7", NodeType.LIMIT, 2723, 381);
+		RoadMap.addNode ("n8", NodeType.LIMIT, 1095, 7);
+		RoadMap.addNode ("n9", NodeType.LIMIT, 2168, 83);
 		
-		roadMap.addEdge ("a0", "n0", "n2", "", "PN", "N");
-		roadMap.addEdge ("a1", "n1", "n2", "", "N", "N");
-		roadMap.addEdge ("a2", "n2", "n3", "", "0", "NN");
-		roadMap.addEdge ("a3", "n1", "n5", "", "N", "N");
-		roadMap.addEdge ("a4", "n2", "n6", "", "PN", "N");
-		roadMap.addEdge ("a5", "n4", "n5", "", "PNN", "PNN");
-		roadMap.addEdge ("a6", "n5", "n6", "", "PNN", "PNN");
-		roadMap.addEdge ("a7", "n6", "n7", "", "PNN", "PNN");
-		roadMap.addEdge ("a8", "n5", "n8", "", "N", "N");
-		roadMap.addEdge ("a9", "n6", "n9", "", "PN", "N");
+		RoadMap.addEdge ("a0", "n0", "n2", "", "PN", "N");
+		RoadMap.addEdge ("a1", "n1", "n2", "", "N", "N");
+		RoadMap.addEdge ("a2", "n2", "n3", "", "0", "NN");
+		RoadMap.addEdge ("a3", "n1", "n5", "", "N", "N");
+		RoadMap.addEdge ("a4", "n2", "n6", "", "PN", "N");
+		RoadMap.addEdge ("a5", "n4", "n5", "", "PNN", "PNN");
+		RoadMap.addEdge ("a6", "n5", "n6", "", "PNN", "PNN");
+		RoadMap.addEdge ("a7", "n6", "n7", "", "PNN", "PNN");
+		RoadMap.addEdge ("a8", "n5", "n8", "", "N", "N");
+		RoadMap.addEdge ("a9", "n6", "n9", "", "PN", "N");
 	}
 
 	/**
 	 * @brief Dibuja el suelo de hierba
 	 */
 	private void drawGround () {
-		List<string> node_IDs = roadMap.getNodeIDs ();
+		List<string> node_IDs = RoadMap.getNodeIDs ();
 
-		Vector2 first_pos = roadMap.getNodePosition (node_IDs [0]);
+		Vector2 first_pos = RoadMap.getNodePosition (node_IDs [0]);
 
 		float min_x = first_pos.x;
 		float max_x = first_pos.x;
@@ -135,7 +130,7 @@ public class ApplicationController : MonoBehaviour {
 		float max_y = first_pos.y;
 
 		foreach (string ID in node_IDs) {
-			Vector2 pos = roadMap.getNodePosition (ID);
+			Vector2 pos = RoadMap.getNodePosition (ID);
 
 			if (pos.x < min_x) {
 				min_x = pos.x;
@@ -170,14 +165,14 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	private void saveNodePositions () {
-		List<string> node_IDs = roadMap.getNodeIDs ();
+		List<string> node_IDs = RoadMap.getNodeIDs ();
 
 		node_positions = new Vector2[node_IDs.Count];
 
 		int i = 0;
 
 		foreach (string ID in node_IDs) {
-			Vector2 pos = roadMap.getNodePosition (ID);
+			Vector2 pos = RoadMap.getNodePosition (ID);
 
 			node_positions[i] = new Vector2(pos.x,pos.y);
 			i++;
@@ -187,12 +182,12 @@ public class ApplicationController : MonoBehaviour {
 	private void saveEntryNodes () {
 		entryNodes = new Dictionary<string, EntryNodeInfo>();
 		
-		List<string> node_IDs = roadMap.getNodeIDs ();
+		List<string> node_IDs = RoadMap.getNodeIDs ();
 		TransportType tt;
 		
 		foreach (string ID in node_IDs) {
 		
-			if (roadMap.isEntryNode(ID, out tt)) {
+			if (RoadMap.isEntryNode(ID, out tt)) {
 				
 				EntryNodeInfo new_entry = new EntryNodeInfo();
 				new_entry.id = ID;
@@ -224,14 +219,14 @@ public class ApplicationController : MonoBehaviour {
 	 */
 	private void spawnVehicle (GameObject prefab, Vector2 prefab_orientation, string node_id) {
 
-		NodeType node_type = roadMap.getNodeType (node_id);
+		NodeType node_type = RoadMap.getNodeType (node_id);
 
 		if (node_type == NodeType.LIMIT) {
-			Vector2 node_position = roadMap.getNodePosition (node_id);
+			Vector2 node_position = RoadMap.getNodePosition (node_id);
 
-			string edge_id = roadMap.edgeLimit(node_id);
+			string edge_id = RoadMap.edgeLimit(node_id);
 
-			Vector2 dir_road = roadMap.entryOrientation(node_id);
+			Vector2 dir_road = RoadMap.entryOrientation(node_id);
 
 			Quaternion q = Quaternion.AngleAxis(5,new Vector3(0,1,0)); // Rotacion de 5 grados hacia la derecha respecto al eje y
 

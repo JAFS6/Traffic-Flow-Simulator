@@ -57,14 +57,14 @@ public static class RoadMap {
 	public const string continuation_node_tag = "Continuation_node";
 	public const string intersection_node_tag = "Intersection_node";
 
-	private string map_name;
-	private Dictionary<string, Node> nodes;
-	private Dictionary<string, Edge> edges;
+	private static string map_name;
+	private static Dictionary<string, Node> nodes;
+	private static Dictionary<string, Edge> edges;
 
 	// Materials
-	Material black_material;
-	Material asphalt_material;
-	Material asphalt_white_material;
+	private static Material black_material;
+	private static Material asphalt_material;
+	private static Material asphalt_white_material;
 
 	public static void CreateNewMap (string map_name) {
 		map_name = map_name;
@@ -336,7 +336,7 @@ public static class RoadMap {
 	 * @brief Procesa los arcos calculando su longitud, anchura y numero de carriles, asi como el ajuste de longitud y posicion para las intersecciones
 	 * @pre Este metodo debe ser llamado antes de ejecutar el metodo drawEdge
 	 */
-	private staticvoid prepareEdges () {
+	private static void prepareEdges () {
 		Debug.Log ("Preparing edges");
 
 		List<string> edge_keys = new List<string> (edges.Keys);
@@ -435,7 +435,7 @@ public static class RoadMap {
 	 * @brief Dibuja el nodo con id "nodo_id" en el entorno 3D
 	 * @param[in] node_id Identificador del nodo a dibujar
 	 */
-	private staticvoid drawNode (string node_id) {
+	private static void drawNode (string node_id) {
 
 		Node n = nodes[node_id];
 		Vector3 pos = new Vector3 (n.x, 0, n.y);
@@ -492,7 +492,7 @@ public static class RoadMap {
 	 * @param[in] node_id Identificador del nodo continuacion
 	 * @return El ancho buscado
 	 */
-	private staticfloat nodeWidth (string node_id) {
+	private static float nodeWidth (string node_id) {
 
 		// Dado que el ancho de ambos arcos sera el mismo, en cuanto encontremos el primero se detiene la busqueda
 
@@ -510,7 +510,7 @@ public static class RoadMap {
 	 * @param[in] node_id Identificador del nodo continuacion
 	 * @return El angulo calculado en grados [0,360)
 	 */
-	private staticfloat nodeAngle (string node_id) {
+	private static float nodeAngle (string node_id) {
 		Vector2 edge_1 = new Vector2();
 		Vector2 edge_2 = new Vector2();
 		bool first_found = false;
@@ -557,7 +557,7 @@ public static class RoadMap {
 	 * @param[in] edge_id Identificador del arco a dibujar
 	 * @pre Antes de ejecutar este metodo se debe ejecutar una vez el metodo prepareEdges
 	 */
-	private staticvoid drawEdge (string edge_id) {
+	private static void drawEdge (string edge_id) {
 
 		Debug.Log ("Drawing edge "+edge_id);
 		Edge e = edges[edge_id];
@@ -654,7 +654,7 @@ public static class RoadMap {
 	 * @param[in] length Longitud de la linea
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private staticvoid draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
+	private static void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
 
 		switch (lane_type) {
 			case 'P':
@@ -684,7 +684,7 @@ public static class RoadMap {
 	 * @param[in] name Nombre para el objeto
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private staticvoid draw_continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
+	private static void draw_continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
 		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		line.name = name;
 		line.transform.localScale = new Vector3(width, height, length);
@@ -703,7 +703,7 @@ public static class RoadMap {
 	 * @param[in] name Nombre para el objeto
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private staticvoid draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject new_parent) {
+	private static void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject new_parent) {
 
 		GameObject discontinuous_line = new GameObject ();
 		discontinuous_line.name = discontinuous_line_name;
@@ -733,7 +733,7 @@ public static class RoadMap {
 	 * @param[in] edge_id Identificador del arco
 	 * @return El numero entero de carriles que tiene el arco
 	 */
-	private staticint lanes (string edge_id) {
+	private static int lanes (string edge_id) {
 		string src_des = edges [edge_id].src_des;
 		string des_src = edges [edge_id].des_src;
 		
@@ -757,7 +757,7 @@ public static class RoadMap {
 	 * @param[in] width Ancho de los arcos
 	 * @param[in] angle Angulo menor que forman los arcos
 	 */
-	private staticvoid CreateContinuationNode (GameObject gameObject, float radius, float edge_width, float angle) {
+	private static void CreateContinuationNode (GameObject gameObject, float radius, float edge_width, float angle) {
 
 		// TODO Añadir collider
 		gameObject.AddComponent< MeshRenderer > ();

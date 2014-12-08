@@ -3,17 +3,9 @@ using System.Collections;
 using System.IO;
 using System.Xml;
 
-public class MapLoader {
+public static class MapLoader {
 
-	RoadMap roadMap;
-
-	public MapLoader (ref RoadMap m) {
-		roadMap = m;
-	}
-
-	public void LoadMap (string nombre_fichero_mapa) {
-		// Liberar recursos en caso de que hubiese un mapa previo
-		Unload();
+	public static void LoadMap (string nombre_fichero_mapa) {
 		
 		// Preparar nombre del fichero del mapa a cargar
 		string full_path = Application.dataPath + "/Resources/Maps/" + nombre_fichero_mapa + ".graphml";
@@ -23,11 +15,7 @@ public class MapLoader {
 		MapLoaderRoutine(full_path);
 	}
 	
-	private void Unload () {
-		
-	}
-	
-	private void MapLoaderRoutine (string nombre_fichero_completo) {
+	private static void MapLoaderRoutine (string nombre_fichero_completo) {
 		
 		// Variables para tomar valores por defecto
 		NodeType node_type_default = NodeType.INTERSECTION;
@@ -233,18 +221,18 @@ public class MapLoader {
 		SaveEdge(id,source_id_value,destination_id_value,name_value,src_des_value,des_src_value);
 	}
 	
-	private void SaveNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type) {
+	private static void SaveNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type) {
 		// Guardar nodo anterior
 		if (node_type == NodeType.INTERSECTION) {
-			roadMap.addNode(id,node_type,x,y,intersection_type);
+			RoadMap.addNode(id,node_type,x,y,intersection_type);
 		}
 		else {
-			roadMap.addNode(id,node_type,x,y);
+			RoadMap.addNode(id,node_type,x,y);
 		}
 	}
 	
-	private void SaveEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src) {
-		roadMap.addEdge (id, source_id, destination_id, name, src_des, des_src);
+	private static void SaveEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src) {
+		RoadMap.addEdge (id, source_id, destination_id, name, src_des, des_src);
 	}
 	
 	static byte[] GetBytes (string str) {
