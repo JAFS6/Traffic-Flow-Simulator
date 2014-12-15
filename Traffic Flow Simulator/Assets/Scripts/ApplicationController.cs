@@ -200,12 +200,19 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	private IEnumerator spawnVehicles () {
-		GameObject car_prefab = Resources.Load("Prefabs/Sport_Car", typeof(GameObject)) as GameObject;
+		GameObject sport_car_prefab = Resources.Load("Prefabs/Sport_Car", typeof(GameObject)) as GameObject;
+		GameObject green_jeep_prefab = Resources.Load("Prefabs/GreenJeep", typeof(GameObject)) as GameObject;
+		GameObject orange_jeep_prefab = Resources.Load("Prefabs/OrangeJeep", typeof(GameObject)) as GameObject;
 		Vector2 dir_prefab = new Vector3 (0,1);
 		
+		GameObject [] prefab = new GameObject[3];
+		prefab[0] = sport_car_prefab;
+		prefab[1] = green_jeep_prefab;
+		prefab[2] = orange_jeep_prefab;
+		
 		while (true) {
-			spawnVehicle (car_prefab, dir_prefab, "n2");
-			spawnVehicle (car_prefab, dir_prefab, "n1");
+			spawnVehicle (prefab[Random.Range(0,3)], dir_prefab, "n2");
+			spawnVehicle (prefab[Random.Range(0,3)], dir_prefab, "n1");
 			yield return new WaitForSeconds(5);
 		}
 	}
