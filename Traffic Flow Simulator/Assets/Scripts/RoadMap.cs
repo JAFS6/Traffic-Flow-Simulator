@@ -608,11 +608,16 @@ public static class RoadMap {
 		Vector3 save_position = new Vector3 (position.x, position.y, position.z);
 
 		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
+		// y poner tantos inicios de carril como carriles haya
 		if (e.src_des != "0") {
-			for (int i=0; i<e.src_des.Length-1; i++) {
-				position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width) - ((lane_width + line_width) * (i+1));
+			for (int i=0; i<e.src_des.Length; i++) {
 				char lane_type = e.src_des[i];
-				draw_lane_line (lane_type, e.length, position, platform);
+				position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width) - ((lane_width + line_width) * (i+1));
+				
+				if (i < e.src_des.Length-1) {
+					draw_lane_line (lane_type, e.length, position, platform);
+				}
+				setLaneStartPoint (lane_type, new Vector3 (position.x + (lane_width/2), position.y, position.z - (e.length/2)), platform);
 			}
 
 			// Lineas de detencion antes del cruce
@@ -626,10 +631,14 @@ public static class RoadMap {
 		if (e.des_src != "0") {
 			position = save_position;
 
-			for (int i=0; i<e.des_src.Length-1; i++) {
-				position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width) + ((lane_width + line_width) * (i+1));
+			for (int i=0; i<e.des_src.Length; i++) {
 				char lane_type = e.des_src[i];
-				draw_lane_line (lane_type, e.length, position, platform);
+				position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width) + ((lane_width + line_width) * (i+1));
+				
+				if (i < e.des_src.Length-1) {
+					draw_lane_line (lane_type, e.length, position, platform);
+				}
+				setLaneStartPoint (lane_type, new Vector3 (position.x - (lane_width/2), position.y, position.z + (e.length/2)), platform);
 			}
 
 			// Lineas de detencion antes del cruce
