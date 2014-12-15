@@ -647,11 +647,47 @@ public static class RoadMap {
 		platform.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir_pref,e.direction),Vector3.up);
 		platform.transform.position = e.fixed_position;
 	}
+	
+	/**
+	 * @brief Establece un objeto LaneStart en la posicion indicada
+	 * @param[in] lane_type Tipo de carril (P: Transporte publico, N: Normal, A: Aparcamiento, V: Carril Bus/VAO)
+	 * @param[in] position Posicion donde se colocara el objeto
+	 * @param[in] parent Objeto padre al que se unira el objeto
+	 */
+	private static void setLaneStartPoint (char lane_type, Vector3 position, GameObject parent) {
+		
+		switch (lane_type) {
+			case 'P':
+				GameObject publicLaneStart = new GameObject();
+				publicLaneStart.name = "Public Lane";
+				publicLaneStart.tag = "LaneStartPoint";
+				publicLaneStart.transform.position = position;
+				publicLaneStart.transform.parent = parent.transform;
+				break;
+			case 'N':
+				GameObject normalLaneStart = new GameObject();
+				normalLaneStart.name = "Normal Lane";
+				normalLaneStart.tag = "LaneStartPoint";
+				normalLaneStart.transform.position = position;
+				normalLaneStart.transform.parent = parent.transform;
+				break;
+			case 'A':
+				Debug.Log("Parking lane start point not designed yet");
+				break;
+			case 'V':
+				Debug.Log("Bus/VAO lane start point not designed yet");
+				break;
+			default:
+				Debug.Log("Trying to draw invalid type of lane");
+				break;
+		}
+	}
 
 	/**
 	 * @brief Dibuja una linea de carril segun su tipo
 	 * @param[in] lane_type Tipo de carril (P: Transporte publico, N: Normal, A: Aparcamiento, V: Carril Bus/VAO)
 	 * @param[in] length Longitud de la linea
+	 * @param[in] position Posicion central de la linea
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
 	private static void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
