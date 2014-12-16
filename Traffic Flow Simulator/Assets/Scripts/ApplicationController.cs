@@ -8,7 +8,7 @@ public struct EntryNodeInfo
 {
 	public string id;
 	public TransportType tt; // Transport Type
-	public float tbs; // Time Between Spawns
+	public float tbs; 		 // Time Between Spawns
 }
 
 public class ApplicationController : MonoBehaviour {
@@ -28,9 +28,7 @@ public class ApplicationController : MonoBehaviour {
 
 	// Acciones a realizar cuando se inicia la aplicacion
 	void Start () {
-
-		Debug.Log("Starting application");
-
+		
 		// Obtener la referencia a la camara del simulador
 		main_camera = GameObject.Find("Main Camera");
 
@@ -210,9 +208,11 @@ public class ApplicationController : MonoBehaviour {
 		prefab[1] = green_jeep_prefab;
 		prefab[2] = orange_jeep_prefab;
 		
+		GameObject vehicle = null;
+		
 		while (true) {
-			spawnVehicle (prefab[Random.Range(0,3)], dir_prefab, "n2");
-			spawnVehicle (prefab[Random.Range(0,3)], dir_prefab, "n1");
+			vehicle = spawnVehicle (prefab[Random.Range(0,3)], dir_prefab, "n2");
+			vehicle = spawnVehicle (prefab[Random.Range(0,3)], dir_prefab, "n1");
 			yield return new WaitForSeconds(5);
 		}
 	}
@@ -222,9 +222,10 @@ public class ApplicationController : MonoBehaviour {
 	 * @param[in] prefab El prefab a instanciar
 	 * @param[in] prefab_orientation La orientacion del prefab
 	 * @param[in] node_id El identificador del nodo limite donde se instanciara el vehiculo
+	 * @return Devuelve una referencia al objeto instanciado
 	 * @post Si node_id no existe o no es un nodo de tipo limite no se instanciara el vehiculo
 	 */
-	private void spawnVehicle (GameObject prefab, Vector2 prefab_orientation, string node_id) {
+	private GameObject spawnVehicle (GameObject prefab, Vector2 prefab_orientation, string node_id) {
 
 		NodeType node_type = RoadMap.getNodeType (node_id);
 
@@ -244,9 +245,11 @@ public class ApplicationController : MonoBehaviour {
 			Vector3 pos = new Vector3 (node_position.x,RoadMap.road_thickness/2,node_position.y);
 			GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.LookRotation(dir_road_fixed)) as GameObject;
 			vehicle.tag = "Vehicle";
+			return vehicle;
 		}
 		else {
 			Debug.Log ("Node ID: "+node_id+" is not a limit node ID");
 		}
+		return null;
 	}
 }

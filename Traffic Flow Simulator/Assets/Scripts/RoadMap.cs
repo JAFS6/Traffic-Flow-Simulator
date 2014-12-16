@@ -53,9 +53,13 @@ public static class RoadMap {
 	public const string normal_lane_line_name = "Normal lane line";
 	public const string discontinuous_line_name = "Discontinuous line";
 	
+	// Tags
 	public const string limit_node_tag = "Limit_node";
 	public const string continuation_node_tag = "Continuation_node";
 	public const string intersection_node_tag = "Intersection_node";
+	public const string unknown_tag = "Unknown";
+	public const string edge_tag = "Edge";
+	public const string lane_start_point_tag = "LaneStartPoint";
 	
 	public const string no_lane_string = "0";
 	public const string normal_lane_string = "N";
@@ -125,7 +129,6 @@ public static class RoadMap {
 			newedge.des_src = des_src;
 			edges.Add (newedge.id, newedge);
 		}
-		Debug.Log ("edges.Count = "+edges.Count);
 	}
 	
 	/**
@@ -226,12 +229,10 @@ public static class RoadMap {
 
 		prepareEdges ();
 
-		Debug.Log ("Drawing Edges");
 		foreach (KeyValuePair<string, Edge> edge in edges){
 			drawEdge (edge.Key);
 		}
 
-		Debug.Log ("Drawing Nodes");
 		foreach (KeyValuePair<string, Node> node in nodes){
 			drawNode (node.Key);
 		}
@@ -344,7 +345,9 @@ public static class RoadMap {
 	 * @param[in] tt Tipo de transporte del vehiculo
 	 */
 	public static List<string> exitPaths (string node_id, string entry_edge_id, TransportType tt) {
+	
 		List<string> exits = new List<string>();
+		exits.Clear();
 		
 		List<string> edge_keys = new List<string> (edges.Keys);
 		
@@ -379,7 +382,6 @@ public static class RoadMap {
 	 * @pre Este metodo debe ser llamado antes de ejecutar el metodo drawEdge
 	 */
 	private static void prepareEdges () {
-		Debug.Log ("Preparing edges");
 
 		List<string> edge_keys = new List<string> (edges.Keys);
 
@@ -490,7 +492,7 @@ public static class RoadMap {
 			float width = (e.lane_num*lane_width) + 2*lane_width; // Para que sobresalga por ambos lados
 
 			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			aux_road.name = node_id + " - limit";
+			aux_road.name = node_id;
 			aux_road.tag = limit_node_tag;
 			aux_road.renderer.material = black_material;
 			pos.y += (limit_height/2);
@@ -502,7 +504,7 @@ public static class RoadMap {
 		}
 		else if (n.node_type == NodeType.CONTINUATION) {
 			GameObject aux_road = new GameObject();
-			aux_road.name = node_id + " - continuation";
+			aux_road.name = node_id;
 			aux_road.tag = continuation_node_tag;
 			float edge_width = nodeWidth(n.id);
 			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id));
@@ -519,11 +521,12 @@ public static class RoadMap {
 				aux_road.transform.localScale = new Vector3(17.6f,road_thickness,17.6f);
 
 				if (n.node_type == NodeType.INTERSECTION) {
-					aux_road.name = node_id + " - intersection";
+					aux_road.name = node_id;
 					aux_road.tag = intersection_node_tag;
 				}
 				else {
-					aux_road.name = node_id + " - unknown type";
+					aux_road.name = node_id;
+					aux_road.tag = unknown_tag;
 				}
 			}
 		}
@@ -600,13 +603,12 @@ public static class RoadMap {
 	 * @pre Antes de ejecutar este metodo se debe ejecutar una vez el metodo prepareEdges
 	 */
 	private static void drawEdge (string edge_id) {
-
-		Debug.Log ("Drawing edge "+edge_id);
 		Edge e = edges[edge_id];
 
 		// Plataforma
 		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		platform.name = edge_id;
+		platform.tag = edge_tag;
 		platform.transform.localScale = new Vector3(e.width, road_thickness, e.length);
 		platform.renderer.material.color = Color.gray;
 		platform.renderer.material = asphalt_material;
@@ -711,14 +713,14 @@ public static class RoadMap {
 			case 'P':
 				GameObject publicLaneStart = new GameObject();
 				publicLaneStart.name = "Public Lane";
-				publicLaneStart.tag = "LaneStartPoint";
+				publicLaneStart.tag = lane_start_point_tag;
 				publicLaneStart.transform.position = position;
 				publicLaneStart.transform.parent = parent.transform;
 				break;
 			case 'N':
 				GameObject normalLaneStart = new GameObject();
 				normalLaneStart.name = "Normal Lane";
-				normalLaneStart.tag = "LaneStartPoint";
+				normalLaneStart.tag = lane_start_point_tag;
 				normalLaneStart.transform.position = position;
 				normalLaneStart.transform.parent = parent.transform;
 				break;
