@@ -56,6 +56,10 @@ public static class RoadMap {
 	public const string limit_node_tag = "Limit_node";
 	public const string continuation_node_tag = "Continuation_node";
 	public const string intersection_node_tag = "Intersection_node";
+	
+	public const string no_lane_string = "0";
+	public const string normal_lane_string = "N";
+	public const string public_lane_string = "P";
 
 	private static string map_name;
 	private static Dictionary<string, Node> nodes;
@@ -262,29 +266,29 @@ public static class RoadMap {
 		if (nodes[node_id].node_type == NodeType.LIMIT) {
 			string edge_id = edgeLimit(node_id);
 			
-			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != "0") {
+			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != no_lane_string) {
 			
-				if (edges[edge_id].src_des.Contains("P") && edges[edge_id].src_des.Contains("N")) { // Contiene P y N
-					tt = TransportType.Mixed;
+				if (edges[edge_id].src_des.Contains(public_lane_string) && edges[edge_id].src_des.Contains(normal_lane_string)) { // Contiene P y N
+					tt = TransportType.PublicAndPrivate;
 				}
-				else if (edges[edge_id].src_des.Contains("P")) { // Contiene solo P
+				else if (edges[edge_id].src_des.Contains(public_lane_string)) { // Contiene solo P
 					tt = TransportType.Public;
 				}
-				else if (edges[edge_id].src_des.Contains("N")) { // Contiene solo N
+				else if (edges[edge_id].src_des.Contains(normal_lane_string)) { // Contiene solo N
 					tt = TransportType.Private;
 				}
 				
 				return true;
 			}
-			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != "0") {
+			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != no_lane_string) {
 			
-				if (edges[edge_id].des_src.Contains("P") && edges[edge_id].des_src.Contains("N")) { // Contiene P y N
-					tt = TransportType.Mixed;
+				if (edges[edge_id].des_src.Contains(public_lane_string) && edges[edge_id].des_src.Contains(normal_lane_string)) { // Contiene P y N
+					tt = TransportType.PublicAndPrivate;
 				}
-				else if (edges[edge_id].des_src.Contains("P")) { // Contiene solo P
+				else if (edges[edge_id].des_src.Contains(public_lane_string)) { // Contiene solo P
 					tt = TransportType.Public;
 				}
-				else if (edges[edge_id].des_src.Contains("N")) { // Contiene solo N
+				else if (edges[edge_id].des_src.Contains(normal_lane_string)) { // Contiene solo N
 					tt = TransportType.Private;
 				}
 				
@@ -330,6 +334,44 @@ public static class RoadMap {
 		Vector2 orientation = new Vector2 (v.x,v.z);
 
 		return orientation;
+	}
+	
+	/**
+	 * @brief Obtiene una lista con los identificadores de los arcos por los que un vehiculo puede salir del nodo
+	 * habiendo entrado a el por el arco indicado
+	 * @param[in] node_id Id del nodo en el que se encuentra el vehiculo
+	 * @param[in] entry_edge_id Id del arco por el que ha entrado al nodo
+	 * @param[in] tt Tipo de transporte del vehiculo
+	 */
+	public static List<string> exitPaths (string node_id, string entry_edge_id, TransportType tt) {
+		List<string> exits = new List<string>();
+		
+		List<string> edge_keys = new List<string> (edges.Keys);
+		
+		foreach (string edge_id in edge_keys) {
+			
+			if (edge_id != entry_edge_id) { // El arco no es el arco por el que ha entrado
+				
+				if (node_id == edges[edge_id].source_id && edges[edge_id].src_des != no_lane_string) { // Hay algun carril de salida
+					
+					if ((tt == TransportType.Public && edges[edge_id].src_des.Contains(public_lane_string)) || 
+						(tt == TransportType.Private && edges[edge_id].src_des.Contains(normal_lane_string))) { // Hay al menos un carril que se corresponde con el tipo de vehiculo
+						
+						exits.Add(edge_id);
+					}
+				}
+				else if (node_id == edges[edge_id].destination_id && edges[edge_id].des_src != no_lane_string) { // Hay algun carril de salida
+					
+					if ((tt == TransportType.Public && edges[edge_id].des_src.Contains(public_lane_string)) || 
+					    (tt == TransportType.Private && edges[edge_id].des_src.Contains(normal_lane_string))) { // Hay al menos un carril que se corresponde con el tipo de vehiculo
+						
+						exits.Add(edge_id);
+					}
+				}
+			}
+		}
+		
+		return exits;
 	}
 
 	/**
@@ -585,7 +627,7 @@ public static class RoadMap {
 		draw_continuous_line (line_width, line_thickness, e.length, position, hard_shoulder_line_name, platform);
 
 		// Lineas centrales
-		if (e.src_des != "0" && e.des_src != "0") { // Si ambos sentidos tienen carriles
+		if (e.src_des != no_lane_string && e.des_src != no_lane_string) { // Si ambos sentidos tienen carriles
 
 			if (e.src_des.Length == e.des_src.Length) { // Mismo numero de carriles en cada sentido
 				position.x = platform.transform.position.x - (center_lines_separation/2);
@@ -609,7 +651,7 @@ public static class RoadMap {
 
 		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
 		// y poner tantos inicios de carril como carriles haya
-		if (e.src_des != "0") {
+		if (e.src_des != no_lane_string) {
 			for (int i=0; i<e.src_des.Length; i++) {
 				char lane_type = e.src_des[i];
 				position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width) - ((lane_width + line_width) * (i+1));
@@ -628,7 +670,7 @@ public static class RoadMap {
 
 		}
 
-		if (e.des_src != "0") {
+		if (e.des_src != no_lane_string) {
 			position = save_position;
 
 			for (int i=0; i<e.des_src.Length; i++) {
@@ -784,11 +826,11 @@ public static class RoadMap {
 		
 		int lane_num = 0;
 		
-		if (src_des != "0") {
+		if (src_des != no_lane_string) {
 			lane_num += src_des.Length;
 		}
 		
-		if (des_src != "0") {
+		if (des_src != no_lane_string) {
 			lane_num += des_src.Length;
 		}
 
