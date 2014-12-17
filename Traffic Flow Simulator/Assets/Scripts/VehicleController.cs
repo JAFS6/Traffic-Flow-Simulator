@@ -113,11 +113,11 @@ public class VehicleController : MonoBehaviour {
 
 			switch (left_ray_hit.transform.name) {
 
-				case RoadMap.hard_shoulder_line_name:
+				case Constants.Line_Name_Hard_Shoulder:
 					Turn (TurnSide.Right, 1f);
 					break;
 
-				case RoadMap.normal_lane_line_name:
+				case Constants.Line_Name_Normal_Lane:
 					
 					if (transport_type == TransportType.Public) {
 						Turn (TurnSide.Right, 1f);
@@ -128,18 +128,11 @@ public class VehicleController : MonoBehaviour {
 					
 					break;
 
-				case RoadMap.center_line_name:
-
-					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
-					}
-					else {
-						Turn (TurnSide.Right, 1f);
-					}
-					
+				case Constants.Line_Name_Center:
+					Turn (TurnSide.Right, 1f);
 					break;
 
-				case RoadMap.public_transport_lane_line_name:
+				case Constants.Line_Name_Public_Transport_Lane:
 					
 					if (transport_type == TransportType.Public) {
 						Turn (TurnSide.Right, 1f);
@@ -147,7 +140,6 @@ public class VehicleController : MonoBehaviour {
 					else {
 						Turn (TurnSide.Left, 1f);
 					}
-
 					break;
 			} // End switch (left_ray_hit.transform.name)
 		}
@@ -157,22 +149,22 @@ public class VehicleController : MonoBehaviour {
 
 			switch (right_ray_hit.transform.name) {
 				
-				case RoadMap.hard_shoulder_line_name:
+				case Constants.Line_Name_Hard_Shoulder:
 					Turn (TurnSide.Left, 1f);
 					break;
 					
-				case RoadMap.normal_lane_line_name:
+				case Constants.Line_Name_Normal_Lane:
 					
 					if (transport_type == TransportType.Public) {
 						Turn (TurnSide.Right, 1f);
 					}
 					else {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Left, 1f);
 					}
 					
 					break;
 					
-				case RoadMap.public_transport_lane_line_name:
+				case Constants.Line_Name_Public_Transport_Lane:
 					
 					if (transport_type == TransportType.Public) {
 						Turn (TurnSide.Right, 1f);
