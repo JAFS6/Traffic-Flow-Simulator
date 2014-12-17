@@ -153,7 +153,7 @@ public class ApplicationController : MonoBehaviour {
 		Material grass_material = Resources.Load ("Materials/Grass", typeof(Material)) as Material;
 
 		GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-		ground.name = "Ground";
+		ground.name = Constants.Name_Ground;
 		ground.transform.localScale = new Vector3((max_x-min_x)/10, 1, (max_y-min_y)/10); // Se divide por 10 porque las medidas del plano de unity son 10x10
 		ground.renderer.material = grass_material;
 		ground.renderer.material.mainTextureScale = new Vector2(ground.transform.localScale.x, ground.transform.localScale.z);
@@ -242,9 +242,9 @@ public class ApplicationController : MonoBehaviour {
 
 			dir_road_fixed = q * dir_road_fixed;
 
-			Vector3 pos = new Vector3 (node_position.x,RoadMap.road_thickness/2,node_position.y);
+			Vector3 pos = new Vector3 (node_position.x, Constants.road_thickness/2, node_position.y);
 			GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.LookRotation(dir_road_fixed)) as GameObject;
-			vehicle.tag = "Vehicle";
+			vehicle.tag = Constants.Tag_Vehicle;
 			return vehicle;
 		}
 		else {
