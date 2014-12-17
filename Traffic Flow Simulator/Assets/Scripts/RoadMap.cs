@@ -419,7 +419,7 @@ public static class RoadMap {
 			Vector3 src_node_position = new Vector3 (src_node.x,0,src_node.y);
 			Vector3 dst_node_position = new Vector3 (dst_node.x,0,dst_node.y);
 			// Longitud del arco
-			e.length = MyMathClass.Distance3D(src_node_position, dst_node_position);
+			e.length = MyMathClass.Distance(src_node_position, dst_node_position);
 			// Ancho del arco
 			e.width = (lane_width * e.lane_num) + ((e.lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
 			// Vector direccion del arco
@@ -802,6 +802,27 @@ public static class RoadMap {
 		line.name = name;
 		line.transform.localScale = new Vector3(width, height, length);
 		line.transform.position = position;
+		line.renderer.material.color = Color.white;
+		//line3.renderer.material = asphalt_white_material;
+		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
+		line.transform.parent = parent.transform;
+	}
+	
+	/**
+	 * @brief Dibuja una linea continua blanca
+	 * @param[in] width Ancho de la linea
+	 * @param[in] height Grosor de la linea
+	 * @param[in] position1 Posicion de un extremo de la linea
+	 * @param[in] position2 Posicion de otro extremo de la linea
+	 * @param[in] name Nombre para el objeto
+	 * @param[in] parent Objeto padre al que se unira la linea
+	 */
+	private static void draw_continuous_line (float width, float height, Vector3 position1, Vector3 position2,string name, GameObject parent) {
+		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		line.name = name;
+		line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(position1,position2));
+		line.transform.position = MyMathClass.middlePoint(position1,position2);
+		line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
 		line.renderer.material.color = Color.white;
 		//line3.renderer.material = asphalt_white_material;
 		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);

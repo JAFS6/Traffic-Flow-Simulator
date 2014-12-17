@@ -242,10 +242,10 @@ public class VehicleController : MonoBehaviour {
 					first = false;
 					position.x = child.transform.position.x;
 					position.y = child.transform.position.z;
-					best_distance = MyMathClass.Distance3D(this.transform.position, child_position);
+					best_distance = MyMathClass.Distance(this.transform.position, child_position);
 				}
 				else {
-					distance = MyMathClass.Distance3D(this.transform.position, child_position);
+					distance = MyMathClass.Distance(this.transform.position, child_position);
 					
 					if (distance < best_distance) {
 						best_distance = distance;
