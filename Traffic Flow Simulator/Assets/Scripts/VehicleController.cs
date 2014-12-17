@@ -2,12 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public enum TurnSide : byte {Left, Right};
-public enum TransportType: byte {Public, Private, PublicAndPrivate, Unknown};
-public enum VehicleType : byte {Car, Bus};
-
 public class VehicleController : MonoBehaviour {
-
+	
+	public enum TurnSide : byte {Left, Right};
+	public enum VehicleType : byte {Car, Bus};
+	
 	// Variables dependientes de cada vehiculo
 	public VehicleType vehicle_type;	// Tipo de vehiculo
 	public TransportType transport_type;// Tipo de transporte
@@ -68,15 +67,15 @@ public class VehicleController : MonoBehaviour {
 			
 			switch (front_ray_hit.transform.tag) {
 			
-				case RoadMap.limit_node_tag:
+				case Constants.Tag_Node_Limit:
 					Destroy(this.gameObject);
 					break;
 					
-				case "Vehicle":
+				case Constants.Tag_Vehicle:
 					current_speed = 0f;
 					break;
 					
-				case RoadMap.edge_tag:
+				case Constants.Tag_Edge:
 					if (!intersection_first_encounter) { // Acaba de llegar al arco
 						current_location = front_ray_hit.transform.name;
 						intersection_first_encounter = true;
@@ -88,7 +87,7 @@ public class VehicleController : MonoBehaviour {
 					}
 					break;
 					
-				case RoadMap.intersection_node_tag:
+				case Constants.Tag_Node_Intersection:
 					if (intersection_first_encounter) {
 						intersection_first_encounter = false;
 						// Obtener lista de los arcos de salida
@@ -113,11 +112,11 @@ public class VehicleController : MonoBehaviour {
 
 			switch (left_ray_hit.transform.name) {
 
-				case RoadMap.hard_shoulder_line_name:
+				case Constants.Line_Name_Hard_Shoulder:
 					Turn (TurnSide.Right, 1f);
 					break;
 
-				case RoadMap.normal_lane_line_name:
+				case Constants.Line_Name_Normal_Lane:
 					
 					if (transport_type == TransportType.Public) {
 						Turn (TurnSide.Right, 1f);
@@ -128,18 +127,11 @@ public class VehicleController : MonoBehaviour {
 					
 					break;
 
-				case RoadMap.center_line_name:
-
-					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
-					}
-					else {
-						Turn (TurnSide.Right, 1f);
-					}
-					
+				case Constants.Line_Name_Center:
+					Turn (TurnSide.Right, 1f);
 					break;
 
-				case RoadMap.public_transport_lane_line_name:
+				case Constants.Line_Name_Public_Transport_Lane:
 					
 					if (transport_type == TransportType.Public) {
 						Turn (TurnSide.Right, 1f);
@@ -147,7 +139,6 @@ public class VehicleController : MonoBehaviour {
 					else {
 						Turn (TurnSide.Left, 1f);
 					}
-
 					break;
 			} // End switch (left_ray_hit.transform.name)
 		}
@@ -157,22 +148,22 @@ public class VehicleController : MonoBehaviour {
 
 			switch (right_ray_hit.transform.name) {
 				
-				case RoadMap.hard_shoulder_line_name:
+				case Constants.Line_Name_Hard_Shoulder:
 					Turn (TurnSide.Left, 1f);
 					break;
 					
-				case RoadMap.normal_lane_line_name:
+				case Constants.Line_Name_Normal_Lane:
 					
 					if (transport_type == TransportType.Public) {
 						Turn (TurnSide.Right, 1f);
 					}
 					else {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Left, 1f);
 					}
 					
 					break;
 					
-				case RoadMap.public_transport_lane_line_name:
+				case Constants.Line_Name_Public_Transport_Lane:
 					
 					if (transport_type == TransportType.Public) {
 						Turn (TurnSide.Right, 1f);
@@ -234,7 +225,7 @@ public class VehicleController : MonoBehaviour {
 		
 		foreach (Transform child in edge.transform) {
 			
-			if (child.tag == RoadMap.lane_start_point_tag) {
+			if (child.tag == Constants.Tag_Lane_Start_Point) {
 			
 				Vector3 child_position = new Vector3(child.transform.position.x, this.transform.position.y, child.transform.position.z);
 			

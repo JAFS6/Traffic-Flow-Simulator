@@ -76,12 +76,12 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	private void DebugMapLoader () {
-		RoadMap.addNode ("n0", NodeType.CONTINUATION, 500, 600);
-		RoadMap.addNode ("n1", NodeType.LIMIT, 600, 700);
-		RoadMap.addNode ("n2", NodeType.LIMIT, 400, 500);
-		RoadMap.addNode ("n3", NodeType.INTERSECTION, 500, 500, IntersectionType.NORMAL);
-		RoadMap.addNode ("n4", NodeType.LIMIT, 600, 500);
-		RoadMap.addNode ("n5", NodeType.LIMIT, 500, 400);
+		RoadMap.addNode ("n0", NodeType.Continuation, 500, 600);
+		RoadMap.addNode ("n1", NodeType.Limit, 600, 700);
+		RoadMap.addNode ("n2", NodeType.Limit, 400, 500);
+		RoadMap.addNode ("n3", NodeType.Intersection, 500, 500, IntersectionType.Normal);
+		RoadMap.addNode ("n4", NodeType.Limit, 600, 500);
+		RoadMap.addNode ("n5", NodeType.Limit, 500, 400);
 
 		RoadMap.addEdge ("a0", "n0", "n1", "", "PNN", "PN");
 		RoadMap.addEdge ("a1", "n0", "n3", "", "PN", "PNN");
@@ -91,16 +91,16 @@ public class ApplicationController : MonoBehaviour {
 	}
 	
 	private void DebugMapLoader2 () {
-		RoadMap.addNode ("n0", NodeType.LIMIT, 2168, 1044);
-		RoadMap.addNode ("n1", NodeType.CONTINUATION, 1095, 751);
-		RoadMap.addNode ("n2", NodeType.INTERSECTION, 2168, 751, IntersectionType.NORMAL);
-		RoadMap.addNode ("n3", NodeType.LIMIT, 2623, 751);
-		RoadMap.addNode ("n4", NodeType.LIMIT, 53, 381);
-		RoadMap.addNode ("n5", NodeType.INTERSECTION, 1095, 381, IntersectionType.NORMAL);
-		RoadMap.addNode ("n6", NodeType.INTERSECTION, 2168, 381, IntersectionType.NORMAL);
-		RoadMap.addNode ("n7", NodeType.LIMIT, 2723, 381);
-		RoadMap.addNode ("n8", NodeType.LIMIT, 1095, 7);
-		RoadMap.addNode ("n9", NodeType.LIMIT, 2168, 83);
+		RoadMap.addNode ("n0", NodeType.Limit, 2168, 1044);
+		RoadMap.addNode ("n1", NodeType.Continuation, 1095, 751);
+		RoadMap.addNode ("n2", NodeType.Intersection, 2168, 751, IntersectionType.Normal);
+		RoadMap.addNode ("n3", NodeType.Limit, 2623, 751);
+		RoadMap.addNode ("n4", NodeType.Limit, 53, 381);
+		RoadMap.addNode ("n5", NodeType.Intersection, 1095, 381, IntersectionType.Normal);
+		RoadMap.addNode ("n6", NodeType.Intersection, 2168, 381, IntersectionType.Normal);
+		RoadMap.addNode ("n7", NodeType.Limit, 2723, 381);
+		RoadMap.addNode ("n8", NodeType.Limit, 1095, 7);
+		RoadMap.addNode ("n9", NodeType.Limit, 2168, 83);
 		
 		RoadMap.addEdge ("a0", "n0", "n2", "", "PN", "N");
 		RoadMap.addEdge ("a1", "n1", "n2", "", "N", "N");
@@ -153,7 +153,7 @@ public class ApplicationController : MonoBehaviour {
 		Material grass_material = Resources.Load ("Materials/Grass", typeof(Material)) as Material;
 
 		GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-		ground.name = "Ground";
+		ground.name = Constants.Name_Ground;
 		ground.transform.localScale = new Vector3((max_x-min_x)/10, 1, (max_y-min_y)/10); // Se divide por 10 porque las medidas del plano de unity son 10x10
 		ground.renderer.material = grass_material;
 		ground.renderer.material.mainTextureScale = new Vector2(ground.transform.localScale.x, ground.transform.localScale.z);
@@ -229,7 +229,7 @@ public class ApplicationController : MonoBehaviour {
 
 		NodeType node_type = RoadMap.getNodeType (node_id);
 
-		if (node_type == NodeType.LIMIT) {
+		if (node_type == NodeType.Limit) {
 			Vector2 node_position = RoadMap.getNodePosition (node_id);
 
 			string edge_id = RoadMap.edgeLimit(node_id);
@@ -242,9 +242,9 @@ public class ApplicationController : MonoBehaviour {
 
 			dir_road_fixed = q * dir_road_fixed;
 
-			Vector3 pos = new Vector3 (node_position.x,RoadMap.road_thickness/2,node_position.y);
+			Vector3 pos = new Vector3 (node_position.x, Constants.road_thickness/2, node_position.y);
 			GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.LookRotation(dir_road_fixed)) as GameObject;
-			vehicle.tag = "Vehicle";
+			vehicle.tag = Constants.Tag_Vehicle;
 			return vehicle;
 		}
 		else {
