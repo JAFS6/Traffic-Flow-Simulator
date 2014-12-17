@@ -23,4 +23,9 @@ public static class Constants : object {
 	public const string Tag_Unknown = "Unknown";
 	public const string Tag_Lane_Start_Point = "LaneStartPoint";
 	public const string Tag_Vehicle = "Vehicle";
+	
+	// Data strings
+	public const string String_No_Lane = "0";
+	public const string String_Normal_Lane = "N";
+	public const string String_Public_Lane = "P";
 }
