@@ -915,6 +915,20 @@ public static class RoadMap {
 		right_point_rotated.x = (right_point.x * Mathf.Cos(angle_rad)) - (right_point.y * Mathf.Sin(angle_rad));
 		right_point_rotated.y = (right_point.x * Mathf.Sin(angle_rad)) + (right_point.y * Mathf.Cos(angle_rad));
 		
+		draw_continuous_line(line_width,
+							 line_thickness,
+							 new Vector3( (-edge_width * .5f) + hard_shoulder_width, road_thickness * .5f, -radius * .5f ),
+		                     new Vector3(  right_point_rotated.x, road_thickness * .5f, right_point_rotated.y ),
+		                     hard_shoulder_line_name,
+		                     gameObject);
+		                     
+		draw_continuous_line(line_width,
+		                     line_thickness,
+		                     new Vector3(  (edge_width * .5f) - hard_shoulder_width, road_thickness * .5f, -radius * .5f ),
+		                     new Vector3(  left_point_rotated.x, road_thickness * .5f, left_point_rotated.y ),
+		                     hard_shoulder_line_name,
+		                     gameObject);
+		
 		#region Vertices
 		Vector3 p0 = new Vector3(  right_point_rotated.x,	-road_thickness * .5f,		 right_point_rotated.y );
 		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-road_thickness * .5f,		 left_point_rotated.y );
@@ -925,7 +939,6 @@ public static class RoadMap {
 		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 road_thickness * .5f,   	 left_point_rotated.y );
 		Vector3 p6 = new Vector3(  edge_width * .5f, 		 road_thickness * .5f,  	-radius * .5f );
 		Vector3 p7 = new Vector3( -edge_width * .5f,	 	 road_thickness * .5f,  	-radius * .5f );
-
 		
 		Vector3[] vertices = new Vector3[]
 		{
