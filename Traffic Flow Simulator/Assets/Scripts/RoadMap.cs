@@ -46,14 +46,6 @@ public static class RoadMap {
 	public const float center_lines_separation = 0.2f;
 	public const float discontinuous_line_length = 2f;
 	
-	// Tags
-	public const string limit_node_tag = "Limit_node";
-	public const string continuation_node_tag = "Continuation_node";
-	public const string intersection_node_tag = "Intersection_node";
-	public const string unknown_tag = "Unknown";
-	public const string edge_tag = "Edge";
-	public const string lane_start_point_tag = "LaneStartPoint";
-	
 	public const string no_lane_string = "0";
 	public const string normal_lane_string = "N";
 	public const string public_lane_string = "P";
@@ -510,7 +502,7 @@ public static class RoadMap {
 
 			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			aux_road.name = node_id;
-			aux_road.tag = limit_node_tag;
+			aux_road.tag = Constants.Tag_Node_Limit;
 			aux_road.renderer.material = black_material;
 			pos.y += (limit_height/2);
 			aux_road.transform.localScale = new Vector3(width,limit_height,limit_depth);
@@ -522,7 +514,7 @@ public static class RoadMap {
 		else if (n.node_type == NodeType.CONTINUATION) {
 			GameObject aux_road = new GameObject();
 			aux_road.name = node_id;
-			aux_road.tag = continuation_node_tag;
+			aux_road.tag = Constants.Tag_Node_Continuation;
 			float edge_width = nodeWidth(n.id);
 			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id));
 			aux_road.transform.position = pos;
@@ -539,11 +531,11 @@ public static class RoadMap {
 
 				if (n.node_type == NodeType.INTERSECTION) {
 					aux_road.name = node_id;
-					aux_road.tag = intersection_node_tag;
+					aux_road.tag = Constants.Tag_Node_Intersection;
 				}
 				else {
 					aux_road.name = node_id;
-					aux_road.tag = unknown_tag;
+					aux_road.tag = Constants.Tag_Unknown;
 				}
 			}
 		}
@@ -625,7 +617,7 @@ public static class RoadMap {
 		// Plataforma
 		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		platform.name = edge_id;
-		platform.tag = edge_tag;
+		platform.tag = Constants.Tag_Edge;
 		platform.transform.localScale = new Vector3(e.width, road_thickness, e.length);
 		platform.renderer.material.color = Color.gray;
 		platform.renderer.material = asphalt_material;
@@ -730,14 +722,14 @@ public static class RoadMap {
 			case 'P':
 				GameObject publicLaneStart = new GameObject();
 				publicLaneStart.name = Constants.Lane_Name_Public;
-				publicLaneStart.tag = lane_start_point_tag;
+				publicLaneStart.tag = Constants.Tag_Lane_Start_Point;
 				publicLaneStart.transform.position = position;
 				publicLaneStart.transform.parent = parent.transform;
 				break;
 			case 'N':
 				GameObject normalLaneStart = new GameObject();
 				normalLaneStart.name = Constants.Lane_Name_Normal;
-				normalLaneStart.tag = lane_start_point_tag;
+				normalLaneStart.tag = Constants.Tag_Lane_Start_Point;
 				normalLaneStart.transform.position = position;
 				normalLaneStart.transform.parent = parent.transform;
 				break;

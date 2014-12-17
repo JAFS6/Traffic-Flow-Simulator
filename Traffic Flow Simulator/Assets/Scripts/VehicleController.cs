@@ -68,15 +68,15 @@ public class VehicleController : MonoBehaviour {
 			
 			switch (front_ray_hit.transform.tag) {
 			
-				case RoadMap.limit_node_tag:
+				case Constants.Tag_Node_Limit:
 					Destroy(this.gameObject);
 					break;
 					
-				case "Vehicle":
+				case Constants.Tag_Vehicle:
 					current_speed = 0f;
 					break;
 					
-				case RoadMap.edge_tag:
+				case Constants.Tag_Edge:
 					if (!intersection_first_encounter) { // Acaba de llegar al arco
 						current_location = front_ray_hit.transform.name;
 						intersection_first_encounter = true;
@@ -88,7 +88,7 @@ public class VehicleController : MonoBehaviour {
 					}
 					break;
 					
-				case RoadMap.intersection_node_tag:
+				case Constants.Tag_Node_Intersection:
 					if (intersection_first_encounter) {
 						intersection_first_encounter = false;
 						// Obtener lista de los arcos de salida
@@ -226,7 +226,7 @@ public class VehicleController : MonoBehaviour {
 		
 		foreach (Transform child in edge.transform) {
 			
-			if (child.tag == RoadMap.lane_start_point_tag) {
+			if (child.tag == Constants.Tag_Lane_Start_Point) {
 			
 				Vector3 child_position = new Vector3(child.transform.position.x, this.transform.position.y, child.transform.position.z);
 			
