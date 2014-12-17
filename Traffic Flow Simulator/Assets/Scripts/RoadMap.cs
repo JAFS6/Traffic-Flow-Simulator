@@ -4,35 +4,6 @@ using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 
-public enum NodeType : byte {INTERSECTION, LIMIT, CONTINUATION, UNKNOWN};
-public enum IntersectionType : byte {NORMAL, ROUNDABOUT, UNKNOWN};
-
-public struct Node
-{
-	public string id;
-	public NodeType node_type;
-	public float x;
-	public float y;
-	public IntersectionType intersection_type;
-	public string widest_edge_id;
-}
-
-public struct Edge
-{
-	public string id;
-	public string source_id;
-	public string destination_id;
-	public string name;
-	public string src_des;
-	public string des_src;
-	public float length;
-	public float width;
-	public int lane_num;
-	public Vector2 direction;
-	public Vector2 fixed_position_vector; // Vector de ajuste de posicion
-	public Vector3 fixed_position; // Posicion ya ajustada
-}
-
 public static class RoadMap {
 
 	private static string map_name;
@@ -63,7 +34,7 @@ public static class RoadMap {
 	 * @param[in] intersection_type Tipo de cruce: normal (0) o rotonda (1) (Solo se aplica a los nodos de tipo cruce)
 	 * @pre El id debe ser distinto a todos los ids ya insertados, si coincide con alguno, el nuevo nodo no se insertará
 	 */
-	public static void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.NORMAL) {
+	public static void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.Normal) {
 		
 		if ( !nodes.ContainsKey (id) ) {
 			Node newnode = new Node ();
@@ -171,7 +142,7 @@ public static class RoadMap {
 			return nodes[node_id].node_type;
 		}
 		else {
-			return NodeType.UNKNOWN;
+			return NodeType.Unknown;
 		}
 	}
 
@@ -258,7 +229,7 @@ public static class RoadMap {
 		
 		tt = TransportType.Unknown;
 		
-		if (nodes[node_id].node_type == NodeType.LIMIT) {
+		if (nodes[node_id].node_type == NodeType.Limit) {
 			string edge_id = edgeLimit(node_id);
 			
 			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != Constants.String_No_Lane) {
@@ -308,7 +279,7 @@ public static class RoadMap {
 		Vector3 v = new Vector3 (0,0,0);
 
 		if (nodes.ContainsKey (node_id)) {
-			if (nodes[node_id].node_type == NodeType.LIMIT) {
+			if (nodes[node_id].node_type == NodeType.Limit) {
 				string edge_id = edgeLimit(node_id);
 
 				if (edges[edge_id].source_id == node_id) {
@@ -432,21 +403,21 @@ public static class RoadMap {
 			string src_id_widest_edge = nodes[e.source_id].widest_edge_id;		// Identificador del arco mas ancho en el nodo de origen
 			string dst_id_widest_edge = nodes[e.destination_id].widest_edge_id;	// Identificador del arco mas ancho en el nodo de destino
 
-			if (src_node_type == NodeType.INTERSECTION || src_node_type == NodeType.CONTINUATION) {
+			if (src_node_type == NodeType.Intersection || src_node_type == NodeType.Continuation) {
 				float aux_width = edges[ src_id_widest_edge ].width /2;
 				fixed_length += aux_width; // Desplazamiento en el sentido del vector director del arco
 				e.length -= aux_width;
 			}
-			else if (src_node_type == NodeType.LIMIT) {
+			else if (src_node_type == NodeType.Limit) {
 				fixed_length += Constants.limit_depth*1.5f; // Desplazamiento en el sentido del vector director del arco
 			}
 
-			if (dst_node_type == NodeType.INTERSECTION || dst_node_type == NodeType.CONTINUATION) {
+			if (dst_node_type == NodeType.Intersection || dst_node_type == NodeType.Continuation) {
 				float aux_width = edges[ dst_id_widest_edge ].width /2;
 				fixed_length -= aux_width; // Desplazamiento en sentido contrario del vector director del arco
 				e.length -= aux_width;
 			}
-			else if (dst_node_type == NodeType.LIMIT) {
+			else if (dst_node_type == NodeType.Limit) {
 				fixed_length -= Constants.limit_depth*1.5f; // Desplazamiento en sentido contrario del vector director del arco
 			}
 
@@ -478,7 +449,7 @@ public static class RoadMap {
 		Node n = nodes[node_id];
 		Vector3 pos = new Vector3 (n.x, 0, n.y);
 
-		if (n.node_type == NodeType.LIMIT) {
+		if (n.node_type == NodeType.Limit) {
 			Edge e = edges[edgeLimit(n.id)];
 			Node src_node = nodes[e.source_id];
 			Node dst_node = nodes[e.destination_id];
@@ -496,7 +467,7 @@ public static class RoadMap {
 			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir,e.direction),Vector3.up);
 			aux_road.transform.position = pos;
 		}
-		else if (n.node_type == NodeType.CONTINUATION) {
+		else if (n.node_type == NodeType.Continuation) {
 			GameObject aux_road = new GameObject();
 			aux_road.name = node_id;
 			aux_road.tag = Constants.Tag_Node_Continuation;
@@ -514,7 +485,7 @@ public static class RoadMap {
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
 				aux_road.transform.localScale = new Vector3(17.6f,Constants.road_thickness,17.6f);
 
-				if (n.node_type == NodeType.INTERSECTION) {
+				if (n.node_type == NodeType.Intersection) {
 					aux_road.name = node_id;
 					aux_road.tag = Constants.Tag_Node_Intersection;
 				}

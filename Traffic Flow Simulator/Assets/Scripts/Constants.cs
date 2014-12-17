@@ -1,6 +1,36 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public enum NodeType : byte {Intersection, Limit, Continuation, Unknown};
+public enum IntersectionType : byte {Normal, Roundabout, Unknown};
+public enum TransportType: byte {Public, Private, PublicAndPrivate, Unknown};
+
+public struct Node
+{
+	public string id;
+	public NodeType node_type;
+	public float x;
+	public float y;
+	public IntersectionType intersection_type;
+	public string widest_edge_id;
+}
+
+public struct Edge
+{
+	public string id;
+	public string source_id;
+	public string destination_id;
+	public string name;
+	public string src_des;
+	public string des_src;
+	public float length;
+	public float width;
+	public int lane_num;
+	public Vector2 direction;
+	public Vector2 fixed_position_vector; // Vector de ajuste de posicion
+	public Vector3 fixed_position; // Posicion ya ajustada
+}
+
 public static class Constants : object {
 
 	// Names

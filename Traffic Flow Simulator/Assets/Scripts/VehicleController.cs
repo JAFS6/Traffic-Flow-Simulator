@@ -2,12 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public enum TurnSide : byte {Left, Right};
-public enum TransportType: byte {Public, Private, PublicAndPrivate, Unknown};
-public enum VehicleType : byte {Car, Bus};
-
 public class VehicleController : MonoBehaviour {
-
+	
+	public enum TurnSide : byte {Left, Right};
+	public enum VehicleType : byte {Car, Bus};
+	
 	// Variables dependientes de cada vehiculo
 	public VehicleType vehicle_type;	// Tipo de vehiculo
 	public TransportType transport_type;// Tipo de transporte

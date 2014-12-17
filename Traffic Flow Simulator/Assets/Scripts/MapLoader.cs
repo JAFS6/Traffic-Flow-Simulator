@@ -18,8 +18,8 @@ public static class MapLoader {
 	private static void MapLoaderRoutine (string nombre_fichero_completo) {
 		
 		// Variables para tomar valores por defecto
-		NodeType node_type_default = NodeType.INTERSECTION;
-		IntersectionType intersection_type_default = IntersectionType.NORMAL;
+		NodeType node_type_default = NodeType.Intersection;
+		IntersectionType intersection_type_default = IntersectionType.Normal;
 		float x_default = 0.0f;
 		float y_default = 0.0f;
 		string name_default = "";
@@ -28,8 +28,8 @@ public static class MapLoader {
 		
 		// Variables para tomar valores leidos
 		string id = "";
-		NodeType node_type_value = NodeType.INTERSECTION;
-		IntersectionType intersection_type_value = IntersectionType.NORMAL;
+		NodeType node_type_value = NodeType.Intersection;
+		IntersectionType intersection_type_value = IntersectionType.Normal;
 		float x_value = 0.0f;
 		float y_value = 0.0f;
 		string source_id_value = "";
@@ -223,7 +223,7 @@ public static class MapLoader {
 	
 	private static void SaveNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type) {
 		// Guardar nodo anterior
-		if (node_type == NodeType.INTERSECTION) {
+		if (node_type == NodeType.Intersection) {
 			RoadMap.addNode(id,node_type,x,y,intersection_type);
 		}
 		else {
