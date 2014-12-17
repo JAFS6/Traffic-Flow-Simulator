@@ -81,6 +81,10 @@ public class VehicleController : MonoBehaviour {
 						current_location = front_ray_hit.transform.name;
 						intersection_first_encounter = true;
 						// TODO Girar el vehiculo para ponerlo en la linea del arco
+						Vector2 entry_point = RoadMap.getEdgePosition(current_location);
+						this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
+					                                                                  this.transform.position.y,
+					                                               					  entry_point.y - this.transform.position.z));
 					}
 					break;
 					

@@ -221,6 +221,30 @@ public static class RoadMap {
 		List<string> l = new List<string>(edges.Keys);
 		return l;
 	}
+	
+	/**
+	 * @brief Obtiene la posicion central del arco con identificador edge_id en el plano XZ
+	 * @param[in] edge_id El identificador del nodo
+	 * @return Un Vector2 con la posicion central del arco en el plano XZ
+	 * @post Si el identificador no existe se devolvera un vector (0,0)
+	 */
+	public static Vector2 getEdgePosition (string edge_id) {
+		
+		Vector2 pos = new Vector2 ();
+		
+		if (edges.ContainsKey (edge_id)) {
+			string src_node_id = edges[edge_id].source_id;
+			string des_node_id = edges[edge_id].destination_id;
+		
+			Vector2 src_pos = new Vector2 (nodes[src_node_id].x, nodes[src_node_id].y);
+			Vector2 des_pos = new Vector2 (nodes[des_node_id].x, nodes[des_node_id].y);
+			
+			pos.x = (src_pos.x+des_pos.x)/2;
+			pos.y = (src_pos.y+des_pos.y)/2;
+		}
+		
+		return pos;
+	}
 
 	/**
 	 * @brief Dibuja el mapa en el entorno 3D
