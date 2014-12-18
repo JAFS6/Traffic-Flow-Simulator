@@ -859,24 +859,24 @@ public static class RoadMap {
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
 		
-		Vector2 hard_shoulder_right_point = new Vector2 ((edge_width * .5f) - hard_shoulder_width, -radius * .5f);
-		Vector2 hard_shoulder_left_point  = new Vector2 ((-edge_width * .5f) + hard_shoulder_width, -radius * .5f);
+		Vector2 hard_shoulder_right_point = new Vector2 (( edge_width * .5f) - Constants.hard_shoulder_width, -radius * .5f);
+		Vector2 hard_shoulder_left_point  = new Vector2 ((-edge_width * .5f) + Constants.hard_shoulder_width, -radius * .5f);
 		
 		Vector2 hard_shoulder_right_rotated = MyMathClass.rotatePoint(hard_shoulder_right_point, angle);
 		Vector2 hard_shoulder_left_rotated  = MyMathClass.rotatePoint(hard_shoulder_left_point, angle);
 		
-		draw_continuous_line(line_width,
-		                     line_thickness,
-		                     new Vector3( hard_shoulder_left_point.x,    road_thickness * .5f, hard_shoulder_left_point.y ),
-		                     new Vector3( hard_shoulder_right_rotated.x, road_thickness * .5f, hard_shoulder_right_rotated.y ),
-		                     hard_shoulder_line_name,
+		draw_continuous_line(Constants.line_width,
+		                     Constants.line_thickness,
+		                     new Vector3( hard_shoulder_left_point.x,    Constants.road_thickness * .5f, hard_shoulder_left_point.y ),
+		                     new Vector3( hard_shoulder_right_rotated.x, Constants.road_thickness * .5f, hard_shoulder_right_rotated.y ),
+		                     Constants.Line_Name_Hard_Shoulder,
 		                     gameObject);
 		
-		draw_continuous_line(line_width,
-		                     line_thickness,
-		                     new Vector3( hard_shoulder_right_point.x,  road_thickness * .5f, hard_shoulder_right_point.y ),
-		                     new Vector3( hard_shoulder_left_rotated.x, road_thickness * .5f, hard_shoulder_left_rotated.y ),
-		                     hard_shoulder_line_name,
+		draw_continuous_line(Constants.line_width,
+		                     Constants.line_thickness,
+		                     new Vector3( hard_shoulder_right_point.x,  Constants.road_thickness * .5f, hard_shoulder_right_point.y ),
+		                     new Vector3( hard_shoulder_left_rotated.x, Constants.road_thickness * .5f, hard_shoulder_left_rotated.y ),
+		                     Constants.Line_Name_Hard_Shoulder,
 		                     gameObject);
 
 		Vector2 left_point = new Vector2 (-edge_width * .5f, -radius * .5f);
