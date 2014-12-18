@@ -135,6 +135,22 @@ public static class MyMathClass : object {
 	}
 	
 	/**
+	 * @brief Rota un punto en el plano respecto al origen de coodenadas
+	 * @param[in] p El punto a rotar
+	 * @param[in] degrees Grados de rotacion
+	 * @return El resultado de rotar el punto
+	 */
+	public static Vector2 rotatePoint (Vector2 p, float degrees) {
+		float radians = (degrees * Mathf.PI) / 180f;
+		
+		Vector2 rotated_point = new Vector2 ();
+		rotated_point.x = (p.x * Mathf.Cos(radians)) - (p.y * Mathf.Sin(radians));
+		rotated_point.y = (p.x * Mathf.Sin(radians)) + (p.y * Mathf.Cos(radians));
+		
+		return rotated_point;
+	}
+	
+	/**
 	 * @brief Calcula el angulo (en grados) de las coordenadas polares del vector pasado como argumento
 	 * @param[in] v El vector
 	 * @return El angulo calculado en grados [0,360)

@@ -899,35 +899,35 @@ public static class RoadMap {
 		MeshFilter filter = gameObject.AddComponent< MeshFilter >();
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
+		
+		Vector2 hard_shoulder_right_point = new Vector2 ((edge_width * .5f) - hard_shoulder_width, -radius * .5f);
+		Vector2 hard_shoulder_left_point  = new Vector2 ((-edge_width * .5f) + hard_shoulder_width, -radius * .5f);
+		
+		Vector2 hard_shoulder_right_rotated = MyMathClass.rotatePoint(hard_shoulder_right_point, angle);
+		Vector2 hard_shoulder_left_rotated  = MyMathClass.rotatePoint(hard_shoulder_left_point, angle);
+		
+		draw_continuous_line(line_width,
+		                     line_thickness,
+		                     new Vector3( hard_shoulder_left_point.x,    road_thickness * .5f, hard_shoulder_left_point.y ),
+		                     new Vector3( hard_shoulder_right_rotated.x, road_thickness * .5f, hard_shoulder_right_rotated.y ),
+		                     hard_shoulder_line_name,
+		                     gameObject);
+		
+		draw_continuous_line(line_width,
+		                     line_thickness,
+		                     new Vector3( hard_shoulder_right_point.x,  road_thickness * .5f, hard_shoulder_right_point.y ),
+		                     new Vector3( hard_shoulder_left_rotated.x, road_thickness * .5f, hard_shoulder_left_rotated.y ),
+		                     hard_shoulder_line_name,
+		                     gameObject);
 
 		Vector2 left_point = new Vector2 (-edge_width * .5f, -radius * .5f);
 		Vector2 right_point = new Vector2 (edge_width * .5f, -radius * .5f);
 
 		// Rotar angle grados los puntos left y right
 
-		float angle_rad = (angle * Mathf.PI) / 180f;
+		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point, angle);
 
-		Vector2 left_point_rotated = new Vector2 ();
-		left_point_rotated.x = (left_point.x * Mathf.Cos(angle_rad)) - (left_point.y * Mathf.Sin(angle_rad));
-		left_point_rotated.y = (left_point.x * Mathf.Sin(angle_rad)) + (left_point.y * Mathf.Cos(angle_rad));
-
-		Vector2 right_point_rotated = new Vector2 ();
-		right_point_rotated.x = (right_point.x * Mathf.Cos(angle_rad)) - (right_point.y * Mathf.Sin(angle_rad));
-		right_point_rotated.y = (right_point.x * Mathf.Sin(angle_rad)) + (right_point.y * Mathf.Cos(angle_rad));
-		
-		draw_continuous_line(line_width,
-							 line_thickness,
-							 new Vector3( (-edge_width * .5f) + hard_shoulder_width, road_thickness * .5f, -radius * .5f ),
-		                     new Vector3(  right_point_rotated.x, road_thickness * .5f, right_point_rotated.y ),
-		                     hard_shoulder_line_name,
-		                     gameObject);
-		                     
-		draw_continuous_line(line_width,
-		                     line_thickness,
-		                     new Vector3(  (edge_width * .5f) - hard_shoulder_width, road_thickness * .5f, -radius * .5f ),
-		                     new Vector3(  left_point_rotated.x, road_thickness * .5f, left_point_rotated.y ),
-		                     hard_shoulder_line_name,
-		                     gameObject);
+		Vector2 right_point_rotated = MyMathClass.rotatePoint(right_point, angle);
 		
 		#region Vertices
 		Vector3 p0 = new Vector3(  right_point_rotated.x,	-road_thickness * .5f,		 right_point_rotated.y );
