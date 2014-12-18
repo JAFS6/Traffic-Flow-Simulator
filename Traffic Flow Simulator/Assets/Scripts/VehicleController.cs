@@ -76,6 +76,7 @@ public class VehicleController : MonoBehaviour {
 					break;
 					
 				case Constants.Tag_Edge:
+					
 					if (!intersection_first_encounter) { // Acaba de llegar al arco
 						current_location = front_ray_hit.transform.name;
 						intersection_first_encounter = true;
@@ -88,6 +89,7 @@ public class VehicleController : MonoBehaviour {
 					break;
 					
 				case Constants.Tag_Node_Intersection:
+				
 					if (intersection_first_encounter) {
 						intersection_first_encounter = false;
 						// Obtener lista de los arcos de salida
@@ -113,7 +115,13 @@ public class VehicleController : MonoBehaviour {
 			switch (left_ray_hit.transform.name) {
 
 				case Constants.Line_Name_Hard_Shoulder:
-					Turn (TurnSide.Right, 1f);
+					
+					if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length) && (front_ray_hit.transform.tag == Constants.Tag_Ground)) {
+						Turn (TurnSide.Left, 1f);
+					}
+					else {
+						Turn (TurnSide.Right, 1f);
+					}
 					break;
 
 				case Constants.Line_Name_Normal_Lane:
@@ -124,7 +132,6 @@ public class VehicleController : MonoBehaviour {
 					else {
 						Turn (TurnSide.Right, 1f);
 					}
-					
 					break;
 
 				case Constants.Line_Name_Center:
@@ -149,7 +156,13 @@ public class VehicleController : MonoBehaviour {
 			switch (right_ray_hit.transform.name) {
 				
 				case Constants.Line_Name_Hard_Shoulder:
-					Turn (TurnSide.Left, 1f);
+				
+					if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length) && (front_ray_hit.transform.tag == Constants.Tag_Ground)) {
+						Turn (TurnSide.Right, 1f);
+					}
+					else {
+						Turn (TurnSide.Left, 1f);
+					}
 					break;
 					
 				case Constants.Line_Name_Normal_Lane:
@@ -160,7 +173,6 @@ public class VehicleController : MonoBehaviour {
 					else {
 						Turn (TurnSide.Left, 1f);
 					}
-					
 					break;
 					
 				case Constants.Line_Name_Public_Transport_Lane:
@@ -171,7 +183,10 @@ public class VehicleController : MonoBehaviour {
 					else {
 						Turn (TurnSide.Left, 1f);
 					}
-					
+					break;
+				
+				case Constants.Line_Name_Center:
+					Turn (TurnSide.Right, 1f);
 					break;
 			} // End switch (right_ray_hit.transform.name)
 		}
