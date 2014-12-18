@@ -363,7 +363,7 @@ public static class RoadMap {
 			Vector3 src_node_position = new Vector3 (src_node.x,0,src_node.y);
 			Vector3 dst_node_position = new Vector3 (dst_node.x,0,dst_node.y);
 			// Longitud del arco
-			e.length = MyMathClass.Distance3D(src_node_position, dst_node_position);
+			e.length = MyMathClass.Distance(src_node_position, dst_node_position);
 			// Ancho del arco
 			e.width = (Constants.lane_width * e.lane_num) + ((e.lane_num + 1) * Constants.line_width) + 2 * (Constants.hard_shoulder_width);
 			// Vector direccion del arco
@@ -751,6 +751,27 @@ public static class RoadMap {
 		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
 		line.transform.parent = parent.transform;
 	}
+	
+	/**
+	 * @brief Dibuja una linea continua blanca
+	 * @param[in] width Ancho de la linea
+	 * @param[in] height Grosor de la linea
+	 * @param[in] position1 Posicion de un extremo de la linea
+	 * @param[in] position2 Posicion de otro extremo de la linea
+	 * @param[in] name Nombre para el objeto
+	 * @param[in] parent Objeto padre al que se unira la linea
+	 */
+	private static void draw_continuous_line (float width, float height, Vector3 position1, Vector3 position2,string name, GameObject parent) {
+		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		line.name = name;
+		line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(position1,position2));
+		line.transform.position = MyMathClass.middlePoint(position1,position2);
+		line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
+		line.renderer.material.color = Color.white;
+		//line3.renderer.material = asphalt_white_material;
+		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
+		line.transform.parent = parent.transform;
+	}
 
 	/**
 	 * @brief Dibuja una linea continua blanca
@@ -822,21 +843,35 @@ public static class RoadMap {
 		MeshFilter filter = gameObject.AddComponent< MeshFilter >();
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
+		
+		Vector2 hard_shoulder_right_point = new Vector2 ((edge_width * .5f) - hard_shoulder_width, -radius * .5f);
+		Vector2 hard_shoulder_left_point  = new Vector2 ((-edge_width * .5f) + hard_shoulder_width, -radius * .5f);
+		
+		Vector2 hard_shoulder_right_rotated = MyMathClass.rotatePoint(hard_shoulder_right_point, angle);
+		Vector2 hard_shoulder_left_rotated  = MyMathClass.rotatePoint(hard_shoulder_left_point, angle);
+		
+		draw_continuous_line(line_width,
+		                     line_thickness,
+		                     new Vector3( hard_shoulder_left_point.x,    road_thickness * .5f, hard_shoulder_left_point.y ),
+		                     new Vector3( hard_shoulder_right_rotated.x, road_thickness * .5f, hard_shoulder_right_rotated.y ),
+		                     hard_shoulder_line_name,
+		                     gameObject);
+		
+		draw_continuous_line(line_width,
+		                     line_thickness,
+		                     new Vector3( hard_shoulder_right_point.x,  road_thickness * .5f, hard_shoulder_right_point.y ),
+		                     new Vector3( hard_shoulder_left_rotated.x, road_thickness * .5f, hard_shoulder_left_rotated.y ),
+		                     hard_shoulder_line_name,
+		                     gameObject);
 
 		Vector2 left_point = new Vector2 (-edge_width * .5f, -radius * .5f);
 		Vector2 right_point = new Vector2 (edge_width * .5f, -radius * .5f);
 
 		// Rotar angle grados los puntos left y right
 
-		float angle_rad = (angle * Mathf.PI) / 180f;
+		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point, angle);
 
-		Vector2 left_point_rotated = new Vector2 ();
-		left_point_rotated.x = (left_point.x * Mathf.Cos(angle_rad)) - (left_point.y * Mathf.Sin(angle_rad));
-		left_point_rotated.y = (left_point.x * Mathf.Sin(angle_rad)) + (left_point.y * Mathf.Cos(angle_rad));
-
-		Vector2 right_point_rotated = new Vector2 ();
-		right_point_rotated.x = (right_point.x * Mathf.Cos(angle_rad)) - (right_point.y * Mathf.Sin(angle_rad));
-		right_point_rotated.y = (right_point.x * Mathf.Sin(angle_rad)) + (right_point.y * Mathf.Cos(angle_rad));
+		Vector2 right_point_rotated = MyMathClass.rotatePoint(right_point, angle);
 		
 		#region Vertices
 		Vector3 p0 = new Vector3(  right_point_rotated.x,	-Constants.road_thickness * .5f,		 right_point_rotated.y );
@@ -848,7 +883,6 @@ public static class RoadMap {
 		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 Constants.road_thickness * .5f,   	 left_point_rotated.y );
 		Vector3 p6 = new Vector3(  edge_width * .5f, 		 Constants.road_thickness * .5f,  	-radius * .5f );
 		Vector3 p7 = new Vector3( -edge_width * .5f,	 	 Constants.road_thickness * .5f,  	-radius * .5f );
-
 		
 		Vector3[] vertices = new Vector3[]
 		{
