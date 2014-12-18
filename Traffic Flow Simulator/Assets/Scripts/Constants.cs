@@ -28,6 +28,7 @@ public struct Node
 	public float y;
 	public IntersectionType intersection_type;
 	public string widest_edge_id;
+	public bool two_ways; // Indica si hay dos sentidos (true) o uno (false)
 }
 
 public struct Edge

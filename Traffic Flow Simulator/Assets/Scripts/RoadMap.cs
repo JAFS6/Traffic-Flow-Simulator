@@ -388,6 +388,7 @@ public static class RoadMap {
 		}
 
 		// Actualizar el arco mas ancho en cada nodo
+		// y actualiza en los nodos de continuacion si son de un sentido o dos
 		List<string> node_keys = new List<string> (nodes.Keys);
 
 		foreach (string node_key in node_keys) {
@@ -397,10 +398,20 @@ public static class RoadMap {
 			foreach (string edge_key in edge_keys) {
 
 				if (edges[edge_key].source_id == n.id || edges[edge_key].destination_id == n.id) {
-
+					
 					if (edges[edge_key].width > best_width) {
 						best_width = edges[edge_key].width;
 						n.widest_edge_id = edge_key;
+					}
+					
+					// Actualizacion de sentido
+					if (n.node_type == NodeType.Continuation) {
+						if (edges[edge_key].src_des != Constants.String_No_Lane && edges[edge_key].des_src != Constants.String_No_Lane) {
+							n.two_ways = true;
+						}
+						else {
+							n.two_ways = false;
+						}
 					}
 				}
 			}
@@ -850,42 +861,20 @@ public static class RoadMap {
 	 * @param[in] width Ancho de los arcos
 	 * @param[in] angle Angulo menor que forman los arcos
 	 */
-	private static void CreateContinuationNode (GameObject gameObject, float radius, float edge_width, float angle) {
+	private static void CreateContinuationNode (GameObject node, float radius, float edge_width, float angle) {
 
 		// TODO Añadir collider
-		gameObject.AddComponent< MeshRenderer > ();
-		gameObject.renderer.material = asphalt_material;
-		MeshFilter filter = gameObject.AddComponent< MeshFilter >();
+		node.AddComponent< MeshRenderer > ();
+		node.renderer.material = asphalt_material;
+		MeshFilter filter = node.AddComponent< MeshFilter >();
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
 		
-		Vector2 hard_shoulder_right_point = new Vector2 (( edge_width * .5f) - Constants.hard_shoulder_width, -radius * .5f);
-		Vector2 hard_shoulder_left_point  = new Vector2 ((-edge_width * .5f) + Constants.hard_shoulder_width, -radius * .5f);
-		
-		Vector2 hard_shoulder_right_rotated = MyMathClass.rotatePoint(hard_shoulder_right_point, angle);
-		Vector2 hard_shoulder_left_rotated  = MyMathClass.rotatePoint(hard_shoulder_left_point, angle);
-		
-		draw_continuous_line(Constants.line_width,
-		                     Constants.line_thickness,
-		                     new Vector3( hard_shoulder_left_point.x,    Constants.road_thickness * .5f, hard_shoulder_left_point.y ),
-		                     new Vector3( hard_shoulder_right_rotated.x, Constants.road_thickness * .5f, hard_shoulder_right_rotated.y ),
-		                     Constants.Line_Name_Hard_Shoulder,
-		                     gameObject);
-		
-		draw_continuous_line(Constants.line_width,
-		                     Constants.line_thickness,
-		                     new Vector3( hard_shoulder_right_point.x,  Constants.road_thickness * .5f, hard_shoulder_right_point.y ),
-		                     new Vector3( hard_shoulder_left_rotated.x, Constants.road_thickness * .5f, hard_shoulder_left_rotated.y ),
-		                     Constants.Line_Name_Hard_Shoulder,
-		                     gameObject);
-
 		Vector2 left_point = new Vector2 (-edge_width * .5f, -radius * .5f);
 		Vector2 right_point = new Vector2 (edge_width * .5f, -radius * .5f);
 
 		// Rotar angle grados los puntos left y right
-
 		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point, angle);
-
 		Vector2 right_point_rotated = MyMathClass.rotatePoint(right_point, angle);
 		
 		#region Vertices
@@ -1016,6 +1005,54 @@ public static class RoadMap {
 		
 		mesh.RecalculateBounds();
 		mesh.Optimize();
+		
+		// Fin plataforma
+		
+		// Lineas del arcen
+		
+		Vector2 hard_shoulder_right_point = new Vector2 (( edge_width * .5f) - Constants.hard_shoulder_width, -radius * .5f);
+		Vector2 hard_shoulder_left_point  = new Vector2 ((-edge_width * .5f) + Constants.hard_shoulder_width, -radius * .5f);
+		
+		Vector2 hard_shoulder_right_rotated = MyMathClass.rotatePoint(hard_shoulder_right_point, angle);
+		Vector2 hard_shoulder_left_rotated  = MyMathClass.rotatePoint(hard_shoulder_left_point, angle);
+		
+		draw_continuous_line(Constants.line_width,
+		                     Constants.line_thickness,
+		                     new Vector3( hard_shoulder_left_point.x,    Constants.road_thickness * .5f, hard_shoulder_left_point.y ),
+		                     new Vector3( hard_shoulder_right_rotated.x, Constants.road_thickness * .5f, hard_shoulder_right_rotated.y ),
+		                     Constants.Line_Name_Hard_Shoulder,
+		                     node);
+		
+		draw_continuous_line(Constants.line_width,
+		                     Constants.line_thickness,
+		                     new Vector3( hard_shoulder_right_point.x,  Constants.road_thickness * .5f, hard_shoulder_right_point.y ),
+		                     new Vector3( hard_shoulder_left_rotated.x, Constants.road_thickness * .5f, hard_shoulder_left_rotated.y ),
+		                     Constants.Line_Name_Hard_Shoulder,
+		                     node);
+		
+		// Lineas del centro
+		
+		if (nodes[node.name].two_ways) {
+			Vector2 center_line_right_point = new Vector2 (- Constants.center_lines_separation * .5f, -radius * .5f);
+			Vector2 center_line_left_point  = new Vector2 (  Constants.center_lines_separation * .5f, -radius * .5f);
+			
+			Vector2 center_line_right_rotated = MyMathClass.rotatePoint(center_line_right_point, angle);
+			Vector2 center_line_left_rotated  = MyMathClass.rotatePoint(center_line_left_point,  angle);
+			
+			draw_continuous_line(Constants.line_width,
+			                     Constants.line_thickness,
+			                     new Vector3( center_line_left_point.x,    Constants.road_thickness * .5f, center_line_left_point.y ),
+			                     new Vector3( center_line_right_rotated.x, Constants.road_thickness * .5f, center_line_right_rotated.y ),
+			                     Constants.Line_Name_Hard_Shoulder,
+			                     node);
+			
+			draw_continuous_line(Constants.line_width,
+			                     Constants.line_thickness,
+			                     new Vector3( center_line_right_point.x,  Constants.road_thickness * .5f, center_line_right_point.y ),
+			                     new Vector3( center_line_left_rotated.x, Constants.road_thickness * .5f, center_line_left_rotated.y ),
+			                     Constants.Line_Name_Hard_Shoulder,
+			                     node);
+		}
 	}
 	
 	/**
