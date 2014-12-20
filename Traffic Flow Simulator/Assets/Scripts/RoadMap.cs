@@ -539,12 +539,11 @@ public static class RoadMap {
 			aux_road.name = node_id;
 			aux_road.tag = Constants.Tag_Node_Continuation;
 			float edge_width = nodeWidth(n.id);
-			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id));
+			
+			// Obtener los identificadores de los arcos involucrados con el nodo de continuacion
 			string edgeID1, edgeID2;
 			RoadMap.getContinuationEdges (n.id, out edgeID1, out edgeID2);
-			
-			// Elegir el arco cuya suma de sus coordenadas del plano XZ sea menor
-			
+			// Elegir el arco cuya suma de sus coordenadas, de su punto central, en el plano XZ sea menor
 			float edge_1_sum = edges[edgeID1].fixed_position.x + edges[edgeID1].fixed_position.z;
 			float edge_2_sum = edges[edgeID2].fixed_position.x + edges[edgeID2].fixed_position.z;
 			
@@ -553,6 +552,8 @@ public static class RoadMap {
 			if (edge_2_sum < edge_1_sum) {
 				selected_edge = edgeID2;
 			}
+			// Crear el nodo de continuacion
+			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id), selected_edge);
 			
 			Vector2 edge_direction = edges[selected_edge].direction;
 			float rotation_degrees = MyMathClass.RotationAngle(new Vector2(0,-1),edge_direction);
@@ -919,8 +920,9 @@ public static class RoadMap {
 	 * @param[in] radius Radio de la circunferencia circunscrita por los arcos
 	 * @param[in] width Ancho de los arcos
 	 * @param[in] angle Angulo menor que forman los arcos
+	 * @param[in] ref_edge_id Identificador del arco que se tomara como referencia para dibujar las marcas viales
 	 */
-	private static void CreateContinuationNode (GameObject node, float radius, float edge_width, float angle) {
+	private static void CreateContinuationNode (GameObject node, float radius, float edge_width, float angle, string ref_edge_id) {
 
 		// TODO Añadir collider
 		node.AddComponent< MeshRenderer > ();
@@ -1095,23 +1097,27 @@ public static class RoadMap {
 		// Lineas del centro
 		
 		if (nodes[node.name].two_ways) {
-			Vector2 center_line_right_point = new Vector2 (- Constants.center_lines_separation * .5f, -radius * .5f);
-			Vector2 center_line_left_point  = new Vector2 (  Constants.center_lines_separation * .5f, -radius * .5f);
+		
+			int lane_diff = 0; // Mismo numero de carriles en cada sentido
 			
-			Vector2 center_line_right_rotated = MyMathClass.rotatePoint(center_line_right_point, angle);
-			Vector2 center_line_left_rotated  = MyMathClass.rotatePoint(center_line_left_point,  angle);
+			if (edges[ref_edge_id].src_des.Length != edges[ref_edge_id].des_src.Length) { // Distinto numero de carriles en cada sentido
+				lane_diff = edges[ref_edge_id].src_des.Length - edges[ref_edge_id].des_src.Length;
+			}
+			
+			Vector2 center_point = new Vector2 (- (lane_diff * (Constants.lane_width/2)), -radius * .5f);
+			Vector2 center_point_rotated = MyMathClass.rotatePoint(center_point, angle);
 			
 			draw_continuous_line(Constants.line_width,
 			                     Constants.line_thickness,
-			                     new Vector3( center_line_left_point.x,    Constants.road_thickness * .5f, center_line_left_point.y ),
-			                     new Vector3( center_line_right_rotated.x, Constants.road_thickness * .5f, center_line_right_rotated.y ),
+			                     new Vector3( -center_point.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y),
+			                     new Vector3( center_point_rotated.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
 			                     Constants.Line_Name_Hard_Shoulder,
 			                     node);
 			
 			draw_continuous_line(Constants.line_width,
 			                     Constants.line_thickness,
-			                     new Vector3( center_line_right_point.x,  Constants.road_thickness * .5f, center_line_right_point.y ),
-			                     new Vector3( center_line_left_rotated.x, Constants.road_thickness * .5f, center_line_left_rotated.y ),
+			                     new Vector3( -center_point.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y ),
+			                     new Vector3( center_point_rotated.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
 			                     Constants.Line_Name_Hard_Shoulder,
 			                     node);
 		}
