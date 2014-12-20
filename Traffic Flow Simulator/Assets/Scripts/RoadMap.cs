@@ -232,6 +232,9 @@ public static class RoadMap {
 	 */
 	public static void getContinuationEdges (string node_id, out string edge1, out string edge2) {
 		
+		edge1 = Constants.String_Unknown;
+		edge2 = Constants.String_Unknown;
+		
 		if (nodes[node_id].node_type == NodeType.Continuation) {
 		
 			bool first_found = false;
@@ -250,10 +253,6 @@ public static class RoadMap {
 					}
 				}
 			}
-		}
-		else {
-			edge1 = Constants.String_Unknown;
-			edge2 = Constants.String_Unknown;
 		}
 	}
 
@@ -541,10 +540,19 @@ public static class RoadMap {
 			aux_road.tag = Constants.Tag_Node_Continuation;
 			float edge_width = nodeWidth(n.id);
 			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id));
+			string edgeID1, edgeID2;
+			RoadMap.getContinuationEdges (n.id, out edgeID1, out edgeID2);
 			
+			// FIXME elegir edgeID1 o edgeID2 para 
+			// Girar el nodo continuacion construido para alinear los bordes
+			
+			Vector2 edge_direction = edges[edgeID2].direction;
+			float rotation_degrees = MyMathClass.RotationAngle(new Vector2(0,-1),edge_direction);
+			aux_road.transform.rotation = Quaternion.AngleAxis (rotation_degrees, new Vector3(0,1,0));
 			aux_road.transform.position = pos;
 		}
-		else {
+		else if (n.node_type == NodeType.Intersection) {
+		
 			GameObject road_prefab = Resources.Load("Prefabs/Road", typeof(GameObject)) as GameObject;
 			
 			if (road_prefab == null) {
@@ -563,6 +571,9 @@ public static class RoadMap {
 					aux_road.tag = Constants.Tag_Unknown;
 				}
 			}
+		}
+		else {
+			Debug.Log("Trying to draw invalid node type");
 		}
 	}
 
@@ -1047,6 +1058,9 @@ public static class RoadMap {
 		mesh.Optimize();
 		
 		// Fin plataforma
+		
+		// Añadir longitud extra a las lineas del nodo continuacion para mejorar seguimiento de los vehiculos
+		radius += Constants.cont_nodes_lines_extra_length;
 		
 		// Lineas del arcen
 		
