@@ -196,7 +196,7 @@ public class ApplicationController : MonoBehaviour {
 		if (node_type == NodeType.Limit) {
 			Vector2 node_position = RoadMap.getNodePosition (node_id);
 
-			string edge_id = RoadMap.edgeLimit(node_id);
+			string edge_id = RoadMap.getLimitEdge(node_id);
 
 			Vector2 dir_road = RoadMap.entryOrientation(node_id);
 

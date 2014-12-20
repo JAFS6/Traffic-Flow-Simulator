@@ -77,6 +77,7 @@ public static class Constants : object {
 	public const string String_No_Lane = "0";
 	public const string String_Normal_Lane = "N";
 	public const string String_Public_Lane = "P";
+	public const string String_Unknown = "Unknown";
 	
 	// Measures
 	public const float lane_width = 3f;

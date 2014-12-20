@@ -201,40 +201,60 @@ public static class RoadMap {
 		
 		return pos;
 	}
-
-	/**
-	 * @brief Dibuja el mapa en el entorno 3D
-	 */
-	public static void draw () {
-
-		prepareEdges ();
-		
-		// Dibujar el suelo base
-		drawGround ();
-
-		foreach (KeyValuePair<string, Edge> edge in edges){
-			drawEdge (edge.Key);
-		}
-
-		foreach (KeyValuePair<string, Node> node in nodes){
-			drawNode (node.Key);
-		}
-	}
-
+	
 	/**
 	 * @brief Devuelve el id del arco que llega al nodo limite pasado como argumento
 	 * @param[in] node_id Identificador del nodo limite
-	 * @return Un string con el id del arco buscado
+	 * @return Un string con el id del arco buscado o 
+	 * la cadena Constants.String_Unknown si el nodo no es de tipo limite
 	 */
-	public static string edgeLimit (string node_id) {
+	public static string getLimitEdge (string node_id) {
 		
-		foreach (KeyValuePair<string, Edge> edge in edges) {
-			
-			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
-				return edge.Value.id;
+		if (nodes[node_id].node_type == NodeType.Limit) {
+		
+			foreach (KeyValuePair<string, Edge> edge in edges) {
+				
+				if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+					return edge.Value.id;
+				}
 			}
 		}
-		return "";
+		return Constants.String_Unknown;
+	}
+	
+	/**
+	 * @brief Devuelve los IDs de los arcos que llegan al nodo de continuacion pasado como argumento
+	 * @param[in] node_id Identificador del nodo continuacion
+	 * @param[out] edge1 Identificador de uno de los arcos que llega al nodo pasado como argumento
+	 * @param[out] edge2 Identificador de otro de los arcos que llega al nodo pasado como argumento
+	 * @post El finalizar la ejecucion del metodo, los parametros edge1 y edge2 tendran los identificadores
+	 * buscados o la cadena Constants.String_Unknown si el nodo no es de tipo continuacion
+	 */
+	public static void getContinuationEdges (string node_id, out string edge1, out string edge2) {
+		
+		if (nodes[node_id].node_type == NodeType.Continuation) {
+		
+			bool first_found = false;
+			
+			foreach (KeyValuePair<string, Edge> edge in edges) {
+				
+				if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+				
+					if (!first_found) {
+						first_found = true;
+						edge1 = edge.Value.id;
+					}
+					else {
+						edge2 = edge.Value.id;
+						break;
+					}
+				}
+			}
+		}
+		else {
+			edge1 = Constants.String_Unknown;
+			edge2 = Constants.String_Unknown;
+		}
 	}
 
 	/**
@@ -248,7 +268,7 @@ public static class RoadMap {
 		tt = TransportType.Unknown;
 		
 		if (nodes[node_id].node_type == NodeType.Limit) {
-			string edge_id = edgeLimit(node_id);
+			string edge_id = getLimitEdge(node_id);
 			
 			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != Constants.String_No_Lane) {
 			
@@ -298,7 +318,7 @@ public static class RoadMap {
 
 		if (nodes.ContainsKey (node_id)) {
 			if (nodes[node_id].node_type == NodeType.Limit) {
-				string edge_id = edgeLimit(node_id);
+				string edge_id = getLimitEdge(node_id);
 
 				if (edges[edge_id].source_id == node_id) {
 					// Destino - fuente
@@ -360,6 +380,25 @@ public static class RoadMap {
 		return exits;
 	}
 
+	/**
+	 * @brief Dibuja el mapa en el entorno 3D
+	 */
+	public static void draw () {
+		
+		prepareEdges ();
+		
+		// Dibujar el suelo base
+		drawGround ();
+		
+		foreach (KeyValuePair<string, Edge> edge in edges){
+			drawEdge (edge.Key);
+		}
+		
+		foreach (KeyValuePair<string, Node> node in nodes){
+			drawNode (node.Key);
+		}
+	}
+	
 	/**
 	 * @brief Procesa los arcos calculando su longitud, anchura y numero de carriles, asi como el ajuste de longitud y posicion para las intersecciones
 	 * @pre Este metodo debe ser llamado antes de ejecutar el metodo drawEdge
@@ -479,7 +518,7 @@ public static class RoadMap {
 		Vector3 pos = new Vector3 (n.x, 0, n.y);
 
 		if (n.node_type == NodeType.Limit) {
-			Edge e = edges[edgeLimit(n.id)];
+			Edge e = edges[getLimitEdge(n.id)];
 			Node src_node = nodes[e.source_id];
 			Node dst_node = nodes[e.destination_id];
 
@@ -502,6 +541,7 @@ public static class RoadMap {
 			aux_road.tag = Constants.Tag_Node_Continuation;
 			float edge_width = nodeWidth(n.id);
 			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id));
+			
 			aux_road.transform.position = pos;
 		}
 		else {
