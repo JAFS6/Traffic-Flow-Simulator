@@ -614,20 +614,16 @@ public static class RoadMap {
 		// Lineas centrales
 		if (e.src_des != Constants.String_No_Lane && e.des_src != Constants.String_No_Lane) { // Si ambos sentidos tienen carriles
 
-			if (e.src_des.Length == e.des_src.Length) { // Mismo numero de carriles en cada sentido
-				position.x = platform.transform.position.x - (Constants.center_lines_separation/2);
-				draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
-				position.x = platform.transform.position.x + (Constants.center_lines_separation/2);
-				draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
+			int lane_diff = 0; // Mismo numero de carriles en cada sentido
+			
+			if (e.src_des.Length != e.des_src.Length) { // Distinto numero de carriles en cada sentido
+				lane_diff = e.src_des.Length - e.des_src.Length;
 			}
-			else { // Distinto numero de carriles en cada sentido
-				int lane_diff = e.src_des.Length - e.des_src.Length;
-
-				position.x = platform.transform.position.x - (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
-				draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
-				position.x = platform.transform.position.x + (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
-				draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
-			}
+			
+			position.x = platform.transform.position.x - (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
+			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
+			position.x = platform.transform.position.x + (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
+			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
 		}
 
 		// Lineas de carril
