@@ -28,6 +28,7 @@ public struct Node
 	public float y;
 	public IntersectionType intersection_type;
 	public string widest_edge_id;
+	public bool two_ways; // Indica si hay dos sentidos (true) o uno (false)
 }
 
 public struct Edge
@@ -76,6 +77,7 @@ public static class Constants : object {
 	public const string String_No_Lane = "0";
 	public const string String_Normal_Lane = "N";
 	public const string String_Public_Lane = "P";
+	public const string String_Unknown = "Unknown";
 	
 	// Measures
 	public const float lane_width = 3f;
@@ -88,4 +90,5 @@ public static class Constants : object {
 	public const float line_thickness = 0.01f;
 	public const float center_lines_separation = 0.2f;
 	public const float discontinuous_line_length = 2f;
+	public const float cont_nodes_lines_extra_length = 0.1f;
 }

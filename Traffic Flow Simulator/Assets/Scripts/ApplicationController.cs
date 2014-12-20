@@ -88,7 +88,7 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	private void DebugMapLoader () {
-		RoadMap.addNode ("n0", NodeType.Continuation, 500, 600);
+		RoadMap.addNode ("n0", NodeType.Continuation, 510, 600);
 		RoadMap.addNode ("n1", NodeType.Limit, 600, 700);
 		RoadMap.addNode ("n2", NodeType.Limit, 400, 500);
 		RoadMap.addNode ("n3", NodeType.Intersection, 500, 500, IntersectionType.Normal);
@@ -196,7 +196,7 @@ public class ApplicationController : MonoBehaviour {
 		if (node_type == NodeType.Limit) {
 			Vector2 node_position = RoadMap.getNodePosition (node_id);
 
-			string edge_id = RoadMap.edgeLimit(node_id);
+			string edge_id = RoadMap.getLimitEdge(node_id);
 
 			Vector2 dir_road = RoadMap.entryOrientation(node_id);
 
