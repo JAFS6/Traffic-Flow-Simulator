@@ -543,10 +543,18 @@ public static class RoadMap {
 			string edgeID1, edgeID2;
 			RoadMap.getContinuationEdges (n.id, out edgeID1, out edgeID2);
 			
-			// FIXME elegir edgeID1 o edgeID2 para 
-			// Girar el nodo continuacion construido para alinear los bordes
+			// Elegir el arco cuya suma de sus coordenadas del plano XZ sea menor
 			
-			Vector2 edge_direction = edges[edgeID2].direction;
+			float edge_1_sum = edges[edgeID1].fixed_position.x + edges[edgeID1].fixed_position.z;
+			float edge_2_sum = edges[edgeID2].fixed_position.x + edges[edgeID2].fixed_position.z;
+			
+			string selected_edge = edgeID1;
+			
+			if (edge_2_sum < edge_1_sum) {
+				selected_edge = edgeID2;
+			}
+			
+			Vector2 edge_direction = edges[selected_edge].direction;
 			float rotation_degrees = MyMathClass.RotationAngle(new Vector2(0,-1),edge_direction);
 			aux_road.transform.rotation = Quaternion.AngleAxis (rotation_degrees, new Vector3(0,1,0));
 			aux_road.transform.position = pos;
