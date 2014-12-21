@@ -92,6 +92,7 @@ public static class Constants : object {
 	public const float road_thickness = 0.1f;
 	public const float line_thickness = 0.01f;
 	public const float center_lines_separation = 0.2f;
-	public const float discontinuous_line_length = 2f;
-	public const float cont_nodes_lines_extra_length = 0.1f;
+	public const float discontinuous_line_length = 1.3f;
+	public const float discontinuous_line_min_margin = 0.3f;
+	public const float cont_nodes_lines_extra_length = 0.05f;
 }
