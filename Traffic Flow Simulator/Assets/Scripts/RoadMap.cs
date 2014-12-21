@@ -844,7 +844,7 @@ public static class RoadMap {
 	}
 
 	/**
-	 * @brief Dibuja una linea continua blanca
+	 * @brief Dibuja una linea continua blanca alineada con el eje Z
 	 * @param[in] width Ancho de la linea
 	 * @param[in] height Grosor de la linea
 	 * @param[in] length Longitud de la linea
@@ -853,18 +853,15 @@ public static class RoadMap {
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
 	private static void draw_continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
-		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		line.name = name;
-		line.transform.localScale = new Vector3(width, height, length);
-		line.transform.position = position;
-		line.renderer.material.color = Color.white;
-		//line3.renderer.material = asphalt_white_material;
-		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
-		line.transform.parent = parent.transform;
+		
+		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
+		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
+		
+		draw_continuous_line (width, height, position1, position2, name, parent);
 	}
 	
 	/**
-	 * @brief Dibuja una linea continua blanca
+	 * @brief Dibuja una linea continua blanca entre las posiciones position1 y position2
 	 * @param[in] width Ancho de la linea
 	 * @param[in] height Grosor de la linea
 	 * @param[in] position1 Posicion de un extremo de la linea
@@ -885,7 +882,7 @@ public static class RoadMap {
 	}
 
 	/**
-	 * @brief Dibuja una linea discontinua blanca
+	 * @brief Dibuja una linea discontinua blanca alineada con el eje Z
 	 * @param[in] width Ancho de la linea
 	 * @param[in] height Grosor de la linea
 	 * @param[in] length Longitud de la linea
@@ -893,33 +890,16 @@ public static class RoadMap {
 	 * @param[in] name Nombre para el objeto
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private static void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject new_parent) {
+	private static void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
 
-		GameObject discontinuous_line = new GameObject ();
-		discontinuous_line.name = Constants.Line_Name_Discontinuous;
-		discontinuous_line.transform.parent = new_parent.transform;
-
-		int piece_num = (int)((length / Constants.discontinuous_line_length) / 2);
-		Vector3 pos_aux = position;
-		pos_aux.z -= (length / 2) - (Constants.discontinuous_line_length * 1.5f);
-
-		for (int i=0; i < piece_num; i++) {
-
-			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			line.name = name;
-			line.transform.localScale = new Vector3(width, height, Constants.discontinuous_line_length);
-			line.transform.position = pos_aux;
-			line.renderer.material.color = Color.white;
-			//line3.renderer.material = asphalt_white_material;
-			//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
-			line.transform.parent = discontinuous_line.transform;
-
-			pos_aux.z += Constants.discontinuous_line_length * 2;
-		}
+		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
+		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
+		
+		draw_discontinuous_line (width, height, position1, position2, name, parent);
 	}
 	
 	/**
-	 * @brief Dibuja una linea discontinua blanca
+	 * @brief Dibuja una linea discontinua blanca entre las posiciones position1 y position2
 	 * @param[in] width Ancho de la linea
 	 * @param[in] height Grosor de la linea
 	 * @param[in] position1 Posicion de un extremo de la linea
