@@ -823,7 +823,7 @@ public static class RoadMap {
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
 	private static void draw_lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent) {
-		Debug.Log("Entering draw_lane_line with position 1 and 2 and lane_type: '" + lane_type + "'");
+	
 		switch (lane_type) {
 		case Constants.Char_Public_Lane:
 			draw_continuous_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Public_Transport_Lane, parent);
@@ -928,7 +928,7 @@ public static class RoadMap {
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
 	private static void draw_discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent) {
-		Debug.Log("Entering draw_discontinuous_line with position 1 and 2");
+	
 		GameObject discontinuous_line = new GameObject ();
 		discontinuous_line.name = Constants.Line_Name_Discontinuous;
 		discontinuous_line.transform.parent = new_parent.transform;
