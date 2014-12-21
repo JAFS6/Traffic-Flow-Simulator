@@ -814,6 +814,34 @@ public static class RoadMap {
 				break;
 		}
 	}
+	
+	/**
+	 * @brief Dibuja una linea de carril segun su tipo
+	 * @param[in] lane_type Tipo de carril (P: Transporte publico, N: Normal, A: Aparcamiento, V: Carril Bus/VAO)
+	 * @param[in] position1 Posicion de un extremo de la linea
+	 * @param[in] position2 Posicion de otro extremo de la linea
+	 * @param[in] parent Objeto padre al que se unira la linea
+	 */
+	private static void draw_lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent) {
+		
+		switch (lane_type) {
+		case 'P':
+			draw_continuous_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Public_Transport_Lane, parent);
+			break;
+		case 'N':
+			draw_discontinuous_line (Constants.line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Normal_Lane, parent);
+			break;
+		case 'A':
+			Debug.Log("Parking not designed yet");
+			break;
+		case 'V':
+			Debug.Log("Bus/VAO not designed yet");
+			break;
+		default:
+			Debug.Log("Trying to draw invalid type of lane");
+			break;
+		}
+	}
 
 	/**
 	 * @brief Dibuja una linea continua blanca
@@ -857,10 +885,11 @@ public static class RoadMap {
 	}
 
 	/**
-	 * @brief Dibuja una linea continua blanca
+	 * @brief Dibuja una linea discontinua blanca
 	 * @param[in] width Ancho de la linea
 	 * @param[in] height Grosor de la linea
 	 * @param[in] length Longitud de la linea
+	 * @param[in] position Posicion central de la linea
 	 * @param[in] name Nombre para el objeto
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
@@ -887,6 +916,42 @@ public static class RoadMap {
 
 			pos_aux.z += Constants.discontinuous_line_length * 2;
 		}
+	}
+	
+	/**
+	 * @brief Dibuja una linea discontinua blanca
+	 * @param[in] width Ancho de la linea
+	 * @param[in] height Grosor de la linea
+	 * @param[in] position1 Posicion de un extremo de la linea
+	 * @param[in] position2 Posicion de otro extremo de la linea
+	 * @param[in] name Nombre para el objeto
+	 * @param[in] parent Objeto padre al que se unira la linea
+	 */
+	private static void draw_discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent) {
+		
+		// FIXME
+		/*
+		GameObject discontinuous_line = new GameObject ();
+		discontinuous_line.name = Constants.Line_Name_Discontinuous;
+		discontinuous_line.transform.parent = new_parent.transform;
+		
+		int piece_num = (int)((length / Constants.discontinuous_line_length) / 2);
+		Vector3 pos_aux = position;
+		pos_aux.z -= (length / 2) - (Constants.discontinuous_line_length * 1.5f);
+		
+		for (int i=0; i < piece_num; i++) {
+			
+			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			line.name = name;
+			line.transform.localScale = new Vector3(width, height, Constants.discontinuous_line_length);
+			line.transform.position = pos_aux;
+			line.renderer.material.color = Color.white;
+			//line3.renderer.material = asphalt_white_material;
+			//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
+			line.transform.parent = discontinuous_line.transform;
+			
+			pos_aux.z += Constants.discontinuous_line_length * 2;
+		}*/
 	}
 
 	/**
@@ -1106,18 +1171,51 @@ public static class RoadMap {
 			
 			draw_continuous_line(Constants.line_width,
 			                     Constants.line_thickness,
-			                     new Vector3( -center_point.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y),
+			                     new Vector3(        -center_point.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y),
 			                     new Vector3( center_point_rotated.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
 			                     Constants.Line_Name_Hard_Shoulder,
 			                     node);
 			
 			draw_continuous_line(Constants.line_width,
 			                     Constants.line_thickness,
-			                     new Vector3( -center_point.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y ),
+			                     new Vector3(        -center_point.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y ),
 			                     new Vector3( center_point_rotated.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
 			                     Constants.Line_Name_Hard_Shoulder,
 			                     node);
 		}
+		
+		// Lineas de carril
+		Edge e = edges[ref_edge_id];
+		
+		Vector3 position1 = new Vector3 (0, node.transform.position.y + (Constants.road_thickness/2)+(Constants.line_thickness/2), -radius * .5f);
+		Vector3 position2 = new Vector3 (0, node.transform.position.y + (Constants.road_thickness/2)+(Constants.line_thickness/2), -radius * .5f);
+		
+		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
+		if (e.src_des != Constants.String_No_Lane) {
+		
+			for (int i=0; i<e.src_des.Length-1; i++) {
+				char lane_type = e.src_des[i];
+				position1.x = ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
+				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
+				position2.x = rotated.x;
+				position2.z = rotated.y;
+				draw_lane_line (lane_type, position1, position2, node);
+			}
+		}
+		
+		if (e.des_src != Constants.String_No_Lane) {
+			
+			for (int i=0; i<e.src_des.Length-1; i++) {
+				char lane_type = e.src_des[i];
+				position1.x = - ((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1));
+				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
+				position2.x = rotated.x;
+				position2.z = rotated.y;
+				draw_lane_line (lane_type, position1, position2, node);
+			}
+		}
+		
+		// Fin marcas viales
 	}
 	
 	/**
