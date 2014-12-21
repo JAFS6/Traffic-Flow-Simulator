@@ -761,14 +761,14 @@ public static class RoadMap {
 	private static void setLaneStartPoint (char lane_type, Vector3 position, GameObject parent) {
 		
 		switch (lane_type) {
-			case 'P':
+			case Constants.Char_Public_Lane:
 				GameObject publicLaneStart = new GameObject();
 				publicLaneStart.name = Constants.Lane_Name_Public;
 				publicLaneStart.tag = Constants.Tag_Lane_Start_Point;
 				publicLaneStart.transform.position = position;
 				publicLaneStart.transform.parent = parent.transform;
 				break;
-			case 'N':
+			case Constants.Char_Normal_Lane:
 				GameObject normalLaneStart = new GameObject();
 				normalLaneStart.name = Constants.Lane_Name_Normal;
 				normalLaneStart.tag = Constants.Tag_Lane_Start_Point;
@@ -797,10 +797,10 @@ public static class RoadMap {
 	private static void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
 
 		switch (lane_type) {
-			case 'P':
+			case Constants.Char_Public_Lane:
 				draw_continuous_line (Constants.public_transport_line_width, Constants.line_thickness, length, position, Constants.Line_Name_Public_Transport_Lane, parent);
 				break;
-			case 'N':
+			case Constants.Char_Normal_Lane:
 				draw_discontinuous_line (Constants.line_width, Constants.line_thickness, length, position, Constants.Line_Name_Normal_Lane, parent);
 				break;
 			case 'A':
@@ -823,12 +823,12 @@ public static class RoadMap {
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
 	private static void draw_lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent) {
-		
+		Debug.Log("Entering draw_lane_line with position 1 and 2 and lane_type: '" + lane_type + "'");
 		switch (lane_type) {
-		case 'P':
+		case Constants.Char_Public_Lane:
 			draw_continuous_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Public_Transport_Lane, parent);
 			break;
-		case 'N':
+		case Constants.Char_Normal_Lane:
 			draw_discontinuous_line (Constants.line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Normal_Lane, parent);
 			break;
 		case 'A':
@@ -928,15 +928,13 @@ public static class RoadMap {
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
 	private static void draw_discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent) {
-		
-		// FIXME
-		/*
+		Debug.Log("Entering draw_discontinuous_line with position 1 and 2");
 		GameObject discontinuous_line = new GameObject ();
 		discontinuous_line.name = Constants.Line_Name_Discontinuous;
 		discontinuous_line.transform.parent = new_parent.transform;
-		
+		float length = MyMathClass.Distance(position1,position2);
 		int piece_num = (int)((length / Constants.discontinuous_line_length) / 2);
-		Vector3 pos_aux = position;
+		Vector3 pos_aux = MyMathClass.middlePoint(position1,position2);
 		pos_aux.z -= (length / 2) - (Constants.discontinuous_line_length * 1.5f);
 		
 		for (int i=0; i < piece_num; i++) {
@@ -951,7 +949,8 @@ public static class RoadMap {
 			line.transform.parent = discontinuous_line.transform;
 			
 			pos_aux.z += Constants.discontinuous_line_length * 2;
-		}*/
+		}
+		discontinuous_line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
 	}
 
 	/**
@@ -1173,14 +1172,14 @@ public static class RoadMap {
 			                     Constants.line_thickness,
 			                     new Vector3(        -center_point.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y),
 			                     new Vector3( center_point_rotated.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
-			                     Constants.Line_Name_Hard_Shoulder,
+			                     Constants.Line_Name_Center,
 			                     node);
 			
 			draw_continuous_line(Constants.line_width,
 			                     Constants.line_thickness,
 			                     new Vector3(        -center_point.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y ),
 			                     new Vector3( center_point_rotated.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
-			                     Constants.Line_Name_Hard_Shoulder,
+			                     Constants.Line_Name_Center,
 			                     node);
 		}
 		
@@ -1193,7 +1192,7 @@ public static class RoadMap {
 		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
 		if (e.src_des != Constants.String_No_Lane) {
 		
-			for (int i=0; i<e.src_des.Length-1; i++) {
+			for (int i=0; i<e.src_des.Length; i++) {
 				char lane_type = e.src_des[i];
 				position1.x = ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
 				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
@@ -1205,7 +1204,7 @@ public static class RoadMap {
 		
 		if (e.des_src != Constants.String_No_Lane) {
 			
-			for (int i=0; i<e.src_des.Length-1; i++) {
+			for (int i=0; i<e.src_des.Length; i++) {
 				char lane_type = e.src_des[i];
 				position1.x = - ((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1));
 				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
