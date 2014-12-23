@@ -913,9 +913,22 @@ public static class RoadMap {
 		discontinuous_line.name = Constants.Line_Name_Discontinuous;
 		discontinuous_line.transform.parent = new_parent.transform;
 		float length = MyMathClass.Distance(position1,position2);
-		int piece_num = (int)((length / Constants.discontinuous_line_length) / 2);
+		
+		int piece_num = 0;
+		
+		while ( (((piece_num * 2) - 1) * Constants.discontinuous_line_length) + (2 * Constants.discontinuous_line_min_margin) <= length ) {
+			piece_num++;
+		}
+		
+		if ((((piece_num * 2) - 1) * Constants.discontinuous_line_length) + (2 * Constants.discontinuous_line_min_margin) > length) {
+			piece_num--;
+		}
+		
 		Vector3 pos_aux = MyMathClass.middlePoint(position1,position2);
-		pos_aux.z -= (length / 2) - (Constants.discontinuous_line_length * 1.5f);
+		
+		float white_and_no_line_lenght = ((piece_num * 2) - 1) * Constants.discontinuous_line_length;
+		
+		pos_aux.z -= Constants.discontinuous_line_length * ((float)piece_num - 1);
 		
 		for (int i=0; i < piece_num; i++) {
 			
@@ -972,18 +985,18 @@ public static class RoadMap {
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
 		
-		Vector2 left_point = new Vector2 (-edge_width * .5f, -radius * .5f);
-		Vector2 right_point = new Vector2 (edge_width * .5f, -radius * .5f);
+		Vector2 left_point  = new Vector2 (-edge_width * .5f, -radius * .5f);
+		Vector2 right_point = new Vector2 ( edge_width * .5f, -radius * .5f);
 
 		// Rotar angle grados los puntos left y right
 		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point, angle);
 		Vector2 right_point_rotated = MyMathClass.rotatePoint(right_point, angle);
 		
 		#region Vertices
-		Vector3 p0 = new Vector3(  right_point_rotated.x,	-Constants.road_thickness * .5f,		 right_point_rotated.y );
-		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-Constants.road_thickness * .5f,		 left_point_rotated.y );
-		Vector3 p2 = new Vector3(  edge_width * .5f, 		-Constants.road_thickness * .5f,		-radius * .5f );
-		Vector3 p3 = new Vector3( -edge_width * .5f,		-Constants.road_thickness * .5f,		-radius * .5f );
+		Vector3 p0 = new Vector3(  right_point_rotated.x,	-Constants.road_thickness * .5f,	right_point_rotated.y );
+		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-Constants.road_thickness * .5f,	left_point_rotated.y );
+		Vector3 p2 = new Vector3(  edge_width * .5f, 		-Constants.road_thickness * .5f,	-radius * .5f );
+		Vector3 p3 = new Vector3( -edge_width * .5f,		-Constants.road_thickness * .5f,	-radius * .5f );
 		
 		Vector3 p4 = new Vector3(  right_point_rotated.x,	 Constants.road_thickness * .5f,   	 right_point_rotated.y );
 		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 Constants.road_thickness * .5f,   	 left_point_rotated.y );
@@ -1164,6 +1177,9 @@ public static class RoadMap {
 		}
 		
 		// Lineas de carril
+		// Restablecer radius
+		//radius -= Constants.cont_nodes_lines_extra_length;
+		
 		Edge e = edges[ref_edge_id];
 		
 		Vector3 position1 = new Vector3 (0, node.transform.position.y + (Constants.road_thickness/2)+(Constants.line_thickness/2), -radius * .5f);
@@ -1172,9 +1188,9 @@ public static class RoadMap {
 		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
 		if (e.src_des != Constants.String_No_Lane) {
 		
-			for (int i=0; i<e.src_des.Length; i++) {
+			for (int i=0; i < e.src_des.Length-1; i++) {
 				char lane_type = e.src_des[i];
-				position1.x = ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
+				position1.x = -((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1));
 				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
 				position2.x = rotated.x;
 				position2.z = rotated.y;
@@ -1184,9 +1200,9 @@ public static class RoadMap {
 		
 		if (e.des_src != Constants.String_No_Lane) {
 			
-			for (int i=0; i<e.src_des.Length; i++) {
-				char lane_type = e.src_des[i];
-				position1.x = - ((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1));
+			for (int i=0; i < e.des_src.Length-1; i++) {
+				char lane_type = e.des_src[i];
+				position1.x = ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
 				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
 				position2.x = rotated.x;
 				position2.z = rotated.y;
