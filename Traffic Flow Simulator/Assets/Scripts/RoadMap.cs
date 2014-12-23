@@ -117,6 +117,19 @@ public static class RoadMap {
 	public static int getNodeCount () {
 		return nodes.Count;
 	}
+	
+	/**
+	 * @brief Comprueba si un identificador de nodo existe
+	 * @param[in] node_id El identificador a comprobar
+	 * @return True si el nodo existe, false en caso contrario
+	 */
+	public static bool existsNode (string node_id) {
+		
+		if (nodes.ContainsKey (node_id)) {
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * @brief Obtiene una lista con los identificadores de los nodos del mapa
@@ -337,6 +350,41 @@ public static class RoadMap {
 		Vector2 orientation = new Vector2 (v.x,v.z);
 
 		return orientation;
+	}
+	
+	/**
+	 * @brief Obtiene una lista de objetos que marcan los puntos de entrada al carril del nodo limite indicado como
+	 * argumento.
+	 * @param[in] node_id El identificador de un nodo limite
+	 * @return Una lista de objetos o una lista vacia si el nodo indicado no era un nodo limite
+	 */
+	public static List<GameObject> getLaneStartPoints (string node_id) {
+		
+		List<GameObject> list = new List<GameObject>();
+		
+		if (nodes[node_id].node_type == NodeType.Limit) {
+			string edge_id = RoadMap.getLimitEdge(node_id);
+			
+			GameObject object_edge = GameObject.Find(edge_id);
+			
+			GameObject StartPointsObject = null;
+			
+			if (edges[edge_id].source_id == node_id) {
+				StartPointsObject = object_edge.transform.FindChild(Constants.Name_Source_Start_Points).gameObject;
+			}
+			else if (edges[edge_id].destination_id == node_id) {
+				StartPointsObject = object_edge.transform.FindChild(Constants.Name_Destination_Start_Points).gameObject;
+			}
+			
+			if (StartPointsObject != null) {
+				
+				foreach (Transform child in StartPointsObject.transform) {
+					list.Add(child.gameObject);
+				}
+			}
+		}
+		
+		return list;
 	}
 	
 	/**
@@ -704,6 +752,11 @@ public static class RoadMap {
 		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
 		// y poner tantos inicios de carril como carriles haya
 		if (e.src_des != Constants.String_No_Lane) {
+		
+			GameObject source_start_points = new GameObject();
+			source_start_points.transform.parent = platform.transform;
+			source_start_points.name = Constants.Name_Source_Start_Points;
+		
 			for (int i=0; i<e.src_des.Length; i++) {
 				char lane_type = e.src_des[i];
 				position.x = platform.transform.position.x + ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
@@ -711,7 +764,7 @@ public static class RoadMap {
 				if (i < e.src_des.Length-1) {
 					draw_lane_line (lane_type, e.length, position, platform);
 				}
-				setLaneStartPoint (lane_type, new Vector3 (position.x + (Constants.lane_width/2), position.y, position.z - (e.length/2)), platform);
+				setLaneStartPoint (lane_type, new Vector3 (position.x + (Constants.lane_width/2), position.y, position.z - (e.length/2)), source_start_points);
 			}
 
 			// Lineas de detencion antes del cruce
@@ -724,6 +777,10 @@ public static class RoadMap {
 
 		if (e.des_src != Constants.String_No_Lane) {
 			position = save_position;
+			
+			GameObject destination_start_points = new GameObject();
+			destination_start_points.transform.parent = platform.transform;
+			destination_start_points.name = Constants.Name_Destination_Start_Points;
 
 			for (int i=0; i<e.des_src.Length; i++) {
 				char lane_type = e.des_src[i];
@@ -732,7 +789,7 @@ public static class RoadMap {
 				if (i < e.des_src.Length-1) {
 					draw_lane_line (lane_type, e.length, position, platform);
 				}
-				setLaneStartPoint (lane_type, new Vector3 (position.x - (Constants.lane_width/2), position.y, position.z + (e.length/2)), platform);
+				setLaneStartPoint (lane_type, new Vector3 (position.x - (Constants.lane_width/2), position.y, position.z + (e.length/2)), destination_start_points);
 			}
 
 			// Lineas de detencion antes del cruce

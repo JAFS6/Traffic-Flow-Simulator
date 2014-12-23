@@ -63,6 +63,9 @@ public static class Constants : object {
 	
 	public const string Name_Ground = "Ground";
 	
+	public const string Name_Source_Start_Points = "Source Start Points";
+	public const string Name_Destination_Start_Points = "Destination Start Points";
+	
 	// Tags
 	public const string Tag_Node_Limit = "Limit_node";
 	public const string Tag_Node_Continuation = "Continuation_node";
