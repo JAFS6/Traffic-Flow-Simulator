@@ -173,10 +173,13 @@ public class ApplicationController : MonoBehaviour {
 		prefab[2] = orange_jeep_prefab;
 		
 		GameObject vehicle = null;
+		int random;
 		
 		while (true) {
-			vehicle = spawnVehicle (prefab[Random.Range(0,3)], dir_prefab, "n2");
-			vehicle = spawnVehicle (prefab[Random.Range(0,3)], dir_prefab, "n1");
+			random = Random.Range(0,3);
+			vehicle = spawnVehicle (prefab[random], dir_prefab, "n2");
+			random = Random.Range(0,3);
+			vehicle = spawnVehicle (prefab[random], dir_prefab, "n1");
 			yield return new WaitForSeconds(5);
 		}
 	}
@@ -187,32 +190,56 @@ public class ApplicationController : MonoBehaviour {
 	 * @param[in] prefab_orientation La orientacion del prefab
 	 * @param[in] node_id El identificador del nodo limite donde se instanciara el vehiculo
 	 * @return Devuelve una referencia al objeto instanciado
-	 * @post Si node_id no existe o no es un nodo de tipo limite no se instanciara el vehiculo
+	 * @post Si node_id no existe o no es un nodo de tipo limite o no es un nodo de entrada de vehiculos
+	 * no se instanciara el vehiculo
 	 */
 	private GameObject spawnVehicle (GameObject prefab, Vector2 prefab_orientation, string node_id) {
 
 		NodeType node_type = RoadMap.getNodeType (node_id);
+		TransportType valid_transports_types;
 
-		if (node_type == NodeType.Limit) {
-			Vector2 node_position = RoadMap.getNodePosition (node_id);
-
-			string edge_id = RoadMap.getLimitEdge(node_id);
-
-			Vector2 dir_road = RoadMap.entryOrientation(node_id);
-
-			Quaternion q = Quaternion.AngleAxis(5,new Vector3(0,1,0)); // Rotacion de 5 grados hacia la derecha respecto al eje y
-
-			Vector3 dir_road_fixed = new Vector3(dir_road.x,0,dir_road.y);
-
-			dir_road_fixed = q * dir_road_fixed;
-
-			Vector3 pos = new Vector3 (node_position.x, Constants.road_thickness/2, node_position.y);
-			GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.LookRotation(dir_road_fixed)) as GameObject;
-			vehicle.tag = Constants.Tag_Vehicle;
-			return vehicle;
+		if (RoadMap.existsNode(node_id) && node_type == NodeType.Limit && RoadMap.isEntryNode(node_id, out valid_transports_types)) {
+		
+			// Obtener el tipo de vehiculo
+			TransportType vehicle_tt = prefab.GetComponent<VehicleController>().transport_type;
+			
+			// Comprobar si se puede instanciar el vehiculo debido a su tipo
+			if (valid_transports_types == vehicle_tt || valid_transports_types == TransportType.PublicAndPrivate) {
+			
+				// Obtener los puntos de entrada a los carriles
+				List<GameObject> startPoints = RoadMap.getLaneStartPoints(node_id);
+				
+				// Seleccionar el carril por el que entrara
+				// Si hay varios del tipo requerido seleccionarlo aleatoriamente
+				List<GameObject> candidates = new List<GameObject>();
+				
+				startPoints.ForEach(delegate(GameObject point) {
+					
+					if ((point.name == Constants.Lane_Name_Public && vehicle_tt == TransportType.Public) || 
+					    (point.name == Constants.Lane_Name_Normal && vehicle_tt == TransportType.Private)) {
+						candidates.Add (point);
+					}
+				});
+				
+				if (candidates.Count > 0) {
+					Vector3 start_position = candidates[0].transform.position;
+					Vector2 dir_road = RoadMap.entryOrientation(node_id);
+					Vector3 dir_road3D = new Vector3(dir_road.x,0,dir_road.y);
+					Vector3 pos = new Vector3 (start_position.x, Constants.road_thickness/2, start_position.z);
+					GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.LookRotation(dir_road3D)) as GameObject;
+					vehicle.tag = Constants.Tag_Vehicle;
+					return vehicle;
+				}
+				else {
+					return null;
+				}
+			}
+			else {
+				return null;
+			}
 		}
 		else {
-			Debug.Log ("Node ID: "+node_id+" is not a limit node ID");
+			Debug.Log ("Node ID: "+node_id+" is not a valid node ID");
 		}
 		return null;
 	}
