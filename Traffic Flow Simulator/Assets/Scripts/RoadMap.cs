@@ -985,18 +985,18 @@ public static class RoadMap {
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
 		
-		Vector2 left_point = new Vector2 (-edge_width * .5f, -radius * .5f);
-		Vector2 right_point = new Vector2 (edge_width * .5f, -radius * .5f);
+		Vector2 left_point  = new Vector2 (-edge_width * .5f, -radius * .5f);
+		Vector2 right_point = new Vector2 ( edge_width * .5f, -radius * .5f);
 
 		// Rotar angle grados los puntos left y right
 		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point, angle);
 		Vector2 right_point_rotated = MyMathClass.rotatePoint(right_point, angle);
 		
 		#region Vertices
-		Vector3 p0 = new Vector3(  right_point_rotated.x,	-Constants.road_thickness * .5f,		 right_point_rotated.y );
-		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-Constants.road_thickness * .5f,		 left_point_rotated.y );
-		Vector3 p2 = new Vector3(  edge_width * .5f, 		-Constants.road_thickness * .5f,		-radius * .5f );
-		Vector3 p3 = new Vector3( -edge_width * .5f,		-Constants.road_thickness * .5f,		-radius * .5f );
+		Vector3 p0 = new Vector3(  right_point_rotated.x,	-Constants.road_thickness * .5f,	right_point_rotated.y );
+		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-Constants.road_thickness * .5f,	left_point_rotated.y );
+		Vector3 p2 = new Vector3(  edge_width * .5f, 		-Constants.road_thickness * .5f,	-radius * .5f );
+		Vector3 p3 = new Vector3( -edge_width * .5f,		-Constants.road_thickness * .5f,	-radius * .5f );
 		
 		Vector3 p4 = new Vector3(  right_point_rotated.x,	 Constants.road_thickness * .5f,   	 right_point_rotated.y );
 		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 Constants.road_thickness * .5f,   	 left_point_rotated.y );
@@ -1124,7 +1124,7 @@ public static class RoadMap {
 		// Fin plataforma
 		
 		// Añadir longitud extra a las lineas del nodo continuacion para mejorar seguimiento de los vehiculos
-		//radius += Constants.cont_nodes_lines_extra_length;
+		radius += Constants.cont_nodes_lines_extra_length;
 		
 		// Lineas del arcen
 		
