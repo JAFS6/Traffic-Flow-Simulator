@@ -216,6 +216,29 @@ public static class RoadMap {
 	}
 	
 	/**
+	 * @brief Obtiene la direccion del arco con identificador edge_id en el plano XZ
+	 * @param[in] edge_id El identificador del nodo
+	 * @param[in] d Indicador de direccion fuente-destino o destino-fuente
+	 * @return Un Vector2 con la direccion del arco en el plano XZ
+	 * @post Si el identificador no existe se devolvera un vector (0,0)
+	 */
+	public static Vector2 getEdgeDirection (string edge_id, DirectionType d) {
+		Vector2 pos = new Vector2 ();
+		
+		if (edges.ContainsKey (edge_id)) {
+			pos.x = edges[edge_id].direction.x;
+			pos.y = edges[edge_id].direction.y;
+			
+			if (d == DirectionType.Destination_Source) {
+				pos.x = -pos.x;
+				pos.y = -pos.y;
+			}
+		}
+		
+		return pos;
+	}
+	
+	/**
 	 * @brief Devuelve el id del arco que llega al nodo limite pasado como argumento
 	 * @param[in] node_id Identificador del nodo limite
 	 * @return Un string con el id del arco buscado o 
@@ -756,6 +779,7 @@ public static class RoadMap {
 			GameObject source_start_points = new GameObject();
 			source_start_points.transform.parent = platform.transform;
 			source_start_points.name = Constants.Name_Source_Start_Points;
+			source_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
 		
 			for (int i=0; i<e.src_des.Length; i++) {
 				char lane_type = e.src_des[i];
@@ -781,6 +805,7 @@ public static class RoadMap {
 			GameObject destination_start_points = new GameObject();
 			destination_start_points.transform.parent = platform.transform;
 			destination_start_points.name = Constants.Name_Destination_Start_Points;
+			destination_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
 
 			for (int i=0; i<e.des_src.Length; i++) {
 				char lane_type = e.des_src[i];

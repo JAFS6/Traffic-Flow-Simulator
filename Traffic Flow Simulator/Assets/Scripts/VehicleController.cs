@@ -31,7 +31,10 @@ public class VehicleController : MonoBehaviour {
 	// Variables de control del vehiculo
 	private float current_speed; 				// Velocidad actual en metros por segundo
 	private string current_location; 			// Identificador del nodo o arco en el que se encuentra
-	private bool intersection_first_encounter;	// Indicador de si acaba de encontrarse con una interseccion
+	private bool intersection_detected = false;	// Indicador de si acaba de encontrarse con una interseccion
+	private bool edge_detected = false;			// Indicador de si acaba de encontrarse con un arco
+	private bool on_intersection = false; 		// Indica si se encuentra sobre una interseccion
+	private DirectionType entry_orientation;
 
 	// Sensores (raycasting)
 	private const float front_sensor_y = 0.5f; // Altura de los sensores frontales
@@ -40,25 +43,28 @@ public class VehicleController : MonoBehaviour {
 	private Vector3 front_ray_pos;
 	private Vector3 left_ray_pos;
 	private Vector3 right_ray_pos;
+	private Vector3 down_ray_pos;
 	private Vector3 front_ray_dir;
 	private Vector3 left_ray_dir;
 	private Vector3 right_ray_dir;
+	private Vector3 down_ray_dir;
 	private RaycastHit front_ray_hit;
 	private RaycastHit left_ray_hit;
 	private RaycastHit right_ray_hit;
+	private RaycastHit down_ray_hit;
 	
 	void Update () {
 		Debug.DrawLine(this.transform.position,this.transform.position + this.transform.forward * 6,Color.magenta);
-
+		
 		// Raycasting
-			// Front ray
+		// Front ray
 		Vector3 front_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * 2),
 											 this.transform.position.y + front_sensor_y,
 											 this.transform.position.z + (this.transform.forward.z * 2));
 		Vector3 front_ray_dir = new Vector3 ();
 		front_ray_dir = Vector3.Normalize ((this.transform.forward * 5) - this.transform.up);
 		
-			// Left ray
+		// Left ray
 		Vector3 left_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * 2),
 											this.transform.position.y + front_sensor_y,
 											this.transform.position.z + (this.transform.forward.z * 2));
@@ -67,7 +73,7 @@ public class VehicleController : MonoBehaviour {
 		left_ray_dir = Vector3.Normalize ((this.transform.forward * 2) - this.transform.up);
 		left_ray_dir = Vector3.Normalize (left_ray_dir - this.transform.right/2);
 		
-			// Right ray
+		// Right ray
 		Vector3 right_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * 2),
 											 this.transform.position.y + front_sensor_y,
 											 this.transform.position.z + (this.transform.forward.z * 2));
@@ -75,6 +81,13 @@ public class VehicleController : MonoBehaviour {
 		Vector3 right_ray_dir = new Vector3 ();
 		right_ray_dir = Vector3.Normalize ((this.transform.forward * 2) - this.transform.up);
 		right_ray_dir = Vector3.Normalize (right_ray_dir +  this.transform.right/2);
+		
+		// Down ray
+		Vector3 down_ray_pos = new Vector3 (this.transform.position.x,
+		                                     this.transform.position.y + 1f,
+		                                     this.transform.position.z);
+		Vector3 down_ray_dir = new Vector3 ();
+		down_ray_dir = Vector3.Normalize (- this.transform.up);
 
 		// Front ray check
 		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length)) {
@@ -90,35 +103,19 @@ public class VehicleController : MonoBehaviour {
 					current_speed = 0f;
 					break;
 					
-				case Constants.Tag_Edge:
-					
-					if (!intersection_first_encounter) { // Acaba de llegar al arco
-						current_location = front_ray_hit.transform.name;
-						intersection_first_encounter = true;
-						// TODO Girar el vehiculo para ponerlo en la linea del arco
-						Vector2 entry_point = RoadMap.getEdgePosition(current_location);
-						this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
-					                                                                  this.transform.position.y,
-					                                               					  entry_point.y - this.transform.position.z));
+				case Constants.Tag_Node_Intersection:
+				
+					if (!intersection_detected && !on_intersection) {
+						intersection_detected = true;
+						edge_detected = false;
 					}
 					break;
 					
-				case Constants.Tag_Node_Intersection:
-				
-					if (intersection_first_encounter) {
-						intersection_first_encounter = false;
-						// Obtener lista de los arcos de salida
-						List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
-						// Actualizar posicion actual
-						current_location = front_ray_hit.transform.name;
-						// Elegir arco aleatoriamente
-						string selected_edge = exits_edges[Random.Range(0,exits_edges.Count)];
-						// Elegir punto de entrada al carril
-						Vector2 entry_point = getNearestLaneStartPoint (selected_edge);
-						// Girar hacia el punto
-						this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
-						                                                              this.transform.position.y,
-						                                                              entry_point.y - this.transform.position.z));
+				case Constants.Tag_Edge:
+					
+					if (!edge_detected && on_intersection) {
+						edge_detected = true;
+						intersection_detected = false;
 					}
 					break;
 			}
@@ -205,6 +202,44 @@ public class VehicleController : MonoBehaviour {
 					break;
 			} // End switch (right_ray_hit.transform.name)
 		}
+		
+		// Down ray check
+		if (Physics.Raycast(down_ray_pos,down_ray_dir, out down_ray_hit,sensor_length)) {
+			Debug.DrawLine(down_ray_pos,down_ray_hit.point,Color.black);
+			
+			switch (down_ray_hit.transform.tag) {
+			
+				case Constants.Tag_Node_Intersection:
+				
+					if (intersection_detected && !on_intersection) {
+						on_intersection = true;
+						// Obtener lista de los arcos de salida
+						List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
+						// Actualizar posicion actual
+						current_location = front_ray_hit.transform.name;
+						// Elegir arco aleatoriamente
+						string selected_edge = exits_edges[Random.Range(0,exits_edges.Count)];
+						// Elegir punto de entrada al carril
+						Vector2 entry_point = getNearestLaneStartPoint (selected_edge, out entry_orientation);
+						// Girar hacia el punto
+						this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
+						                                                              this.transform.position.y,
+						                                                              entry_point.y - this.transform.position.z));
+					}
+					break;
+				
+				case Constants.Tag_Edge:
+					
+					if (edge_detected && on_intersection) { // Si estaba sobre una interseccion y acaba de llegar al arco
+						on_intersection = false;
+						current_location = down_ray_hit.transform.name;
+						// TODO Girar el vehiculo para ponerlo en la linea del arco
+						Vector2 edge_dir = RoadMap.getEdgeDirection(current_location, entry_orientation);
+						this.transform.rotation = Quaternion.LookRotation(new Vector3(edge_dir.x, this.transform.position.y, edge_dir.y));
+					}
+					break;
+			} // End switch (down_ray_hit.transform.name)
+		}
 
 		// Increase speed
 		if (this.current_speed < max_speed) {
@@ -244,34 +279,55 @@ public class VehicleController : MonoBehaviour {
 	 * @brief Obtiene las coordenadas en el plano 2D del punto de entrada al carril mas cercano
 	 * al vehiculo del arco seleccionado y que se corresponda con su tipo de vehiculo
 	 * @param[in] edge_id Arco seleccionado
+	 * @param[out] d Direccion respecto al arco: Source_Destination si el punto de entrada 
+	 * pertenece al LaneStartPointGroup fuente o Destination_Source si pertenece al de destino
+	 * @return La posicion del punto mas cercano
 	 */
-	private Vector2 getNearestLaneStartPoint (string edge_id) {
+	private Vector2 getNearestLaneStartPoint (string edge_id, out DirectionType d) {
 	
 		GameObject edge = GameObject.Find (edge_id);
 		bool first = true;
 		float best_distance = 0f;
 		float distance = 0f;
 		Vector2 position = new Vector2();
+		d = DirectionType.Source_Destination;
 		
-		foreach (Transform child in edge.transform) {
+		foreach (Transform lane_start_group in edge.transform) {
 			
-			if (child.tag == Constants.Tag_Lane_Start_Point) {
+			foreach (Transform child in lane_start_group.transform) {
 			
-				Vector3 child_position = new Vector3(child.transform.position.x, this.transform.position.y, child.transform.position.z);
-			
-				if (first) {
-					first = false;
-					position.x = child.transform.position.x;
-					position.y = child.transform.position.z;
-					best_distance = MyMathClass.Distance(this.transform.position, child_position);
-				}
-				else {
-					distance = MyMathClass.Distance(this.transform.position, child_position);
-					
-					if (distance < best_distance) {
-						best_distance = distance;
+				if (child.tag == Constants.Tag_Lane_Start_Point) {
+				
+					Vector3 child_position = new Vector3(child.transform.position.x, this.transform.position.y, child.transform.position.z);
+				
+					if (first) {
+						first = false;
 						position.x = child.transform.position.x;
 						position.y = child.transform.position.z;
+						best_distance = MyMathClass.Distance(this.transform.position, child_position);
+						
+						if (lane_start_group.name == Constants.Name_Source_Start_Points) {
+							d = DirectionType.Source_Destination;
+						}
+						else {
+							d = DirectionType.Destination_Source;
+						}
+					}
+					else {
+						distance = MyMathClass.Distance(this.transform.position, child_position);
+						
+						if (distance < best_distance) {
+							best_distance = distance;
+							position.x = child.transform.position.x;
+							position.y = child.transform.position.z;
+							
+							if (lane_start_group.name == Constants.Name_Source_Start_Points) {
+								d = DirectionType.Source_Destination;
+							}
+							else {
+								d = DirectionType.Destination_Source;
+							}
+						}
 					}
 				}
 			}

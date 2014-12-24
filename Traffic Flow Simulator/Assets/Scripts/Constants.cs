@@ -19,6 +19,7 @@ using System.Collections;
 public enum NodeType : byte {Intersection, Limit, Continuation, Unknown};
 public enum IntersectionType : byte {Normal, Roundabout, Unknown};
 public enum TransportType: byte {Public, Private, PublicAndPrivate, Unknown};
+public enum DirectionType: byte {Source_Destination, Destination_Source};
 
 public struct Node
 {
@@ -73,6 +74,7 @@ public static class Constants : object {
 	public const string Tag_Edge = "Edge";
 	public const string Tag_Unknown = "Unknown";
 	public const string Tag_Lane_Start_Point = "LaneStartPoint";
+	public const string Tag_Lane_Start_Point_Group = "LaneStartPointGroup";
 	public const string Tag_Vehicle = "Vehicle";
 	public const string Tag_Ground = "Ground";
 	
