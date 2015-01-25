@@ -36,43 +36,31 @@ public class MainMenuButtonsController : MonoBehaviour {
 	
 	private void showStartPanel () {
 		GameObject start_panel = GameObject.Find("Start Panel");
-		Vector3 pos = start_panel.transform.position;
-		pos.x = 350;
-		start_panel.transform.position = pos;
+		start_panel.GetComponent<CanvasGroup>().alpha = 1;
 	}
 	
 	private void showOptionsPanel () {
 		GameObject options_panel = GameObject.Find("Options Panel");
-		Vector3 pos = options_panel.transform.position;
-		pos.x = 350;
-		options_panel.transform.position = pos;
+		options_panel.GetComponent<CanvasGroup>().alpha = 1;
 	}
 	
 	private void showCreditsPanel () {
 		GameObject credits_panel = GameObject.Find("Credits Panel");
-		Vector3 pos = credits_panel.transform.position;
-		pos.x = 350;
-		credits_panel.transform.position = pos;
+		credits_panel.GetComponent<CanvasGroup>().alpha = 1;
 	}
 	
 	private void hideStartPanel () {
 		GameObject start_panel = GameObject.Find("Start Panel");
-		Vector3 pos = start_panel.transform.position;
-		pos.x = -600;
-		start_panel.transform.position = pos;
+		start_panel.GetComponent<CanvasGroup>().alpha = 0;
 	}
 	
 	private void hideOptionsPanel () {
 		GameObject options_panel = GameObject.Find("Options Panel");
-		Vector3 pos = options_panel.transform.position;
-		pos.x = -600;
-		options_panel.transform.position = pos;
+		options_panel.GetComponent<CanvasGroup>().alpha = 0;
 	}
 	
 	private void hideCreditsPanel () {
 		GameObject credits_panel = GameObject.Find("Credits Panel");
-		Vector3 pos = credits_panel.transform.position;
-		pos.x = -600;
-		credits_panel.transform.position = pos;
+		credits_panel.GetComponent<CanvasGroup>().alpha = 0;
 	}
 }
