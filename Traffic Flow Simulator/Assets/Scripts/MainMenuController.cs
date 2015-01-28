@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MainMenuButtonsController : MonoBehaviour {
+public class MainMenuController : MonoBehaviour {
 
 	public void showStart () {
 		// Ocultar los otros paneles
