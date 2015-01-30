@@ -32,6 +32,8 @@ public class ApplicationController : MonoBehaviour {
 	public float initial_camera_position_y = 15f;
 	public float initial_camera_position_z = 480f;
 	
+	public static string map_filename = "";
+	
 	// Variables de control para instanciar vehiculos
 	private Dictionary<string, EntryNodeInfo> entryNodes;
 
@@ -48,12 +50,10 @@ public class ApplicationController : MonoBehaviour {
 		main_camera = GameObject.Find("Main Camera");
 
 		// Crear mapa nuevo
-		//RoadMap.CreateNewMap("ejemplo_topologia");
-		RoadMap.CreateNewMap("ejemplo2");
+		RoadMap.CreateNewMap(map_filename);
 
 		// Cargar los datos del mapa
-		//MapLoader.LoadMap("ejemplo_topologia");
-		DebugMapLoader();
+		MapLoader.LoadMap(map_filename);
 
 		// Dibujar el mapa
 		RoadMap.draw ();
