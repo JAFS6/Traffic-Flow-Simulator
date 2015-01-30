@@ -4,7 +4,11 @@ using System.IO;
 using UnityEngine.UI;
 
 public class MainMenuController : MonoBehaviour {
-
+	
+	public void loadMap (string filename) {
+		Application.LoadLevel("Simulation");
+	}
+	
 	public void showStart () {
 		// Eliminar los posibles botones de carga de mapa anteriores
 		GameObject [] buttons = GameObject.FindGameObjectsWithTag ("LoadMapButton");
@@ -22,7 +26,6 @@ public class MainMenuController : MonoBehaviour {
 		// Buscar los mapas disponibles y añadir un boton por cada uno de ellos
 		DirectoryInfo info = new DirectoryInfo(Application.dataPath + "/Resources/Maps/");
 		FileInfo [] fileInfo = info.GetFiles();
-		float my_y = 0;
 		float i = 0;
 		
 		foreach (FileInfo file in fileInfo) {
@@ -31,23 +34,15 @@ public class MainMenuController : MonoBehaviour {
 				string [] split = filename_w_extension.Split(new char[] {'.'});
 				string filename = split[0];
 				GameObject start_panel = GameObject.Find("Start Panel");
-				GameObject example_button = GameObject.Find("ExampleButton");
 				
-				if (example_button == null) {
-					Debug.LogError("ExampleButton not found");
-				}
-				else {
-					GameObject button = (GameObject)GameObject.Instantiate(example_button,new Vector3(0,0,0),Quaternion.identity);
-					button.transform.SetParent(start_panel.transform);
-					button.name = "LoadMapButton"+"_"+i;
-					button.tag = "LoadMapButton";
-					button.transform.localScale = new Vector3(1,1,1);
-					button.transform.position = new Vector3(start_panel.transform.position.x,start_panel.transform.position.y - my_y,0);
-					button.transform.Find("Text").GetComponent<Text>().text = filename;
-					
-					my_y += 30;
-					i++;
-				}
+				GameObject button_prefab = Resources.Load("Prefabs/LoadMapButton", typeof(GameObject)) as GameObject;
+				GameObject button = (GameObject)GameObject.Instantiate(button_prefab,new Vector3(0,0,0),Quaternion.identity);
+				button.transform.SetParent(start_panel.transform.FindChild("MapLoadButtons").transform,false);
+				button.name = "LoadMapButton"+"_"+i;
+				button.tag = "LoadMapButton";
+				button.GetComponentInChildren<Text>().text = filename;
+				button.GetComponent<Button>().onClick.AddListener(delegate { loadMap(filename); });
+				i++;
 			}
 		}
 	}
@@ -78,11 +73,15 @@ public class MainMenuController : MonoBehaviour {
 	private void showStartPanel () {
 		GameObject start_panel = GameObject.Find("Start Panel");
 		start_panel.GetComponent<CanvasGroup>().alpha = 1;
+		start_panel.GetComponent<CanvasGroup>().interactable = true;
+		start_panel.GetComponent<CanvasGroup>().blocksRaycasts = true;
 	}
 	
 	private void showOptionsPanel () {
 		GameObject options_panel = GameObject.Find("Options Panel");
 		options_panel.GetComponent<CanvasGroup>().alpha = 1;
+		options_panel.GetComponent<CanvasGroup>().interactable = true;
+		options_panel.GetComponent<CanvasGroup>().blocksRaycasts = true;
 	}
 	
 	private void showCreditsPanel () {
@@ -93,11 +92,15 @@ public class MainMenuController : MonoBehaviour {
 	private void hideStartPanel () {
 		GameObject start_panel = GameObject.Find("Start Panel");
 		start_panel.GetComponent<CanvasGroup>().alpha = 0;
+		start_panel.GetComponent<CanvasGroup>().interactable = false;
+		start_panel.GetComponent<CanvasGroup>().blocksRaycasts = false;
 	}
 	
 	private void hideOptionsPanel () {
 		GameObject options_panel = GameObject.Find("Options Panel");
 		options_panel.GetComponent<CanvasGroup>().alpha = 0;
+		options_panel.GetComponent<CanvasGroup>().interactable = false;
+		options_panel.GetComponent<CanvasGroup>().blocksRaycasts = false;
 	}
 	
 	private void hideCreditsPanel () {
