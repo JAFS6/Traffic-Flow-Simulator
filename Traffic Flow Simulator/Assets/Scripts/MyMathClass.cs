@@ -1,4 +1,19 @@
-﻿using UnityEngine;
+﻿/*
+	Copyright 2014-2015 Juan Antonio Fajardo Serrano
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+using UnityEngine;
 using System.Collections;
 
 public static class MyMathClass : object {
@@ -9,7 +24,7 @@ public static class MyMathClass : object {
 	 * @param[in] p2 Un vector (x,y,z) con las coordenadas del segundo punto
 	 * @return La distancia minima entre los dos puntos
 	 */
-	public static float Distance3D (Vector3 p1, Vector3 p2) {
+	public static float Distance (Vector3 p1, Vector3 p2) {
 		float dx = p2.x - p1.x;
 		float dy = p2.y - p1.y;
 		float dz = p2.z - p1.z;
@@ -24,12 +39,93 @@ public static class MyMathClass : object {
 	}
 	
 	/**
+	 * @brief Calcula la distancia minima entre dos puntos del espacio bidimensional
+	 * @param[in] p1 Un vector (x,y) con las coordenadas del primer punto
+	 * @param[in] p2 Un vector (x,y) con las coordenadas del segundo punto
+	 * @return La distancia minima entre los dos puntos
+	 */
+	public static float Distance (Vector2 p1, Vector2 p2) {
+		float dx = p2.x - p1.x;
+		float dy = p2.y - p1.y;
+		
+		float dx2 = dx * dx;
+		float dy2 = dy * dy;
+		
+		float d = Mathf.Sqrt (dx2 + dy2);
+		
+		return d;
+	}
+	
+	/**
+	 * @brief Calcula el modulo de un vector de tres dimensiones
+	 * @param[in] v Un vector de tres dimensiones
+	 * @return El modulo del vector v
+	 */
+	public static float module (Vector3 v) {
+		return Mathf.Sqrt (v.x * v.x + v.y * v.y + v.z * v.z);
+	}
+	
+	/**
 	 * @brief Calcula el modulo de un vector de dos dimensiones
 	 * @param[in] v Un vector de dos dimensiones
 	 * @return El modulo del vector v
 	 */
-	public static float module2D (Vector2 v) {
+	public static float module (Vector2 v) {
 		return Mathf.Sqrt (v.x * v.x + v.y * v.y);
+	}
+	
+	/**
+	 * @brief Calcula el punto medio entre dos puntos del espacio tridimensional
+	 * @param[in] p1 Un vector (x,y,z) con las coordenadas del primer punto
+	 * @param[in] p2 Un vector (x,y,z) con las coordenadas del segundo punto
+	 * @return Un vector (x,y,z) con las coordenadas del punto medio
+	 */
+	public static Vector3 middlePoint (Vector3 p1, Vector3 p2) {
+		Vector3 middle_point = new Vector3();
+		middle_point.x = (p1.x + p2.x) / 2;
+		middle_point.y = (p1.y + p2.y) / 2;
+		middle_point.z = (p1.z + p2.z) / 2;
+		return middle_point;
+	}
+	
+	/**
+	 * @brief Calcula el punto medio entre dos puntos del espacio bidimensional
+	 * @param[in] p1 Un vector (x,y) con las coordenadas del primer punto
+	 * @param[in] p2 Un vector (x,y) con las coordenadas del segundo punto
+	 * @return Un vector (x,y) con las coordenadas del punto medio
+	 */
+	public static Vector2 middlePoint (Vector2 p1, Vector2 p2) {
+		Vector2 middle_point = new Vector2();
+		middle_point.x = (p1.x + p2.x) / 2;
+		middle_point.y = (p1.y + p2.y) / 2;
+		return middle_point;
+	}
+	
+	/**
+	 * @brief Calcula el vector orientacion con origen en p1 y extremo en p2
+	 * @param[in] p1 Un vector (x,y,z) con las coordenadas del primer punto
+	 * @param[in] p2 Un vector (x,y,z) con las coordenadas del segundo punto
+	 * @return El vector (x,y,z) calculado
+	 */
+	public static Vector3 orientationVector (Vector3 p1, Vector3 p2) {
+		Vector3 orientation = new Vector3();
+		orientation.x = p2.x - p1.x;
+		orientation.y = p2.y - p1.y;
+		orientation.z = p2.z - p1.z;
+		return orientation;
+	}
+	
+	/**
+	 * @brief Calcula el vector orientacion con origen en p1 y extremo en p2
+	 * @param[in] p1 Un vector (x,y) con las coordenadas del primer punto
+	 * @param[in] p2 Un vector (x,y) con las coordenadas del segundo punto
+	 * @return El vector (x,y) calculado
+	 */
+	public static Vector2 orientationVector (Vector2 p1, Vector2 p2) {
+		Vector2 orientation = new Vector2();
+		orientation.x = p2.x - p1.x;
+		orientation.y = p2.y - p1.y;
+		return orientation;
 	}
 	
 	/**
@@ -51,6 +147,22 @@ public static class MyMathClass : object {
 		}
 
 		return angle;
+	}
+	
+	/**
+	 * @brief Rota un punto en el plano respecto al origen de coodenadas
+	 * @param[in] p El punto a rotar
+	 * @param[in] degrees Grados de rotacion
+	 * @return El resultado de rotar el punto
+	 */
+	public static Vector2 rotatePoint (Vector2 p, float degrees) {
+		float radians = (degrees * Mathf.PI) / 180f;
+		
+		Vector2 rotated_point = new Vector2 ();
+		rotated_point.x = (p.x * Mathf.Cos(radians)) - (p.y * Mathf.Sin(radians));
+		rotated_point.y = (p.x * Mathf.Sin(radians)) + (p.y * Mathf.Cos(radians));
+		
+		return rotated_point;
 	}
 	
 	/**

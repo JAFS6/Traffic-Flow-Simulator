@@ -1,61 +1,25 @@
+/*
+	Copyright 2014-2015 Juan Antonio Fajardo Serrano
+
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+		http://www.apache.org/licenses/LICENSE-2.0
+
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
 using UnityEditor;
 using UnityEngine;
 using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 
-public enum NodeType : byte {INTERSECTION, LIMIT, CONTINUATION, UNKNOWN};
-public enum IntersectionType : byte {NORMAL, ROUNDABOUT, UNKNOWN};
-
-public struct Node
-{
-	public string id;
-	public NodeType node_type;
-	public float x;
-	public float y;
-	public IntersectionType intersection_type;
-	public string widest_edge_id;
-}
-
-public struct Edge
-{
-	public string id;
-	public string source_id;
-	public string destination_id;
-	public string name;
-	public string src_des;
-	public string des_src;
-	public float length;
-	public float width;
-	public int lane_num;
-	public Vector2 direction;
-	public Vector2 fixed_position_vector; // Vector de ajuste de posicion
-	public Vector3 fixed_position; // Posicion ya ajustada
-}
-
 public static class RoadMap {
-
-	public const float lane_width = 3f;
-	public const float line_width = 0.1f;
-	public const float public_transport_line_width = 0.3f;
-	public const float hard_shoulder_width = 1f;
-	public const float limit_height = 10f;
-	public const float limit_depth = 3f;
-	public const float road_thickness = 0.1f;
-	public const float line_thickness = 0.01f;
-	public const float center_lines_separation = 0.2f;
-	public const float discontinuous_line_length = 2f;
-
-	public const string hard_shoulder_line_name = "Hard shoulder line";
-	public const string public_transport_lane_line_name = "Public transport lane line";
-	public const string center_line_name = "Center line";
-	public const string detention_line_name = "Detention line";
-	public const string normal_lane_line_name = "Normal lane line";
-	public const string discontinuous_line_name = "Discontinuous line";
-	
-	public const string limit_node_tag = "Limit_node";
-	public const string continuation_node_tag = "Continuation_node";
-	public const string intersection_node_tag = "Intersection_node";
 
 	private static string map_name;
 	private static Dictionary<string, Node> nodes;
@@ -85,7 +49,7 @@ public static class RoadMap {
 	 * @param[in] intersection_type Tipo de cruce: normal (0) o rotonda (1) (Solo se aplica a los nodos de tipo cruce)
 	 * @pre El id debe ser distinto a todos los ids ya insertados, si coincide con alguno, el nuevo nodo no se insertará
 	 */
-	public static void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.NORMAL) {
+	public static void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.Normal) {
 		
 		if ( !nodes.ContainsKey (id) ) {
 			Node newnode = new Node ();
@@ -121,7 +85,6 @@ public static class RoadMap {
 			newedge.des_src = des_src;
 			edges.Add (newedge.id, newedge);
 		}
-		Debug.Log ("edges.Count = "+edges.Count);
 	}
 	
 	/**
@@ -153,6 +116,19 @@ public static class RoadMap {
 	 */
 	public static int getNodeCount () {
 		return nodes.Count;
+	}
+	
+	/**
+	 * @brief Comprueba si un identificador de nodo existe
+	 * @param[in] node_id El identificador a comprobar
+	 * @return True si el nodo existe, false en caso contrario
+	 */
+	public static bool existsNode (string node_id) {
+		
+		if (nodes.ContainsKey (node_id)) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -194,7 +170,7 @@ public static class RoadMap {
 			return nodes[node_id].node_type;
 		}
 		else {
-			return NodeType.UNKNOWN;
+			return NodeType.Unknown;
 		}
 	}
 
@@ -214,39 +190,106 @@ public static class RoadMap {
 		List<string> l = new List<string>(edges.Keys);
 		return l;
 	}
-
+	
 	/**
-	 * @brief Dibuja el mapa en el entorno 3D
+	 * @brief Obtiene la posicion central del arco con identificador edge_id en el plano XZ
+	 * @param[in] edge_id El identificador del nodo
+	 * @return Un Vector2 con la posicion central del arco en el plano XZ
+	 * @post Si el identificador no existe se devolvera un vector (0,0)
 	 */
-	public static void draw () {
-
-		prepareEdges ();
-
-		Debug.Log ("Drawing Edges");
-		foreach (KeyValuePair<string, Edge> edge in edges){
-			drawEdge (edge.Key);
+	public static Vector2 getEdgePosition (string edge_id) {
+		
+		Vector2 pos = new Vector2 ();
+		
+		if (edges.ContainsKey (edge_id)) {
+			string src_node_id = edges[edge_id].source_id;
+			string des_node_id = edges[edge_id].destination_id;
+		
+			Vector2 src_pos = new Vector2 (nodes[src_node_id].x, nodes[src_node_id].y);
+			Vector2 des_pos = new Vector2 (nodes[des_node_id].x, nodes[des_node_id].y);
+			
+			pos.x = (src_pos.x+des_pos.x)/2;
+			pos.y = (src_pos.y+des_pos.y)/2;
 		}
-
-		Debug.Log ("Drawing Nodes");
-		foreach (KeyValuePair<string, Node> node in nodes){
-			drawNode (node.Key);
-		}
+		
+		return pos;
 	}
-
+	
+	/**
+	 * @brief Obtiene la direccion del arco con identificador edge_id en el plano XZ
+	 * @param[in] edge_id El identificador del nodo
+	 * @param[in] d Indicador de direccion fuente-destino o destino-fuente
+	 * @return Un Vector2 con la direccion del arco en el plano XZ
+	 * @post Si el identificador no existe se devolvera un vector (0,0)
+	 */
+	public static Vector2 getEdgeDirection (string edge_id, DirectionType d) {
+		Vector2 pos = new Vector2 ();
+		
+		if (edges.ContainsKey (edge_id)) {
+			pos.x = edges[edge_id].direction.x;
+			pos.y = edges[edge_id].direction.y;
+			
+			if (d == DirectionType.Destination_Source) {
+				pos.x = -pos.x;
+				pos.y = -pos.y;
+			}
+		}
+		
+		return pos;
+	}
+	
 	/**
 	 * @brief Devuelve el id del arco que llega al nodo limite pasado como argumento
 	 * @param[in] node_id Identificador del nodo limite
-	 * @return Un string con el id del arco buscado
+	 * @return Un string con el id del arco buscado o 
+	 * la cadena Constants.String_Unknown si el nodo no es de tipo limite
 	 */
-	public static string edgeLimit (string node_id) {
+	public static string getLimitEdge (string node_id) {
 		
-		foreach (KeyValuePair<string, Edge> edge in edges) {
-			
-			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
-				return edge.Value.id;
+		if (nodes[node_id].node_type == NodeType.Limit) {
+		
+			foreach (KeyValuePair<string, Edge> edge in edges) {
+				
+				if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+					return edge.Value.id;
+				}
 			}
 		}
-		return "";
+		return Constants.String_Unknown;
+	}
+	
+	/**
+	 * @brief Devuelve los IDs de los arcos que llegan al nodo de continuacion pasado como argumento
+	 * @param[in] node_id Identificador del nodo continuacion
+	 * @param[out] edge1 Identificador de uno de los arcos que llega al nodo pasado como argumento
+	 * @param[out] edge2 Identificador de otro de los arcos que llega al nodo pasado como argumento
+	 * @post El finalizar la ejecucion del metodo, los parametros edge1 y edge2 tendran los identificadores
+	 * buscados o la cadena Constants.String_Unknown si el nodo no es de tipo continuacion
+	 */
+	public static void getContinuationEdges (string node_id, out string edge1, out string edge2) {
+		
+		edge1 = Constants.String_Unknown;
+		edge2 = Constants.String_Unknown;
+		
+		if (nodes[node_id].node_type == NodeType.Continuation) {
+		
+			bool first_found = false;
+			
+			foreach (KeyValuePair<string, Edge> edge in edges) {
+				
+				if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+				
+					if (!first_found) {
+						first_found = true;
+						edge1 = edge.Value.id;
+					}
+					else {
+						edge2 = edge.Value.id;
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -259,32 +302,32 @@ public static class RoadMap {
 		
 		tt = TransportType.Unknown;
 		
-		if (nodes[node_id].node_type == NodeType.LIMIT) {
-			string edge_id = edgeLimit(node_id);
+		if (nodes[node_id].node_type == NodeType.Limit) {
+			string edge_id = getLimitEdge(node_id);
 			
-			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != "0") {
+			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != Constants.String_No_Lane) {
 			
-				if (edges[edge_id].src_des.Contains("P") && edges[edge_id].src_des.Contains("N")) { // Contiene P y N
-					tt = TransportType.Mixed;
+				if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane) && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) { // Contiene P y N
+					tt = TransportType.PublicAndPrivate;
 				}
-				else if (edges[edge_id].src_des.Contains("P")) { // Contiene solo P
+				else if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane)) { // Contiene solo P
 					tt = TransportType.Public;
 				}
-				else if (edges[edge_id].src_des.Contains("N")) { // Contiene solo N
+				else if (edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) { // Contiene solo N
 					tt = TransportType.Private;
 				}
 				
 				return true;
 			}
-			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != "0") {
+			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != Constants.String_No_Lane) {
 			
-				if (edges[edge_id].des_src.Contains("P") && edges[edge_id].des_src.Contains("N")) { // Contiene P y N
-					tt = TransportType.Mixed;
+				if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane) && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) { // Contiene P y N
+					tt = TransportType.PublicAndPrivate;
 				}
-				else if (edges[edge_id].des_src.Contains("P")) { // Contiene solo P
+				else if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane)) { // Contiene solo P
 					tt = TransportType.Public;
 				}
-				else if (edges[edge_id].des_src.Contains("N")) { // Contiene solo N
+				else if (edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) { // Contiene solo N
 					tt = TransportType.Private;
 				}
 				
@@ -309,8 +352,8 @@ public static class RoadMap {
 		Vector3 v = new Vector3 (0,0,0);
 
 		if (nodes.ContainsKey (node_id)) {
-			if (nodes[node_id].node_type == NodeType.LIMIT) {
-				string edge_id = edgeLimit(node_id);
+			if (nodes[node_id].node_type == NodeType.Limit) {
+				string edge_id = getLimitEdge(node_id);
 
 				if (edges[edge_id].source_id == node_id) {
 					// Destino - fuente
@@ -331,13 +374,106 @@ public static class RoadMap {
 
 		return orientation;
 	}
+	
+	/**
+	 * @brief Obtiene una lista de objetos que marcan los puntos de entrada al carril del nodo limite indicado como
+	 * argumento.
+	 * @param[in] node_id El identificador de un nodo limite
+	 * @return Una lista de objetos o una lista vacia si el nodo indicado no era un nodo limite
+	 */
+	public static List<GameObject> getLaneStartPoints (string node_id) {
+		
+		List<GameObject> list = new List<GameObject>();
+		
+		if (nodes[node_id].node_type == NodeType.Limit) {
+			string edge_id = RoadMap.getLimitEdge(node_id);
+			
+			GameObject object_edge = GameObject.Find(edge_id);
+			
+			GameObject StartPointsObject = null;
+			
+			if (edges[edge_id].source_id == node_id) {
+				StartPointsObject = object_edge.transform.FindChild(Constants.Name_Source_Start_Points).gameObject;
+			}
+			else if (edges[edge_id].destination_id == node_id) {
+				StartPointsObject = object_edge.transform.FindChild(Constants.Name_Destination_Start_Points).gameObject;
+			}
+			
+			if (StartPointsObject != null) {
+				
+				foreach (Transform child in StartPointsObject.transform) {
+					list.Add(child.gameObject);
+				}
+			}
+		}
+		
+		return list;
+	}
+	
+	/**
+	 * @brief Obtiene una lista con los identificadores de los arcos por los que un vehiculo puede salir del nodo
+	 * habiendo entrado a el por el arco indicado
+	 * @param[in] node_id Id del nodo en el que se encuentra el vehiculo
+	 * @param[in] entry_edge_id Id del arco por el que ha entrado al nodo
+	 * @param[in] tt Tipo de transporte del vehiculo
+	 */
+	public static List<string> exitPaths (string node_id, string entry_edge_id, TransportType tt) {
+	
+		List<string> exits = new List<string>();
+		exits.Clear();
+		
+		List<string> edge_keys = new List<string> (edges.Keys);
+		
+		foreach (string edge_id in edge_keys) {
+			
+			if (edge_id != entry_edge_id) { // El arco no es el arco por el que ha entrado
+				
+				if (node_id == edges[edge_id].source_id && edges[edge_id].src_des != Constants.String_No_Lane) { // Hay algun carril de salida
+					
+					if ((tt == TransportType.Public && edges[edge_id].src_des.Contains(Constants.String_Public_Lane)) || 
+						(tt == TransportType.Private && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane))) { // Hay al menos un carril que se corresponde con el tipo de vehiculo
+						
+						exits.Add(edge_id);
+					}
+				}
+				else if (node_id == edges[edge_id].destination_id && edges[edge_id].des_src != Constants.String_No_Lane) { // Hay algun carril de salida
+					
+					if ((tt == TransportType.Public && edges[edge_id].des_src.Contains(Constants.String_Public_Lane)) || 
+					    (tt == TransportType.Private && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane))) { // Hay al menos un carril que se corresponde con el tipo de vehiculo
+						
+						exits.Add(edge_id);
+					}
+				}
+			}
+		}
+		
+		return exits;
+	}
 
+	/**
+	 * @brief Dibuja el mapa en el entorno 3D
+	 */
+	public static void draw () {
+		
+		prepareEdges ();
+		
+		// Dibujar el suelo base
+		drawGround ();
+		
+		foreach (KeyValuePair<string, Edge> edge in edges){
+			drawEdge (edge.Key);
+		}
+		
+		foreach (KeyValuePair<string, Node> node in nodes){
+			drawNode (node.Key);
+		}
+	}
+	
 	/**
 	 * @brief Procesa los arcos calculando su longitud, anchura y numero de carriles, asi como el ajuste de longitud y posicion para las intersecciones
 	 * @pre Este metodo debe ser llamado antes de ejecutar el metodo drawEdge
 	 */
 	private static void prepareEdges () {
-		Debug.Log ("Preparing edges");
 
 		List<string> edge_keys = new List<string> (edges.Keys);
 
@@ -351,9 +487,9 @@ public static class RoadMap {
 			Vector3 src_node_position = new Vector3 (src_node.x,0,src_node.y);
 			Vector3 dst_node_position = new Vector3 (dst_node.x,0,dst_node.y);
 			// Longitud del arco
-			e.length = MyMathClass.Distance3D(src_node_position, dst_node_position);
+			e.length = MyMathClass.Distance(src_node_position, dst_node_position);
 			// Ancho del arco
-			e.width = (lane_width * e.lane_num) + ((e.lane_num + 1) * line_width) + 2 * (hard_shoulder_width);
+			e.width = (Constants.lane_width * e.lane_num) + ((e.lane_num + 1) * Constants.line_width) + 2 * (Constants.hard_shoulder_width);
 			// Vector direccion del arco
 			e.direction = new Vector2 (dst_node_position.x - src_node_position.x, dst_node_position.z - src_node_position.z);
 			// Actualizar el arco
@@ -361,6 +497,7 @@ public static class RoadMap {
 		}
 
 		// Actualizar el arco mas ancho en cada nodo
+		// y actualiza en los nodos de continuacion si son de un sentido o dos
 		List<string> node_keys = new List<string> (nodes.Keys);
 
 		foreach (string node_key in node_keys) {
@@ -370,10 +507,20 @@ public static class RoadMap {
 			foreach (string edge_key in edge_keys) {
 
 				if (edges[edge_key].source_id == n.id || edges[edge_key].destination_id == n.id) {
-
+					
 					if (edges[edge_key].width > best_width) {
 						best_width = edges[edge_key].width;
 						n.widest_edge_id = edge_key;
+					}
+					
+					// Actualizacion de sentido
+					if (n.node_type == NodeType.Continuation) {
+						if (edges[edge_key].src_des != Constants.String_No_Lane && edges[edge_key].des_src != Constants.String_No_Lane) {
+							n.two_ways = true;
+						}
+						else {
+							n.two_ways = false;
+						}
 					}
 				}
 			}
@@ -394,22 +541,22 @@ public static class RoadMap {
 			string src_id_widest_edge = nodes[e.source_id].widest_edge_id;		// Identificador del arco mas ancho en el nodo de origen
 			string dst_id_widest_edge = nodes[e.destination_id].widest_edge_id;	// Identificador del arco mas ancho en el nodo de destino
 
-			if (src_node_type == NodeType.INTERSECTION || src_node_type == NodeType.CONTINUATION) {
+			if (src_node_type == NodeType.Intersection || src_node_type == NodeType.Continuation) {
 				float aux_width = edges[ src_id_widest_edge ].width /2;
 				fixed_length += aux_width; // Desplazamiento en el sentido del vector director del arco
 				e.length -= aux_width;
 			}
-			else if (src_node_type == NodeType.LIMIT) {
-				fixed_length += limit_depth*1.5f; // Desplazamiento en el sentido del vector director del arco
+			else if (src_node_type == NodeType.Limit) {
+				fixed_length += Constants.limit_depth*1.5f; // Desplazamiento en el sentido del vector director del arco
 			}
 
-			if (dst_node_type == NodeType.INTERSECTION || dst_node_type == NodeType.CONTINUATION) {
+			if (dst_node_type == NodeType.Intersection || dst_node_type == NodeType.Continuation) {
 				float aux_width = edges[ dst_id_widest_edge ].width /2;
 				fixed_length -= aux_width; // Desplazamiento en sentido contrario del vector director del arco
 				e.length -= aux_width;
 			}
-			else if (dst_node_type == NodeType.LIMIT) {
-				fixed_length -= limit_depth*1.5f; // Desplazamiento en sentido contrario del vector director del arco
+			else if (dst_node_type == NodeType.Limit) {
+				fixed_length -= Constants.limit_depth*1.5f; // Desplazamiento en sentido contrario del vector director del arco
 			}
 
 			if (fixed_length < 0) {
@@ -440,33 +587,52 @@ public static class RoadMap {
 		Node n = nodes[node_id];
 		Vector3 pos = new Vector3 (n.x, 0, n.y);
 
-		if (n.node_type == NodeType.LIMIT) {
-			Edge e = edges[edgeLimit(n.id)];
+		if (n.node_type == NodeType.Limit) {
+			Edge e = edges[getLimitEdge(n.id)];
 			Node src_node = nodes[e.source_id];
 			Node dst_node = nodes[e.destination_id];
 
-			float width = (e.lane_num*lane_width) + 2*lane_width; // Para que sobresalga por ambos lados
+			float width = (e.lane_num*Constants.lane_width) + 2*Constants.lane_width; // Para que sobresalga por ambos lados
 
 			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			aux_road.name = node_id + " - limit";
-			aux_road.tag = limit_node_tag;
+			aux_road.name = node_id;
+			aux_road.tag = Constants.Tag_Node_Limit;
 			aux_road.renderer.material = black_material;
-			pos.y += (limit_height/2);
-			aux_road.transform.localScale = new Vector3(width,limit_height,limit_depth);
+			pos.y += (Constants.limit_height/2);
+			aux_road.transform.localScale = new Vector3(width,Constants.limit_height,Constants.limit_depth);
 			// Vector del nodo limite
 			Vector2 dir = new Vector2 (0,1);
 			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir,e.direction),Vector3.up);
 			aux_road.transform.position = pos;
 		}
-		else if (n.node_type == NodeType.CONTINUATION) {
+		else if (n.node_type == NodeType.Continuation) {
 			GameObject aux_road = new GameObject();
-			aux_road.name = node_id + " - continuation";
-			aux_road.tag = continuation_node_tag;
+			aux_road.name = node_id;
+			aux_road.tag = Constants.Tag_Node_Continuation;
 			float edge_width = nodeWidth(n.id);
-			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id));
+			
+			// Obtener los identificadores de los arcos involucrados con el nodo de continuacion
+			string edgeID1, edgeID2;
+			RoadMap.getContinuationEdges (n.id, out edgeID1, out edgeID2);
+			// Elegir el arco cuya suma de sus coordenadas, de su punto central, en el plano XZ sea menor
+			float edge_1_sum = edges[edgeID1].fixed_position.x + edges[edgeID1].fixed_position.z;
+			float edge_2_sum = edges[edgeID2].fixed_position.x + edges[edgeID2].fixed_position.z;
+			
+			string selected_edge = edgeID1;
+			
+			if (edge_2_sum < edge_1_sum) {
+				selected_edge = edgeID2;
+			}
+			// Crear el nodo de continuacion
+			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id), selected_edge);
+			
+			Vector2 edge_direction = edges[selected_edge].direction;
+			float rotation_degrees = MyMathClass.RotationAngle(new Vector2(0,-1),edge_direction);
+			aux_road.transform.rotation = Quaternion.AngleAxis (rotation_degrees, new Vector3(0,1,0));
 			aux_road.transform.position = pos;
 		}
-		else {
+		else if (n.node_type == NodeType.Intersection) {
+		
 			GameObject road_prefab = Resources.Load("Prefabs/Road", typeof(GameObject)) as GameObject;
 			
 			if (road_prefab == null) {
@@ -474,16 +640,20 @@ public static class RoadMap {
 			}
 			else {
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
-				aux_road.transform.localScale = new Vector3(17.6f,road_thickness,17.6f);
+				aux_road.transform.localScale = new Vector3(17.6f,Constants.road_thickness,17.6f);
 
-				if (n.node_type == NodeType.INTERSECTION) {
-					aux_road.name = node_id + " - intersection";
-					aux_road.tag = intersection_node_tag;
+				if (n.node_type == NodeType.Intersection) {
+					aux_road.name = node_id;
+					aux_road.tag = Constants.Tag_Node_Intersection;
 				}
 				else {
-					aux_road.name = node_id + " - unknown type";
+					aux_road.name = node_id;
+					aux_road.tag = Constants.Tag_Unknown;
 				}
 			}
+		}
+		else {
+			Debug.Log("Trying to draw invalid node type");
 		}
 	}
 
@@ -558,14 +728,13 @@ public static class RoadMap {
 	 * @pre Antes de ejecutar este metodo se debe ejecutar una vez el metodo prepareEdges
 	 */
 	private static void drawEdge (string edge_id) {
-
-		Debug.Log ("Drawing edge "+edge_id);
 		Edge e = edges[edge_id];
 
 		// Plataforma
 		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		platform.name = edge_id;
-		platform.transform.localScale = new Vector3(e.width, road_thickness, e.length);
+		platform.tag = Constants.Tag_Edge;
+		platform.transform.localScale = new Vector3(e.width, Constants.road_thickness, e.length);
 		platform.renderer.material.color = Color.gray;
 		platform.renderer.material = asphalt_material;
 		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
@@ -576,31 +745,27 @@ public static class RoadMap {
 
 		// Lineas de los arcenes
 		position = new Vector3();
-		position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width);
-		position.y = platform.transform.position.y + (road_thickness/2)+(line_thickness/2);
+		position.x = platform.transform.position.x - ((e.width / 2) - Constants.hard_shoulder_width);
+		position.y = platform.transform.position.y + (Constants.road_thickness/2)+(Constants.line_thickness/2);
 		position.z = 0;
-		draw_continuous_line (line_width, line_thickness, e.length, position, hard_shoulder_line_name, platform);
+		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Hard_Shoulder, platform);
 
-		position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width);
-		draw_continuous_line (line_width, line_thickness, e.length, position, hard_shoulder_line_name, platform);
+		position.x = platform.transform.position.x + ((e.width / 2) - Constants.hard_shoulder_width);
+		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Hard_Shoulder, platform);
 
 		// Lineas centrales
-		if (e.src_des != "0" && e.des_src != "0") { // Si ambos sentidos tienen carriles
+		if (e.src_des != Constants.String_No_Lane && e.des_src != Constants.String_No_Lane) { // Si ambos sentidos tienen carriles
 
-			if (e.src_des.Length == e.des_src.Length) { // Mismo numero de carriles en cada sentido
-				position.x = platform.transform.position.x - (center_lines_separation/2);
-				draw_continuous_line (line_width, line_thickness, e.length, position, center_line_name, platform);
-				position.x = platform.transform.position.x + (center_lines_separation/2);
-				draw_continuous_line (line_width, line_thickness, e.length, position, center_line_name, platform);
+			int lane_diff = 0; // Mismo numero de carriles en cada sentido
+			
+			if (e.src_des.Length != e.des_src.Length) { // Distinto numero de carriles en cada sentido
+				lane_diff = e.src_des.Length - e.des_src.Length;
 			}
-			else { // Distinto numero de carriles en cada sentido
-				int lane_diff = e.src_des.Length - e.des_src.Length;
-
-				position.x = platform.transform.position.x - (center_lines_separation/2) - (lane_diff * (lane_width/2));
-				draw_continuous_line (line_width, line_thickness, e.length, position, center_line_name, platform);
-				position.x = platform.transform.position.x + (center_lines_separation/2) - (lane_diff * (lane_width/2));
-				draw_continuous_line (line_width, line_thickness, e.length, position, center_line_name, platform);
-			}
+			
+			position.x = platform.transform.position.x - (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
+			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
+			position.x = platform.transform.position.x + (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
+			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
 		}
 
 		// Lineas de carril
@@ -608,35 +773,56 @@ public static class RoadMap {
 		Vector3 save_position = new Vector3 (position.x, position.y, position.z);
 
 		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
-		if (e.src_des != "0") {
-			for (int i=0; i<e.src_des.Length-1; i++) {
-				position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width) - ((lane_width + line_width) * (i+1));
+		// y poner tantos inicios de carril como carriles haya
+		if (e.src_des != Constants.String_No_Lane) {
+		
+			GameObject source_start_points = new GameObject();
+			source_start_points.transform.parent = platform.transform;
+			source_start_points.name = Constants.Name_Source_Start_Points;
+			source_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
+		
+			for (int i=0; i<e.src_des.Length; i++) {
 				char lane_type = e.src_des[i];
-				draw_lane_line (lane_type, e.length, position, platform);
+				position.x = platform.transform.position.x + ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
+				
+				if (i < e.src_des.Length-1) {
+					draw_lane_line (lane_type, e.length, position, platform);
+				}
+				setLaneStartPoint (lane_type, new Vector3 (position.x + (Constants.lane_width/2), position.y, position.z - (e.length/2)), source_start_points);
 			}
 
 			// Lineas de detencion antes del cruce
-			position.x = platform.transform.position.x + ((e.width / 2) - hard_shoulder_width) - (e.src_des.Length * (lane_width + line_width))/2;
-			position.z = platform.transform.position.z + (e.length/2 - public_transport_line_width/2);
-
-			draw_continuous_line (e.src_des.Length * (lane_width + line_width),line_thickness,public_transport_line_width,position,detention_line_name,platform); // Intercambiado ancho por largo para hacer linea perpendicular
-
+			if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit) {
+				position.x = platform.transform.position.x + ((e.width / 2) - Constants.hard_shoulder_width) - (e.src_des.Length * (Constants.lane_width + Constants.line_width))/2;
+				position.z = platform.transform.position.z + (e.length/2 - Constants.public_transport_line_width/2);
+				draw_continuous_line (e.src_des.Length * (Constants.lane_width + Constants.line_width),Constants.line_thickness,Constants.public_transport_line_width,position,Constants.Line_Name_Detention,platform); // Intercambiado ancho por largo para hacer linea perpendicular
+			}
 		}
 
-		if (e.des_src != "0") {
+		if (e.des_src != Constants.String_No_Lane) {
 			position = save_position;
+			
+			GameObject destination_start_points = new GameObject();
+			destination_start_points.transform.parent = platform.transform;
+			destination_start_points.name = Constants.Name_Destination_Start_Points;
+			destination_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
 
-			for (int i=0; i<e.des_src.Length-1; i++) {
-				position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width) + ((lane_width + line_width) * (i+1));
+			for (int i=0; i<e.des_src.Length; i++) {
 				char lane_type = e.des_src[i];
-				draw_lane_line (lane_type, e.length, position, platform);
+				position.x = platform.transform.position.x - ((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1));
+				
+				if (i < e.des_src.Length-1) {
+					draw_lane_line (lane_type, e.length, position, platform);
+				}
+				setLaneStartPoint (lane_type, new Vector3 (position.x - (Constants.lane_width/2), position.y, position.z + (e.length/2)), destination_start_points);
 			}
 
 			// Lineas de detencion antes del cruce
-			position.x = platform.transform.position.x - ((e.width / 2) - hard_shoulder_width) + (e.des_src.Length * (lane_width + line_width))/2;
-			position.z = platform.transform.position.z - (e.length/2 - public_transport_line_width/2);
-			
-			draw_continuous_line (e.des_src.Length * (lane_width + line_width),line_thickness,public_transport_line_width,position,detention_line_name,platform); // Intercambiado ancho por largo para hacer linea perpendicular
+			if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit) {
+				position.x = platform.transform.position.x - ((e.width / 2) - Constants.hard_shoulder_width) + (e.des_src.Length * (Constants.lane_width + Constants.line_width))/2;
+				position.z = platform.transform.position.z - (e.length/2 - Constants.public_transport_line_width/2);
+				draw_continuous_line (e.des_src.Length * (Constants.lane_width + Constants.line_width),Constants.line_thickness,Constants.public_transport_line_width,position,Constants.Line_Name_Detention,platform); // Intercambiado ancho por largo para hacer linea perpendicular
+			}
 		}
 
 		// Fin marcas viales
@@ -647,21 +833,57 @@ public static class RoadMap {
 		platform.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir_pref,e.direction),Vector3.up);
 		platform.transform.position = e.fixed_position;
 	}
+	
+	/**
+	 * @brief Establece un objeto LaneStart en la posicion indicada
+	 * @param[in] lane_type Tipo de carril (P: Transporte publico, N: Normal, A: Aparcamiento, V: Carril Bus/VAO)
+	 * @param[in] position Posicion donde se colocara el objeto
+	 * @param[in] parent Objeto padre al que se unira el objeto
+	 */
+	private static void setLaneStartPoint (char lane_type, Vector3 position, GameObject parent) {
+		
+		switch (lane_type) {
+			case Constants.Char_Public_Lane:
+				GameObject publicLaneStart = new GameObject();
+				publicLaneStart.name = Constants.Lane_Name_Public;
+				publicLaneStart.tag = Constants.Tag_Lane_Start_Point;
+				publicLaneStart.transform.position = position;
+				publicLaneStart.transform.parent = parent.transform;
+				break;
+			case Constants.Char_Normal_Lane:
+				GameObject normalLaneStart = new GameObject();
+				normalLaneStart.name = Constants.Lane_Name_Normal;
+				normalLaneStart.tag = Constants.Tag_Lane_Start_Point;
+				normalLaneStart.transform.position = position;
+				normalLaneStart.transform.parent = parent.transform;
+				break;
+			case 'A':
+				Debug.Log("Parking lane start point not designed yet");
+				break;
+			case 'V':
+				Debug.Log("Bus/VAO lane start point not designed yet");
+				break;
+			default:
+				Debug.Log("Trying to draw invalid type of lane");
+				break;
+		}
+	}
 
 	/**
 	 * @brief Dibuja una linea de carril segun su tipo
 	 * @param[in] lane_type Tipo de carril (P: Transporte publico, N: Normal, A: Aparcamiento, V: Carril Bus/VAO)
 	 * @param[in] length Longitud de la linea
+	 * @param[in] position Posicion central de la linea
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
 	private static void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
 
 		switch (lane_type) {
-			case 'P':
-				draw_continuous_line (public_transport_line_width, line_thickness, length, position, public_transport_lane_line_name, parent);
+			case Constants.Char_Public_Lane:
+				draw_continuous_line (Constants.public_transport_line_width, Constants.line_thickness, length, position, Constants.Line_Name_Public_Transport_Lane, parent);
 				break;
-			case 'N':
-				draw_discontinuous_line (line_width, line_thickness, length, position, normal_lane_line_name, parent);
+			case Constants.Char_Normal_Lane:
+				draw_discontinuous_line (Constants.line_width, Constants.line_thickness, length, position, Constants.Line_Name_Normal_Lane, parent);
 				break;
 			case 'A':
 				Debug.Log("Parking not designed yet");
@@ -674,9 +896,37 @@ public static class RoadMap {
 				break;
 		}
 	}
+	
+	/**
+	 * @brief Dibuja una linea de carril segun su tipo
+	 * @param[in] lane_type Tipo de carril (P: Transporte publico, N: Normal, A: Aparcamiento, V: Carril Bus/VAO)
+	 * @param[in] position1 Posicion de un extremo de la linea
+	 * @param[in] position2 Posicion de otro extremo de la linea
+	 * @param[in] parent Objeto padre al que se unira la linea
+	 */
+	private static void draw_lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent) {
+	
+		switch (lane_type) {
+		case Constants.Char_Public_Lane:
+			draw_continuous_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Public_Transport_Lane, parent);
+			break;
+		case Constants.Char_Normal_Lane:
+			draw_discontinuous_line (Constants.line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Normal_Lane, parent);
+			break;
+		case 'A':
+			Debug.Log("Parking not designed yet");
+			break;
+		case 'V':
+			Debug.Log("Bus/VAO not designed yet");
+			break;
+		default:
+			Debug.Log("Trying to draw invalid type of lane");
+			break;
+		}
+	}
 
 	/**
-	 * @brief Dibuja una linea continua blanca
+	 * @brief Dibuja una linea continua blanca alineada con el eje Z
 	 * @param[in] width Ancho de la linea
 	 * @param[in] height Grosor de la linea
 	 * @param[in] length Longitud de la linea
@@ -685,10 +935,28 @@ public static class RoadMap {
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
 	private static void draw_continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
+		
+		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
+		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
+		
+		draw_continuous_line (width, height, position1, position2, name, parent);
+	}
+	
+	/**
+	 * @brief Dibuja una linea continua blanca entre las posiciones position1 y position2
+	 * @param[in] width Ancho de la linea
+	 * @param[in] height Grosor de la linea
+	 * @param[in] position1 Posicion de un extremo de la linea
+	 * @param[in] position2 Posicion de otro extremo de la linea
+	 * @param[in] name Nombre para el objeto
+	 * @param[in] parent Objeto padre al que se unira la linea
+	 */
+	private static void draw_continuous_line (float width, float height, Vector3 position1, Vector3 position2,string name, GameObject parent) {
 		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		line.name = name;
-		line.transform.localScale = new Vector3(width, height, length);
-		line.transform.position = position;
+		line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(position1,position2));
+		line.transform.position = MyMathClass.middlePoint(position1,position2);
+		line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
 		line.renderer.material.color = Color.white;
 		//line3.renderer.material = asphalt_white_material;
 		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
@@ -696,36 +964,68 @@ public static class RoadMap {
 	}
 
 	/**
-	 * @brief Dibuja una linea continua blanca
+	 * @brief Dibuja una linea discontinua blanca alineada con el eje Z
 	 * @param[in] width Ancho de la linea
 	 * @param[in] height Grosor de la linea
 	 * @param[in] length Longitud de la linea
+	 * @param[in] position Posicion central de la linea
 	 * @param[in] name Nombre para el objeto
 	 * @param[in] parent Objeto padre al que se unira la linea
 	 */
-	private static void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject new_parent) {
+	private static void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
 
+		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
+		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
+		
+		draw_discontinuous_line (width, height, position1, position2, name, parent);
+	}
+	
+	/**
+	 * @brief Dibuja una linea discontinua blanca entre las posiciones position1 y position2
+	 * @param[in] width Ancho de la linea
+	 * @param[in] height Grosor de la linea
+	 * @param[in] position1 Posicion de un extremo de la linea
+	 * @param[in] position2 Posicion de otro extremo de la linea
+	 * @param[in] name Nombre para el objeto
+	 * @param[in] parent Objeto padre al que se unira la linea
+	 */
+	private static void draw_discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent) {
+	
 		GameObject discontinuous_line = new GameObject ();
-		discontinuous_line.name = discontinuous_line_name;
+		discontinuous_line.name = Constants.Line_Name_Discontinuous;
 		discontinuous_line.transform.parent = new_parent.transform;
-
-		int piece_num = (int)((length / discontinuous_line_length) / 2);
-		Vector3 pos_aux = position;
-		pos_aux.z -= (length / 2) - (discontinuous_line_length * 1.5f);
-
+		float length = MyMathClass.Distance(position1,position2);
+		
+		int piece_num = 0;
+		
+		while ( (((piece_num * 2) - 1) * Constants.discontinuous_line_length) + (2 * Constants.discontinuous_line_min_margin) <= length ) {
+			piece_num++;
+		}
+		
+		if ((((piece_num * 2) - 1) * Constants.discontinuous_line_length) + (2 * Constants.discontinuous_line_min_margin) > length) {
+			piece_num--;
+		}
+		
+		Vector3 pos_aux = MyMathClass.middlePoint(position1,position2);
+		
+		float white_and_no_line_lenght = ((piece_num * 2) - 1) * Constants.discontinuous_line_length;
+		
+		pos_aux.z -= Constants.discontinuous_line_length * ((float)piece_num - 1);
+		
 		for (int i=0; i < piece_num; i++) {
-
+			
 			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			line.name = name;
-			line.transform.localScale = new Vector3(width, height, discontinuous_line_length);
+			line.transform.localScale = new Vector3(width, height, Constants.discontinuous_line_length);
 			line.transform.position = pos_aux;
 			line.renderer.material.color = Color.white;
 			//line3.renderer.material = asphalt_white_material;
 			//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
 			line.transform.parent = discontinuous_line.transform;
-
-			pos_aux.z += discontinuous_line_length * 2;
+			
+			pos_aux.z += Constants.discontinuous_line_length * 2;
 		}
+		discontinuous_line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
 	}
 
 	/**
@@ -739,11 +1039,11 @@ public static class RoadMap {
 		
 		int lane_num = 0;
 		
-		if (src_des != "0") {
+		if (src_des != Constants.String_No_Lane) {
 			lane_num += src_des.Length;
 		}
 		
-		if (des_src != "0") {
+		if (des_src != Constants.String_No_Lane) {
 			lane_num += des_src.Length;
 		}
 
@@ -756,42 +1056,34 @@ public static class RoadMap {
 	 * @param[in] radius Radio de la circunferencia circunscrita por los arcos
 	 * @param[in] width Ancho de los arcos
 	 * @param[in] angle Angulo menor que forman los arcos
+	 * @param[in] ref_edge_id Identificador del arco que se tomara como referencia para dibujar las marcas viales
 	 */
-	private static void CreateContinuationNode (GameObject gameObject, float radius, float edge_width, float angle) {
+	private static void CreateContinuationNode (GameObject node, float radius, float edge_width, float angle, string ref_edge_id) {
 
 		// TODO Añadir collider
-		gameObject.AddComponent< MeshRenderer > ();
-		gameObject.renderer.material = asphalt_material;
-		MeshFilter filter = gameObject.AddComponent< MeshFilter >();
+		node.AddComponent< MeshRenderer > ();
+		node.renderer.material = asphalt_material;
+		MeshFilter filter = node.AddComponent< MeshFilter >();
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
-
-		Vector2 left_point = new Vector2 (-edge_width * .5f, -radius * .5f);
-		Vector2 right_point = new Vector2 (edge_width * .5f, -radius * .5f);
+		
+		Vector2 left_point  = new Vector2 (-edge_width * .5f, -radius * .5f);
+		Vector2 right_point = new Vector2 ( edge_width * .5f, -radius * .5f);
 
 		// Rotar angle grados los puntos left y right
-
-		float angle_rad = (angle * Mathf.PI) / 180f;
-
-		Vector2 left_point_rotated = new Vector2 ();
-		left_point_rotated.x = (left_point.x * Mathf.Cos(angle_rad)) - (left_point.y * Mathf.Sin(angle_rad));
-		left_point_rotated.y = (left_point.x * Mathf.Sin(angle_rad)) + (left_point.y * Mathf.Cos(angle_rad));
-
-		Vector2 right_point_rotated = new Vector2 ();
-		right_point_rotated.x = (right_point.x * Mathf.Cos(angle_rad)) - (right_point.y * Mathf.Sin(angle_rad));
-		right_point_rotated.y = (right_point.x * Mathf.Sin(angle_rad)) + (right_point.y * Mathf.Cos(angle_rad));
+		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point, angle);
+		Vector2 right_point_rotated = MyMathClass.rotatePoint(right_point, angle);
 		
 		#region Vertices
-		Vector3 p0 = new Vector3(  right_point_rotated.x,	-road_thickness * .5f,		 right_point_rotated.y );
-		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-road_thickness * .5f,		 left_point_rotated.y );
-		Vector3 p2 = new Vector3(  edge_width * .5f, 		-road_thickness * .5f,		-radius * .5f );
-		Vector3 p3 = new Vector3( -edge_width * .5f,		-road_thickness * .5f,		-radius * .5f );
+		Vector3 p0 = new Vector3(  right_point_rotated.x,	-Constants.road_thickness * .5f,	right_point_rotated.y );
+		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-Constants.road_thickness * .5f,	left_point_rotated.y );
+		Vector3 p2 = new Vector3(  edge_width * .5f, 		-Constants.road_thickness * .5f,	-radius * .5f );
+		Vector3 p3 = new Vector3( -edge_width * .5f,		-Constants.road_thickness * .5f,	-radius * .5f );
 		
-		Vector3 p4 = new Vector3(  right_point_rotated.x,	 road_thickness * .5f,   	 right_point_rotated.y );
-		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 road_thickness * .5f,   	 left_point_rotated.y );
-		Vector3 p6 = new Vector3(  edge_width * .5f, 		 road_thickness * .5f,  	-radius * .5f );
-		Vector3 p7 = new Vector3( -edge_width * .5f,	 	 road_thickness * .5f,  	-radius * .5f );
-
+		Vector3 p4 = new Vector3(  right_point_rotated.x,	 Constants.road_thickness * .5f,   	 right_point_rotated.y );
+		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 Constants.road_thickness * .5f,   	 left_point_rotated.y );
+		Vector3 p6 = new Vector3(  edge_width * .5f, 		 Constants.road_thickness * .5f,  	-radius * .5f );
+		Vector3 p7 = new Vector3( -edge_width * .5f,	 	 Constants.road_thickness * .5f,  	-radius * .5f );
 		
 		Vector3[] vertices = new Vector3[]
 		{
@@ -910,5 +1202,145 @@ public static class RoadMap {
 		
 		mesh.RecalculateBounds();
 		mesh.Optimize();
+		
+		// Fin plataforma
+		
+		// Añadir longitud extra a las lineas del nodo continuacion para mejorar seguimiento de los vehiculos
+		radius += Constants.cont_nodes_lines_extra_length;
+		
+		// Lineas del arcen
+		
+		Vector2 hard_shoulder_right_point = new Vector2 (( edge_width * .5f) - Constants.hard_shoulder_width, -radius * .5f);
+		Vector2 hard_shoulder_left_point  = new Vector2 ((-edge_width * .5f) + Constants.hard_shoulder_width, -radius * .5f);
+		
+		Vector2 hard_shoulder_right_rotated = MyMathClass.rotatePoint(hard_shoulder_right_point, angle);
+		Vector2 hard_shoulder_left_rotated  = MyMathClass.rotatePoint(hard_shoulder_left_point, angle);
+		
+		draw_continuous_line(Constants.line_width,
+		                     Constants.line_thickness,
+		                     new Vector3( hard_shoulder_left_point.x,    Constants.road_thickness * .5f, hard_shoulder_left_point.y ),
+		                     new Vector3( hard_shoulder_right_rotated.x, Constants.road_thickness * .5f, hard_shoulder_right_rotated.y ),
+		                     Constants.Line_Name_Hard_Shoulder,
+		                     node);
+		
+		draw_continuous_line(Constants.line_width,
+		                     Constants.line_thickness,
+		                     new Vector3( hard_shoulder_right_point.x,  Constants.road_thickness * .5f, hard_shoulder_right_point.y ),
+		                     new Vector3( hard_shoulder_left_rotated.x, Constants.road_thickness * .5f, hard_shoulder_left_rotated.y ),
+		                     Constants.Line_Name_Hard_Shoulder,
+		                     node);
+		
+		// Lineas del centro
+		
+		if (nodes[node.name].two_ways) {
+		
+			int lane_diff = 0; // Mismo numero de carriles en cada sentido
+			
+			if (edges[ref_edge_id].src_des.Length != edges[ref_edge_id].des_src.Length) { // Distinto numero de carriles en cada sentido
+				lane_diff = edges[ref_edge_id].src_des.Length - edges[ref_edge_id].des_src.Length;
+			}
+			
+			Vector2 center_point = new Vector2 (- (lane_diff * (Constants.lane_width/2)), -radius * .5f);
+			Vector2 center_point_rotated = MyMathClass.rotatePoint(center_point, angle);
+			
+			draw_continuous_line(Constants.line_width,
+			                     Constants.line_thickness,
+			                     new Vector3(        -center_point.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y),
+			                     new Vector3( center_point_rotated.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
+			                     Constants.Line_Name_Center,
+			                     node);
+			
+			draw_continuous_line(Constants.line_width,
+			                     Constants.line_thickness,
+			                     new Vector3(        -center_point.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y ),
+			                     new Vector3( center_point_rotated.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
+			                     Constants.Line_Name_Center,
+			                     node);
+		}
+		
+		// Lineas de carril
+		// Restablecer radius
+		//radius -= Constants.cont_nodes_lines_extra_length;
+		
+		Edge e = edges[ref_edge_id];
+		
+		Vector3 position1 = new Vector3 (0, node.transform.position.y + (Constants.road_thickness/2)+(Constants.line_thickness/2), -radius * .5f);
+		Vector3 position2 = new Vector3 (0, node.transform.position.y + (Constants.road_thickness/2)+(Constants.line_thickness/2), -radius * .5f);
+		
+		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
+		if (e.src_des != Constants.String_No_Lane) {
+		
+			for (int i=0; i < e.src_des.Length-1; i++) {
+				char lane_type = e.src_des[i];
+				position1.x = -((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1));
+				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
+				position2.x = rotated.x;
+				position2.z = rotated.y;
+				draw_lane_line (lane_type, position1, position2, node);
+			}
+		}
+		
+		if (e.des_src != Constants.String_No_Lane) {
+			
+			for (int i=0; i < e.des_src.Length-1; i++) {
+				char lane_type = e.des_src[i];
+				position1.x = ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
+				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
+				position2.x = rotated.x;
+				position2.z = rotated.y;
+				draw_lane_line (lane_type, position1, position2, node);
+			}
+		}
+		
+		// Fin marcas viales
+	}
+	
+	/**
+	 * @brief Dibuja el suelo de hierba
+	 */
+	private static void drawGround () {
+		List<string> node_IDs = RoadMap.getNodeIDs ();
+		
+		Vector2 first_pos = RoadMap.getNodePosition (node_IDs [0]);
+		
+		float min_x = first_pos.x;
+		float max_x = first_pos.x;
+		float min_y = first_pos.y;
+		float max_y = first_pos.y;
+		
+		foreach (string ID in node_IDs) {
+			Vector2 pos = RoadMap.getNodePosition (ID);
+			
+			if (pos.x < min_x) {
+				min_x = pos.x;
+			}
+			else if (pos.x > max_x) {
+				max_x = pos.x;
+			}
+			
+			if (pos.y < min_y) {
+				min_y = pos.y;
+			}
+			else if (pos.y > max_y) {
+				max_y = pos.y;
+			}
+		}
+		
+		max_x += 100;
+		max_y += 100;
+		min_x -= 100;
+		min_y -= 100;
+		
+		Material grass_material = Resources.Load ("Materials/Grass", typeof(Material)) as Material;
+		
+		GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
+		ground.name = Constants.Name_Ground;
+		ground.tag = Constants.Tag_Ground;
+		ground.transform.localScale = new Vector3((max_x-min_x)/10, 1, (max_y-min_y)/10); // Se divide por 10 porque las medidas del plano de unity son 10x10
+		ground.renderer.material = grass_material;
+		ground.renderer.material.mainTextureScale = new Vector2(ground.transform.localScale.x, ground.transform.localScale.z);
+		
+		Vector3 ground_position = new Vector3((max_x+min_x)/2,0,(max_y+min_y)/2);
+		ground.transform.position = ground_position;
 	}
 }
