@@ -87,6 +87,9 @@ public static class Constants : object {
 	public const char Char_Normal_Lane = 'N';
 	public const char Char_Public_Lane = 'P';
 	
+	public const string String_graphml_ext = "graphml";
+	public const string String_topology_ext = "topology";
+	
 	// Measures
 	public const float lane_width = 3f;
 	public const float line_width = 0.1f;

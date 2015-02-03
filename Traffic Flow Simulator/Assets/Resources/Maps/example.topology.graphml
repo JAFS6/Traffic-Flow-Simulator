@@ -20,7 +20,7 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
   <key id="des_ori" for="edge" attr.name="Vias_sentido_destino_origen" attr.type="string">
     <default>0</default>
   </key>
-  <graph id="ejemplo_topologia" edgedefault="undirected">
+  <graph id="example" edgedefault="undirected">
     <node id="n0"/>
       <data key="tipo_nodo">1</data>
       <data key="pos_x">2168</data>

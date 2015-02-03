@@ -43,20 +43,25 @@ public class MainMenuController : MonoBehaviour {
 		DirectoryInfo info = new DirectoryInfo(Application.dataPath + "/Resources/Maps/");
 		FileInfo [] fileInfo = info.GetFiles();
 		float i = 0;
+		GameObject start_panel = GameObject.Find("Start Panel");
+		GameObject button_prefab = Resources.Load("Prefabs/LoadMapButton", typeof(GameObject)) as GameObject;
 		
 		foreach (FileInfo file in fileInfo) {
-			if (!file.Name.Contains("meta")) {
-				string filename_w_extension = file.Name;
-				string [] split = filename_w_extension.Split(new char[] {'.'});
-				string filename = split[0];
-				GameObject start_panel = GameObject.Find("Start Panel");
-				
-				GameObject button_prefab = Resources.Load("Prefabs/LoadMapButton", typeof(GameObject)) as GameObject;
+		
+			string filename_w_extension = file.Name;
+			string [] split = filename_w_extension.Split(new char[] {'.'});
+			string filename = split[0];
+			
+			if (split.Length == 3 && split[2] == Constants.String_graphml_ext && split[1] == Constants.String_topology_ext) {
+			
 				GameObject button = (GameObject)GameObject.Instantiate(button_prefab,new Vector3(0,0,0),Quaternion.identity);
 				button.transform.SetParent(start_panel.transform.FindChild("MapLoadButtons").transform,false);
 				button.name = "LoadMapButton"+"_"+i;
 				button.tag = "LoadMapButton";
 				button.GetComponentInChildren<Text>().text = filename;
+				button.AddComponent<LayoutElement>();
+				button.GetComponentInChildren<LayoutElement>().minHeight = 30;
+				button.GetComponentInChildren<LayoutElement>().preferredHeight = 30;
 				button.GetComponent<Button>().onClick.AddListener(delegate { loadMap(filename); });
 				i++;
 			}

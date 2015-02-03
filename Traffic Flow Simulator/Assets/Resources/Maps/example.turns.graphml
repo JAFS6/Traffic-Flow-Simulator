@@ -3,7 +3,7 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
 http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-  <graph id="ejemplo_giros" edgedefault="directed">
+  <graph id="example" edgedefault="directed">
     <node id="a0"/>
     <node id="a1"/>
     <node id="a2"/>
