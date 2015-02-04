@@ -69,6 +69,9 @@ namespace MapLoaderSerial {
 	
 	public class xml_Node_data {
 		
+		[XmlAttribute(AttributeName = "key")]
+		public string key { get; set; }
+		
 		[XmlText(Type = typeof(string))]
 		public string Value { get; set; }
 	}
@@ -78,17 +81,26 @@ namespace MapLoaderSerial {
 		[XmlAttribute(AttributeName = "id")]
 		public string ID { get; set; }
 		
+		[XmlAttribute(AttributeName = "source")]
+		public string src { get; set; }
+		
+		[XmlAttribute(AttributeName = "target")]
+		public string des { get; set; }
+		
 		[XmlElement(ElementName = "data")]
 		public xml_Edge_data[] xml_Edge_datas { get; set; }
 	}
 	
 	public class xml_Edge_data {
 		
+		[XmlAttribute(AttributeName = "key")]
+		public string key { get; set; }
+		
 		[XmlText(Type = typeof(string))]
 		public string Value { get; set; }
 	}
 	
-} // namespace MapLoader
+} // namespace MapLoaderSerial
 
 public static class MapLoader {
 
