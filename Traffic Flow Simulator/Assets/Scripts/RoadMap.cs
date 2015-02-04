@@ -101,6 +101,14 @@ public static class RoadMap {
 			nodes[id] = aux_node;
 		}
 	}
+	
+	/**
+	 * @brief Establece el nombre del mapa
+	 * @param[in] name Una cadena de texto con el nombre del mapa
+	 */
+	public static void setMapName (string name) {
+		map_name = name;
+	}
 
 	/**
 	 * @brief Obtiene el nombre del mapa

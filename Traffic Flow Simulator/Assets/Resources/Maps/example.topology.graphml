@@ -6,8 +6,8 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
   <key id="tipo_nodo" for="node" attr.name="Tipo_de_nodo" attr.type="int">
     <default>0</default>
   </key>
-  <key id="pos_x" for="node" attr.name="Coordenada_X" attr.type="double">
-  <key id="pos_y" for="node" attr.name="Coordenada_Y" attr.type="double">
+  <key id="pos_x" for="node" attr.name="Coordenada_X" attr.type="double"/>
+  <key id="pos_y" for="node" attr.name="Coordenada_Y" attr.type="double"/>
   <key id="tipo_cruce" for="node" attr.name="Tipo_de_cruce" attr.type="int">
     <default>0</default>
   </key>
@@ -20,93 +20,93 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
   <key id="des_ori" for="edge" attr.name="Vias_sentido_destino_origen" attr.type="string">
     <default>0</default>
   </key>
-  <graph id="ejemplo_topologia" edgedefault="undirected">
-    <node id="n0"/>
+  <graph id="example" edgedefault="undirected">
+    <node id="n0">
       <data key="tipo_nodo">1</data>
       <data key="pos_x">2168</data>
       <data key="pos_y">1044</data>
     </node>
-    <node id="n1"/>
+    <node id="n1">
       <data key="tipo_nodo">2</data>
       <data key="pos_x">1095</data>
       <data key="pos_y">751</data>
     </node>
-    <node id="n2"/>
+    <node id="n2">
       <data key="tipo_nodo">0</data>
       <data key="pos_x">2168</data>
       <data key="pos_y">751</data>
     </node>
-    <node id="n3"/>
+    <node id="n3">
       <data key="tipo_nodo">1</data>
       <data key="pos_x">2623</data>
       <data key="pos_y">751</data>
     </node>
-    <node id="n4"/>
+    <node id="n4">
       <data key="tipo_nodo">1</data>
       <data key="pos_x">53</data>
       <data key="pos_y">381</data>
     </node>
-    <node id="n5"/>
+    <node id="n5">
       <data key="tipo_nodo">0</data>
       <data key="pos_x">1095</data>
       <data key="pos_y">381</data>
     </node>
-    <node id="n6"/>
+    <node id="n6">
       <data key="tipo_nodo">0</data>
       <data key="pos_x">2168</data>
       <data key="pos_y">381</data>
     </node>
-    <node id="n7"/>
+    <node id="n7">
       <data key="tipo_nodo">1</data>
       <data key="pos_x">2723</data>
       <data key="pos_y">381</data>
     </node>
-    <node id="n8"/>
+    <node id="n8">
       <data key="tipo_nodo">1</data>
       <data key="pos_x">1095</data>
       <data key="pos_y">7</data>
     </node>
-    <node id="n9"/>
+    <node id="n9">
       <data key="tipo_nodo">1</data>
       <data key="pos_x">2168</data>
       <data key="pos_y">83</data>
     </node>
-    <edge id="a0" source="n0" target="n2"/>
+    <edge id="a0" source="n0" target="n2">
       <data key="ori_des">PN</data>
       <data key="des_ori">N</data>
     </edge>
-    <edge id="a1" source="n1" target="n2"/>
+    <edge id="a1" source="n1" target="n2">
       <data key="ori_des">N</data>
       <data key="des_ori">N</data>
     </edge>
-    <edge id="a2" source="n2" target="n3"/>
+    <edge id="a2" source="n2" target="n3">
       <data key="des_ori">NN</data>
     </edge>
-    <edge id="a3" source="n1" target="n5"/>
+    <edge id="a3" source="n1" target="n5">
       <data key="ori_des">N</data>
       <data key="des_ori">N</data>
     </edge>
-    <edge id="a4" source="n2" target="n6"/>
+    <edge id="a4" source="n2" target="n6">
       <data key="ori_des">PN</data>
       <data key="des_ori">N</data>
     </edge>
-    <edge id="a5" source="n4" target="n5"/>
+    <edge id="a5" source="n4" target="n5">
       <data key="ori_des">PNN</data>
       <data key="des_ori">PNN</data>
     </edge>
-    <edge id="a6" source="n5" target="n6"/>
+    <edge id="a6" source="n5" target="n6">
       <data key="ori_des">PNN</data>
       <data key="des_ori">PNN</data>
     </edge>
-    <edge id="a7" source="n6" target="n7"/>
+    <edge id="a7" source="n6" target="n7">
       <data key="ori_des">PNN</data>
       <data key="des_ori">PNN</data>
     </edge>
-    <edge id="a8" source="n5" target="n8"/>
+    <edge id="a8" source="n5" target="n8">
       <data key="ori_des">N</data>
       <data key="des_ori">N</data>
     </edge>
-    <edge id="a9" source="n6" target="n9"/>
+    <edge id="a9" source="n6" target="n9">
       <data key="ori_des">PN</data>
       <data key="des_ori">N</data>
     </edge>

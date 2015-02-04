@@ -87,6 +87,17 @@ public static class Constants : object {
 	public const char Char_Normal_Lane = 'N';
 	public const char Char_Public_Lane = 'P';
 	
+	public const string String_graphml_ext = "graphml";
+	public const string String_topology_ext = "topology";
+	
+	public const string xml_graphml_key_node_type = "tipo_nodo";
+	public const string xml_graphml_key_pos_x = "pos_x";
+	public const string xml_graphml_key_pos_y = "pos_y";
+	public const string xml_graphml_key_intersection_type = "tipo_cruce";
+	public const string xml_graphml_key_road_name = "nombre_via";
+	public const string xml_graphml_key_src_des = "ori_des";
+	public const string xml_graphml_key_des_src = "des_ori";
+	
 	// Measures
 	public const float lane_width = 3f;
 	public const float line_width = 0.1f;
