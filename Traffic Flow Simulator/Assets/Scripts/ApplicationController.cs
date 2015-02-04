@@ -53,7 +53,8 @@ public class ApplicationController : MonoBehaviour {
 		RoadMap.CreateNewMap(map_filename);
 
 		// Cargar los datos del mapa
-		MapLoader.LoadMap(map_filename);
+		MapLoader loader = new MapLoader();
+		loader.LoadMap(map_filename);
 
 		// Dibujar el mapa
 		RoadMap.draw ();

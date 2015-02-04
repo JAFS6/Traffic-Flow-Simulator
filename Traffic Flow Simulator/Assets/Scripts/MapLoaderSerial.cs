@@ -2,7 +2,7 @@
 
 namespace MapLoaderSerial {
 	
-	[XmlRoot(ElementName = "graphml")]
+	[XmlRoot(ElementName = "graphml", Namespace = "http://graphml.graphdrawing.org/xmlns")]
 	public class xml_Graphml {
 		
 		[XmlElement(ElementName = "key")]
@@ -63,10 +63,10 @@ namespace MapLoaderSerial {
 		public string ID { get; set; }
 		
 		[XmlAttribute(AttributeName = "source")]
-		public string src { get; set; }
+		public string src_ID { get; set; }
 		
 		[XmlAttribute(AttributeName = "target")]
-		public string des { get; set; }
+		public string des_ID { get; set; }
 		
 		[XmlElement(ElementName = "data")]
 		public xml_Edge_data[] xml_Edge_datas { get; set; }
