@@ -18,96 +18,16 @@ using System.Collections;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
-
-namespace MapLoaderSerial {
-
-	[XmlRoot(ElementName = "graphml")]
-	public class xml_Graphml {
-	
-		[XmlElement(ElementName = "key")]
-		public xml_MapKey[] xml_Keys { get; set; }
-		
-		[XmlElement(ElementName = "graph")]
-		public xml_Graph[] xml_Graphs { get; set; }
-	}
-	
-	public class xml_MapKey {
-		
-		[XmlAttribute(AttributeName = "id")]
-		public string ID { get; set; }
-		
-		[XmlElement(ElementName = "default")]
-		public xml_Default[] xml_Defaults { get; set; }
-	}
-	
-	public class xml_Default {
-		
-		[XmlText(Type = typeof(string))]
-		public string Value { get; set; }
-	}
-	
-	public class xml_Graph {
-	
-		[XmlAttribute(AttributeName = "id")]
-		public string ID { get; set; }
-		
-		[XmlElement(ElementName = "node")]
-		public xml_Node[] xml_Nodes { get; set; }
-		
-		[XmlElement(ElementName = "edge")]
-		public xml_Edge[] xml_Edges { get; set; }
-	}
-	
-	public class xml_Node {
-		
-		[XmlAttribute(AttributeName = "id")]
-		public string ID { get; set; }
-		
-		[XmlElement(ElementName = "data")]
-		public xml_Node_data[] xml_Node_datas { get; set; }
-	}
-	
-	public class xml_Node_data {
-		
-		[XmlAttribute(AttributeName = "key")]
-		public string key { get; set; }
-		
-		[XmlText(Type = typeof(string))]
-		public string Value { get; set; }
-	}
-	
-	public class xml_Edge {
-		
-		[XmlAttribute(AttributeName = "id")]
-		public string ID { get; set; }
-		
-		[XmlAttribute(AttributeName = "source")]
-		public string src { get; set; }
-		
-		[XmlAttribute(AttributeName = "target")]
-		public string des { get; set; }
-		
-		[XmlElement(ElementName = "data")]
-		public xml_Edge_data[] xml_Edge_datas { get; set; }
-	}
-	
-	public class xml_Edge_data {
-		
-		[XmlAttribute(AttributeName = "key")]
-		public string key { get; set; }
-		
-		[XmlText(Type = typeof(string))]
-		public string Value { get; set; }
-	}
-	
-} // namespace MapLoaderSerial
+using MapLoaderSerial;
 
 public static class MapLoader {
 
-	public static void LoadMap (string nombre_fichero_mapa) {
+	private xml_Graphml xml_graphml;
+
+	public static void LoadMap (string mapFilename) {
 		
 		// Preparar nombre del fichero del mapa a cargar
-		string full_path = Application.dataPath + "/Resources/Maps/" + nombre_fichero_mapa + ".topology.graphml";
+		string full_path = Application.dataPath + "/Resources/Maps/" + mapFilename + ".topology.graphml";
 
 		Debug.Log ("MapLoaderRoutine will start with full path: "+full_path);
 
@@ -116,7 +36,7 @@ public static class MapLoader {
 		Debug.Log("MapLoaderRoutine has finished");
 	}
 	
-	private static void MapLoaderRoutine (string nombre_fichero_completo) {
+	private static void MapLoaderRoutine (string full_path) {
 		
 		// Variables para tomar valores por defecto
 		NodeType node_type_default = NodeType.Intersection;
@@ -140,186 +60,11 @@ public static class MapLoader {
 		string des_src_value = "0";
 		string key = "";
 		
-		int j = 0;
-		string attribute = "";
-		bool parsing_edges = false;
+		XmlSerializer serial = new XmlSerializer(typeof(xml_Graphml));
+		Stream reader = new FileStream(full_path);
+		xml_graphml = (xml_Graphml)serial.Deserialize(reader);
 		
-		XmlReader reader = XmlReader.Create(nombre_fichero_completo);
 		
-		while (reader.Read()) {
-			Debug.Log("reader.Read(): "+reader.Name);
-			// Detectar los elementos de inicio como por ejemplo <key> pero no </key>
-			if (reader.IsStartElement()) {
-			
-				// Obtener el nombre del elemento y elegir en funcion del mismo
-				switch (reader.Name) {
-					case "key":
-						attribute = reader["id"];
-						
-						if (attribute != null) {
-							id = attribute;
-						}
-						break;
-						
-					case "default":
-						if (id != null) {
-							if (reader.Read()) {
-								switch (id) {
-									case "node_type":
-										node_type_default = (NodeType) XmlConvert.ToByte(reader.Value.Trim());
-										break;
-									case "intersection_type":
-										intersection_type_default = (IntersectionType) XmlConvert.ToByte(reader.Value.Trim());
-										break;
-									case "pos_x":
-										x_default = (float) XmlConvert.ToDouble(reader.Value.Trim());
-										break;
-									case "pos_y":
-										y_default = (float) XmlConvert.ToDouble(reader.Value.Trim());
-										break;
-									case "name":
-										name_default = reader.Value.Trim();
-										break;
-									case "src_des":
-										src_des_default = reader.Value.Trim();
-										break;
-									case "des_src":
-										des_src_default = reader.Value.Trim();
-										break;
-								} // switch (id)
-								id = null;
-							}
-						}
-						break;
-						
-					case "graph":
-						id = null;
-						break;
-						
-					case "node":
-						if (id == null) { // Primer nodo
-							attribute = reader["id"];
-							
-							if (attribute != null) {
-								id = attribute;
-							}
-						}
-						else { // Resto de nodos
-							// Guardar nodo anterior
-							SaveNode(id,node_type_value,x_value,y_value,intersection_type_value);
-							
-							// Poner valores default
-							node_type_value = node_type_default;
-							x_value = x_default;
-							y_value = y_default;
-							intersection_type_value = intersection_type_default;
-							
-							// Leer id del siguiente nodo
-							attribute = reader["id"];
-							
-							if (attribute != null) {
-								id = attribute;
-							}
-						}
-						break;
-						
-					case "edge":
-						if (id == null && !parsing_edges) { // Primer arco
-							parsing_edges = true;
-							// Guardar ultimo nodo
-							SaveNode(id,node_type_value,x_value,y_value,intersection_type_value);
-							
-							// Poner valores default
-							source_id_value = "";
-							destination_id_value = "";
-							name_value = "";
-							src_des_value = "";
-							des_src_value = "";
-							
-							// Leer primer arco
-							attribute = reader["id"];
-							
-							if (attribute != null) {
-								id = attribute;
-							}
-							
-							attribute = reader["source"];
-							
-							if (attribute != null) {
-								source_id_value = attribute;
-							}
-							
-							attribute = reader["target"];
-							
-							if (attribute != null) {
-								destination_id_value = attribute;
-							}
-						}
-						else if (parsing_edges) { // Resto de arcos
-							// Guardar arco anterior
-							SaveEdge(id,source_id_value,destination_id_value,name_value,src_des_value,des_src_value);
-							
-							// Poner valores defautl
-							source_id_value = "";
-							destination_id_value = "";
-							name_value = "";
-							src_des_value = "";
-							des_src_value = "";
-							
-							// Leer id del siguiente nodo
-							attribute = reader["id"];
-							
-							if (attribute != null) {
-								id = attribute;
-							}
-						}
-						break;
-						
-					case "data":
-						if (id != null) {
-							attribute = reader["key"];
-							
-							if (attribute != null) {
-								key = attribute;
-								
-								if (reader.Read()) {
-									
-									switch (key) {
-									case "node_type":
-										node_type_value = (NodeType) XmlConvert.ToByte(reader.Value.Trim());
-										break;
-									case "intersection_type":
-										intersection_type_value = (IntersectionType) XmlConvert.ToByte(reader.Value.Trim());
-										break;
-									case "pos_x":
-										x_value = (float) XmlConvert.ToDouble(reader.Value.Trim());
-										break;
-									case "pos_y":
-										y_value = (float) XmlConvert.ToDouble(reader.Value.Trim());
-										break;
-									case "name":
-										name_value = reader.Value.Trim();
-										break;
-									case "src_des":
-										src_des_value = reader.Value.Trim();
-										break;
-									case "des_src":
-										des_src_value = reader.Value.Trim();
-										break;
-									}
-								}
-							}
-						}
-						break;
-				} // switch (reader.Name)
-				
-			} // if (reader.IsStartElement())
-			
-			j++;
-		} // while (reader.Read())
-		
-		// Guardar ultimo arco
-		SaveEdge(id,source_id_value,destination_id_value,name_value,src_des_value,des_src_value);
 	}
 	
 	private static void SaveNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type) {
