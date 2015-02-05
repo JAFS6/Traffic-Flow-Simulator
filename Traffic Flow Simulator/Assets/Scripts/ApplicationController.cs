@@ -88,45 +88,6 @@ public class ApplicationController : MonoBehaviour {
 		}
 	}
 
-	private void DebugMapLoader () {
-		RoadMap.addNode ("n0", NodeType.Continuation, 510, 600);
-		RoadMap.addNode ("n1", NodeType.Limit, 600, 700);
-		RoadMap.addNode ("n2", NodeType.Limit, 400, 500);
-		RoadMap.addNode ("n3", NodeType.Intersection, 500, 500, IntersectionType.Normal);
-		RoadMap.addNode ("n4", NodeType.Limit, 600, 500);
-		RoadMap.addNode ("n5", NodeType.Limit, 500, 400);
-
-		RoadMap.addEdge ("a0", "n0", "n1", "", "PNN", "PN");
-		RoadMap.addEdge ("a1", "n0", "n3", "", "PN", "PNN");
-		RoadMap.addEdge ("a2", "n2", "n3", "", "N", "0");
-		RoadMap.addEdge ("a3", "n3", "n4", "", "NN", "NN");
-		RoadMap.addEdge ("a4", "n3", "n5", "", "NN", "0");
-	}
-	
-	private void DebugMapLoader2 () {
-		RoadMap.addNode ("n0", NodeType.Limit, 2168, 1044);
-		RoadMap.addNode ("n1", NodeType.Continuation, 1095, 751);
-		RoadMap.addNode ("n2", NodeType.Intersection, 2168, 751, IntersectionType.Normal);
-		RoadMap.addNode ("n3", NodeType.Limit, 2623, 751);
-		RoadMap.addNode ("n4", NodeType.Limit, 53, 381);
-		RoadMap.addNode ("n5", NodeType.Intersection, 1095, 381, IntersectionType.Normal);
-		RoadMap.addNode ("n6", NodeType.Intersection, 2168, 381, IntersectionType.Normal);
-		RoadMap.addNode ("n7", NodeType.Limit, 2723, 381);
-		RoadMap.addNode ("n8", NodeType.Limit, 1095, 7);
-		RoadMap.addNode ("n9", NodeType.Limit, 2168, 83);
-		
-		RoadMap.addEdge ("a0", "n0", "n2", "", "PN", "N");
-		RoadMap.addEdge ("a1", "n1", "n2", "", "N", "N");
-		RoadMap.addEdge ("a2", "n2", "n3", "", "0", "NN");
-		RoadMap.addEdge ("a3", "n1", "n5", "", "N", "N");
-		RoadMap.addEdge ("a4", "n2", "n6", "", "PN", "N");
-		RoadMap.addEdge ("a5", "n4", "n5", "", "PNN", "PNN");
-		RoadMap.addEdge ("a6", "n5", "n6", "", "PNN", "PNN");
-		RoadMap.addEdge ("a7", "n6", "n7", "", "PNN", "PNN");
-		RoadMap.addEdge ("a8", "n5", "n8", "", "N", "N");
-		RoadMap.addEdge ("a9", "n6", "n9", "", "PN", "N");
-	}
-
 	private void saveNodePositions () {
 		List<string> node_IDs = RoadMap.getNodeIDs ();
 
