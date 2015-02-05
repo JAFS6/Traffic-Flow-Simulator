@@ -124,6 +124,7 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	private IEnumerator spawnVehicles () {
+		// Cargar prefabs vehiculos
 		GameObject sport_car_prefab = Resources.Load("Prefabs/Sport_Car", typeof(GameObject)) as GameObject;
 		GameObject green_jeep_prefab = Resources.Load("Prefabs/GreenJeep", typeof(GameObject)) as GameObject;
 		GameObject orange_jeep_prefab = Resources.Load("Prefabs/OrangeJeep", typeof(GameObject)) as GameObject;
@@ -137,14 +138,18 @@ public class ApplicationController : MonoBehaviour {
 		prefab[2] = orange_jeep_prefab;
 		prefab[3] = bus_prefab;
 		
+		// Obtener los ids de los nodos
+		List<string> node_IDs = RoadMap.getNodeIDs();
+		
 		GameObject vehicle = null;
 		int random;
 		
 		while (true) {
-			random = Random.Range(0,num_prefabs);
-			vehicle = spawnVehicle (prefab[random], dir_prefab, "n2");
-			random = Random.Range(0,num_prefabs);
-			vehicle = spawnVehicle (prefab[random], dir_prefab, "n1");
+		
+			foreach (string id in node_IDs) {
+				random = Random.Range(0,num_prefabs);
+				vehicle = spawnVehicle (prefab[random], dir_prefab, id);
+			}
 			yield return new WaitForSeconds(5);
 		}
 	}
@@ -202,9 +207,6 @@ public class ApplicationController : MonoBehaviour {
 			else {
 				return null;
 			}
-		}
-		else {
-			Debug.Log ("Node ID: "+node_id+" is not a valid node ID");
 		}
 		return null;
 	}
