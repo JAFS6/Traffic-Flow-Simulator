@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+	<graph id="example_1" edgedefault="directed">
+		<node id="a0"/>
+		<node id="a1"/>
+		<node id="a2"/>
+		<node id="a3"/>
+		<node id="a4"/>
+		<node id="a5"/>
+		<node id="a6"/>
+		<node id="a7"/>
+		<node id="a8"/>
+		<node id="a9"/>
+		<edge id="e00" source="a0" target="a1"/>
+		<edge id="e01" source="a0" target="a4"/>
+		<edge id="e02" source="a1" target="a0"/>
+		<edge id="e03" source="a1" target="a4"/>
+		<edge id="e04" source="a2" target="a0"/>
+		<edge id="e05" source="a2" target="a1"/>
+		<edge id="e06" source="a2" target="a4"/>
+		<edge id="e07" source="a3" target="a5"/>
+		<edge id="e08" source="a3" target="a6"/>
+		<edge id="e09" source="a3" target="a8"/>
+		<edge id="e10" source="a4" target="a0"/>
+		<edge id="e11" source="a4" target="a1"/>
+		<edge id="e12" source="a4" target="a6"/>
+		<edge id="e13" source="a4" target="a7"/>
+		<edge id="e14" source="a4" target="a9"/>
+		<edge id="e15" source="a5" target="a3"/>
+		<edge id="e16" source="a5" target="a6"/>
+		<edge id="e17" source="a5" target="a8"/>
+		<edge id="e18" source="a6" target="a3"/>
+		<edge id="e19" source="a6" target="a4"/>
+		<edge id="e20" source="a6" target="a5"/>
+		<edge id="e21" source="a6" target="a7"/>
+		<edge id="e22" source="a6" target="a8"/>
+		<edge id="e23" source="a6" target="a9"/>
+		<edge id="e24" source="a7" target="a4"/>
+		<edge id="e25" source="a7" target="a6"/>
+		<edge id="e26" source="a7" target="a9"/>
+		<edge id="e27" source="a8" target="a3"/>
+		<edge id="e28" source="a8" target="a5"/>
+		<edge id="e29" source="a8" target="a6"/>
+		<edge id="e30" source="a9" target="a4"/>
+		<edge id="e31" source="a9" target="a6"/>
+		<edge id="e32" source="a9" target="a7"/>
+	</graph>
+</graphml>

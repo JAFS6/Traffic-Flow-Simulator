@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+	<key id="tipo_nodo" for="node" attr.name="Tipo_de_nodo" attr.type="int">
+		<default>1</default>
+	</key>
+	<key id="pos_x" for="node" attr.name="Coordenada_X" attr.type="double"/>
+	<key id="pos_y" for="node" attr.name="Coordenada_Y" attr.type="double"/>
+	<key id="tipo_cruce" for="node" attr.name="Tipo_de_cruce" attr.type="int">
+		<default>0</default>
+	</key>
+	<key id="nombre_via" for="edge" attr.name="Nombre_de_la_via" attr.type="string">
+		<default></default>
+	</key>
+	<key id="ori_des" for="edge" attr.name="Vias_sentido_origen_destino" attr.type="string">
+		<default>0</default>
+	</key>
+	<key id="des_ori" for="edge" attr.name="Vias_sentido_destino_origen" attr.type="string">
+		<default>0</default>
+	</key>
+	<graph id="example_2" edgedefault="undirected">
+		<node id="n0">
+			<data key="tipo_nodo">2</data>
+			<data key="pos_x">510</data>
+			<data key="pos_y">600</data>
+		</node>
+		<node id="n1">
+			<data key="pos_x">600</data>
+			<data key="pos_y">700</data>
+		</node>
+		<node id="n2">
+			<data key="pos_x">400</data>
+			<data key="pos_y">500</data>
+		</node>
+		<node id="n3">
+			<data key="tipo_nodo">0</data>
+			<data key="pos_x">500</data>
+			<data key="pos_y">500</data>
+		</node>
+		<node id="n4">
+			<data key="pos_x">600</data>
+			<data key="pos_y">500</data>
+		</node>
+		<node id="n5">
+			<data key="pos_x">500</data>
+			<data key="pos_y">400</data>
+		</node>
+		<edge id="a0" source="n0" target="n1">
+			<data key="ori_des">PNN</data>
+			<data key="des_ori">PN</data>
+		</edge>
+		<edge id="a1" source="n0" target="n3">
+			<data key="ori_des">PN</data>
+			<data key="des_ori">PNN</data>
+		</edge>
+		<edge id="a2" source="n2" target="n3">
+			<data key="ori_des">N</data>
+		</edge>
+		<edge id="a3" source="n3" target="n4">
+			<data key="ori_des">NN</data>
+			<data key="des_ori">NN</data>
+		</edge>
+		<edge id="a4" source="n3" target="n5">
+			<data key="ori_des">NN</data>
+		</edge>
+	</graph>
+</graphml>
