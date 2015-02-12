@@ -127,13 +127,7 @@ public class VehicleController : MonoBehaviour {
 			switch (left_ray_hit.transform.name) {
 
 				case Constants.Line_Name_Hard_Shoulder:
-					
-					if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length) && (front_ray_hit.transform.tag == Constants.Tag_Ground)) {
-						Turn (TurnSide.Left, 1f);
-					}
-					else {
-						Turn (TurnSide.Right, 1f);
-					}
+					Turn (TurnSide.Right, 1f);
 					break;
 
 				case Constants.Line_Name_Normal_Lane:
@@ -168,13 +162,7 @@ public class VehicleController : MonoBehaviour {
 			switch (right_ray_hit.transform.name) {
 				
 				case Constants.Line_Name_Hard_Shoulder:
-				
-					if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length) && (front_ray_hit.transform.tag == Constants.Tag_Ground)) {
-						Turn (TurnSide.Right, 1f);
-					}
-					else {
-						Turn (TurnSide.Left, 1f);
-					}
+					Turn (TurnSide.Left, 1f);
 					break;
 					
 				case Constants.Line_Name_Normal_Lane:
