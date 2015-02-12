@@ -215,16 +215,23 @@ public class VehicleController : MonoBehaviour {
 						on_intersection = true;
 						// Obtener lista de los arcos de salida
 						List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
-						// Actualizar posicion actual
-						current_location = front_ray_hit.transform.name;
-						// Elegir arco aleatoriamente
-						string selected_edge = exits_edges[Random.Range(0,exits_edges.Count)];
-						// Elegir punto de entrada al carril
-						Vector2 entry_point = getNearestLaneStartPoint (selected_edge, out entry_orientation);
-						// Girar hacia el punto
-						this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
-						                                                              this.transform.position.y,
-						                                                              entry_point.y - this.transform.position.z));
+						
+						if (exits_edges.Count <= 0) {
+							Debug.LogError("Error: No exit path found.");
+							Debug.Log("No exit path found.");
+						}
+						else {
+							// Actualizar posicion actual
+							current_location = front_ray_hit.transform.name;
+							// Elegir arco aleatoriamente
+							string selected_edge = exits_edges[Random.Range(0,exits_edges.Count)];
+							// Elegir punto de entrada al carril
+							Vector2 entry_point = getNearestLaneStartPoint (selected_edge, out entry_orientation);
+							// Girar hacia el punto
+							this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
+							                                                              this.transform.position.y,
+							                                                              entry_point.y - this.transform.position.z));
+                    	}
 					}
 					break;
 				
