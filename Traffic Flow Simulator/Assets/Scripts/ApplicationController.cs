@@ -209,6 +209,7 @@ public class ApplicationController : MonoBehaviour {
 					Vector3 pos = new Vector3 (start_position.x, Constants.road_thickness/2, start_position.z);
 					GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.LookRotation(dir_road3D)) as GameObject;
 					vehicle.tag = Constants.Tag_Vehicle;
+					vehicle.GetComponent<VehicleController>().current_location = RoadMap.getLimitEdge(node_id);
 					return vehicle;
 				}
 				else {

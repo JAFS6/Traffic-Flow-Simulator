@@ -18,7 +18,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class VehicleController : MonoBehaviour {
-	
+
 	public enum TurnSide : byte {Left, Right};
 	public enum VehicleType : byte {Car, Bus};
 	
@@ -30,7 +30,7 @@ public class VehicleController : MonoBehaviour {
 
 	// Variables de control del vehiculo
 	private float current_speed; 				// Velocidad actual en metros por segundo
-	private string current_location; 			// Identificador del nodo o arco en el que se encuentra
+	public string current_location; 			// Identificador del nodo o arco en el que se encuentra
 	private bool intersection_detected = false;	// Indicador de si acaba de encontrarse con una interseccion
 	private bool edge_detected = false;			// Indicador de si acaba de encontrarse con un arco
 	private bool on_intersection = false; 		// Indica si se encuentra sobre una interseccion
@@ -210,7 +210,7 @@ public class VehicleController : MonoBehaviour {
 						}
 						else {
 							// Actualizar posicion actual
-							current_location = front_ray_hit.transform.name;
+							current_location = down_ray_hit.transform.name;
 							// Elegir arco aleatoriamente
 							string selected_edge = exits_edges[Random.Range(0,exits_edges.Count)];
 							// Elegir punto de entrada al carril
