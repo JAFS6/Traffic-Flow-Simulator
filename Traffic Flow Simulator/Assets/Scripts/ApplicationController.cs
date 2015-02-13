@@ -27,10 +27,6 @@ public struct EntryNodeInfo
 }
 
 public class ApplicationController : MonoBehaviour {
-
-	public float initial_camera_position_x = 500f;
-	public float initial_camera_position_y = 15f;
-	public float initial_camera_position_z = 480f;
 	
 	public static string map_filename = "";
 	
@@ -39,9 +35,10 @@ public class ApplicationController : MonoBehaviour {
 
 	// Variables de control de las posiciones predeterminadas de la camara
 	private GameObject main_camera;
+	private float initial_camera_position_x = 0;
+	private float initial_camera_position_y = 100f;
+	private float initial_camera_position_z = 0;
 	private Vector2[] node_positions;
-	private int camera_node = 0; // Nodo en el que se situa la camara
-	private float camera_height = 5f; // Altura de la camara al cambiar de nodo
 
 	// Acciones a realizar cuando se inicia la aplicacion
 	void Start () {
@@ -61,6 +58,9 @@ public class ApplicationController : MonoBehaviour {
 
 		// Guardar las posiciones de los nodos para posicionar la camara
 		saveNodePositions ();
+		
+		// Calcular posicion inicial de la camara
+		calculateCameraInitialPosition();
 
 		// Colocar la camara en la posicion inicial
 		main_camera.GetComponent<MainCameraController> ().goTo (initial_camera_position_x,initial_camera_position_y,initial_camera_position_z);
@@ -70,22 +70,6 @@ public class ApplicationController : MonoBehaviour {
 		
 		// Instanciar vehiculos
 		StartCoroutine(spawnVehicles ());
-	}
-
-	void Update () {
-
-		if (Input.GetKeyDown (KeyCode.Alpha2)) {
-			camera_node = (camera_node + 1) % RoadMap.getNodeCount();
-			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, camera_height, node_positions[camera_node].y);
-		}
-		else if (Input.GetKeyDown (KeyCode.Alpha1)) {
-			camera_node = (camera_node - 1) % RoadMap.getNodeCount();
-
-			if (camera_node < 0) {
-				camera_node = RoadMap.getNodeCount() + camera_node;
-			}
-			main_camera.GetComponent<MainCameraController> ().goTo (node_positions[camera_node].x, camera_height, node_positions[camera_node].y);
-		}
 	}
 
 	private void saveNodePositions () {
@@ -101,6 +85,33 @@ public class ApplicationController : MonoBehaviour {
 			node_positions[i] = new Vector2(pos.x,pos.y);
 			i++;
 		}
+	}
+	
+	private void calculateCameraInitialPosition () {
+		float max_x = node_positions[0].x;
+		float min_x = node_positions[0].x;
+		float max_z = node_positions[0].y;
+		float min_z = node_positions[0].y;
+		
+		foreach (Vector2 node in node_positions) {
+			
+			if (node.x > max_x) {
+				max_x = node.x;
+			}
+			else if (node.x < min_x) {
+				min_x = node.x;
+			}
+			
+			if (node.y > max_z) {
+				max_z = node.y;
+			}
+			else if (node.y < min_z) {
+				min_z = node.y;
+			}
+		}
+		
+		initial_camera_position_x = (max_x + min_x) / 2;
+		initial_camera_position_z = (max_z + min_z) / 2;
 	}
 	
 	private void saveEntryNodes () {
