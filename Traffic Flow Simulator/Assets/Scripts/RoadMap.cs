@@ -600,7 +600,7 @@ public static class RoadMap {
 		Node n = nodes[node_id];
 		Vector3 pos = new Vector3 (n.x, 0, n.y);
 
-		if (n.node_type == NodeType.Limit) {
+		if (n.node_type == NodeType.Limit) {  // DRAW LIMIT NODE
 			Edge e = edges[getLimitEdge(n.id)];
 			Node src_node = nodes[e.source_id];
 			Node dst_node = nodes[e.destination_id];
@@ -618,7 +618,7 @@ public static class RoadMap {
 			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir,e.direction),Vector3.up);
 			aux_road.transform.position = pos;
 		}
-		else if (n.node_type == NodeType.Continuation) {
+		else if (n.node_type == NodeType.Continuation) {  // DRAW CONTINUATION NODE
 			GameObject aux_road = new GameObject();
 			aux_road.name = node_id;
 			aux_road.tag = Constants.Tag_Node_Continuation;
@@ -627,13 +627,10 @@ public static class RoadMap {
 			// Obtener los identificadores de los arcos involucrados con el nodo de continuacion
 			string edgeID1, edgeID2;
 			RoadMap.getContinuationEdges (n.id, out edgeID1, out edgeID2);
-			// Elegir el arco cuya suma de sus coordenadas, de su punto central, en el plano XZ sea menor
-			float edge_1_sum = edges[edgeID1].fixed_position.x + edges[edgeID1].fixed_position.z;
-			float edge_2_sum = edges[edgeID2].fixed_position.x + edges[edgeID2].fixed_position.z;
-			
+			// Elegir el arco cuya coordenada x sea menor
 			string selected_edge = edgeID1;
 			
-			if (edge_2_sum < edge_1_sum) {
+			if (edges[edgeID2].fixed_position.x < edges[edgeID1].fixed_position.x) {
 				selected_edge = edgeID2;
 			}
 			// Crear el nodo de continuacion
@@ -644,7 +641,7 @@ public static class RoadMap {
 			aux_road.transform.rotation = Quaternion.AngleAxis (rotation_degrees, new Vector3(0,1,0));
 			aux_road.transform.position = pos;
 		}
-		else if (n.node_type == NodeType.Intersection) {
+		else if (n.node_type == NodeType.Intersection) {  // DRAW INTERSECTION NODE
 		
 			GameObject road_prefab = Resources.Load("Prefabs/Road", typeof(GameObject)) as GameObject;
 			
@@ -1073,8 +1070,8 @@ public static class RoadMap {
 	 */
 	private static void CreateContinuationNode (GameObject node, float radius, float edge_width, float angle, string ref_edge_id) {
 
-		// TODO Añadir collider
-		node.AddComponent< MeshRenderer > ();
+		node.AddComponent< BoxCollider >();
+		node.AddComponent< MeshRenderer >();
 		node.renderer.material = asphalt_material;
 		MeshFilter filter = node.AddComponent< MeshFilter >();
 		Mesh mesh = filter.mesh;
@@ -1218,9 +1215,6 @@ public static class RoadMap {
 		
 		// Fin plataforma
 		
-		// Añadir longitud extra a las lineas del nodo continuacion para mejorar seguimiento de los vehiculos
-		radius += Constants.cont_nodes_lines_extra_length;
-		
 		// Lineas del arcen
 		
 		Vector2 hard_shoulder_right_point = new Vector2 (( edge_width * .5f) - Constants.hard_shoulder_width, -radius * .5f);
@@ -1272,8 +1266,6 @@ public static class RoadMap {
 		}
 		
 		// Lineas de carril
-		// Restablecer radius
-		//radius -= Constants.cont_nodes_lines_extra_length;
 		
 		Edge e = edges[ref_edge_id];
 		
@@ -1304,7 +1296,6 @@ public static class RoadMap {
 				draw_lane_line (lane_type, position1, position2, node);
 			}
 		}
-		
 		// Fin marcas viales
 	}
 	
