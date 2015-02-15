@@ -537,35 +537,40 @@ public static class RoadMap {
 		}
 
 		// Calcular el vector de ajuste de posicion del arco
-		foreach (string edge_key in edge_keys) { 
+		foreach (string edge_key in edge_keys) {
 			Edge e = edges[edge_key];
+			string source_node_id = e.source_id;
+			string destination_node_id = e.destination_id;
 			// Obtener el angulo polar del vector director del arco
 			float polar_angle = MyMathClass.PolarAngle(e.direction);
 			// Calcular la magnitud del vector de ajuste de posicion segun los nodos en los extremos del arco
 			float fixed_length = 0;
 
-			NodeType src_node_type = nodes[e.source_id].node_type;				// Tipo del nodo de origen
-			NodeType dst_node_type = nodes[e.destination_id].node_type;			// Tipo del nodo de destino
-			string src_id_widest_edge = nodes[e.source_id].widest_edge_id;		// Identificador del arco mas ancho en el nodo de origen
-			string dst_id_widest_edge = nodes[e.destination_id].widest_edge_id;	// Identificador del arco mas ancho en el nodo de destino
+			NodeType src_node_type = nodes[source_node_id].node_type;				// Tipo del nodo de origen
+			NodeType dst_node_type = nodes[destination_node_id].node_type;			// Tipo del nodo de destino
+			string src_id_widest_edge = nodes[source_node_id].widest_edge_id;		// Identificador del arco mas ancho en el nodo de origen
+			string dst_id_widest_edge = nodes[destination_node_id].widest_edge_id;	// Identificador del arco mas ancho en el nodo de destino
 
 			if (src_node_type == NodeType.Intersection || src_node_type == NodeType.Continuation) {
 				float aux_width = edges[ src_id_widest_edge ].width /2;
 				fixed_length += aux_width; // Desplazamiento en el sentido del vector director del arco
 				e.length -= aux_width;
 			}
-			else if (src_node_type == NodeType.Limit) {
-				fixed_length += Constants.limit_depth*1.5f; // Desplazamiento en el sentido del vector director del arco
-			}
+			/*else if (src_node_type == NodeType.Limit) {
+				No hacer nada, las carreteras comienzan en el centro de los nodos limite
+			}*/
 
 			if (dst_node_type == NodeType.Intersection || dst_node_type == NodeType.Continuation) {
 				float aux_width = edges[ dst_id_widest_edge ].width /2;
 				fixed_length -= aux_width; // Desplazamiento en sentido contrario del vector director del arco
 				e.length -= aux_width;
 			}
-			else if (dst_node_type == NodeType.Limit) {
-				fixed_length -= Constants.limit_depth*1.5f; // Desplazamiento en sentido contrario del vector director del arco
-			}
+			/*else if (dst_node_type == NodeType.Limit) {
+				No hacer nada, las carreteras comienzan en el centro de los nodos limite
+			}*/
+			
+			// Dividir la longitud ajustada a la mitad para equiparar los márgenes
+			fixed_length = fixed_length / 2;
 
 			if (fixed_length < 0) {
 				fixed_length = Mathf.Abs(fixed_length);
@@ -575,8 +580,8 @@ public static class RoadMap {
 			// Calcular el vector de ajuste de posicion
 			e.fixed_position_vector = MyMathClass.PolarToCartesian (fixed_length, polar_angle);
 			// Calcular la posicion ya ajustada
-			Node src_node = nodes[e.source_id];
-			Node dst_node = nodes[e.destination_id];
+			Node src_node = nodes[source_node_id];
+			Node dst_node = nodes[destination_node_id];
 			e.fixed_position = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
 			e.fixed_position.x += e.fixed_position_vector.x;
 			e.fixed_position.z += e.fixed_position_vector.y;
@@ -648,7 +653,7 @@ public static class RoadMap {
 			}
 			else {
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
-				aux_road.transform.localScale = new Vector3(17.6f,Constants.road_thickness,17.6f);
+				aux_road.transform.localScale = new Vector3(edges[n.widest_edge_id].width,Constants.road_thickness,edges[n.widest_edge_id].width);
 
 				if (n.node_type == NodeType.Intersection) {
 					aux_road.name = node_id;
