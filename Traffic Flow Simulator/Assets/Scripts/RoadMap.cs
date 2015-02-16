@@ -724,7 +724,7 @@ public static class RoadMap {
 		Vector2 vector_2 = new Vector2 (edge_2.x - nodes[node_id].x, edge_2.y - nodes[node_id].y);
 
 		// Calcular el menor angulo entre los vectores
-		float angle_deg = MyMathClass.RotationAngle (vector_1, vector_2);
+		float angle_deg = MyMathClass.RotationAngle (vector_1, vector_2); //(-360,360)
 
 		if (angle_deg < 0) {
 			angle_deg += 360f;
@@ -1004,6 +1004,7 @@ public static class RoadMap {
 		GameObject discontinuous_line = new GameObject ();
 		discontinuous_line.name = Constants.Line_Name_Discontinuous;
 		discontinuous_line.transform.parent = new_parent.transform;
+		discontinuous_line.transform.position = MyMathClass.middlePoint(position1,position2);
 		float length = MyMathClass.Distance(position1,position2);
 		
 		int piece_num = 0;
@@ -1065,11 +1066,11 @@ public static class RoadMap {
 	 * http://wiki.unity3d.com/index.php/ProceduralPrimitives y adaptado a las necesidades de esta aplicacion
 	 * @param[in] radius Radio de la circunferencia circunscrita por los arcos
 	 * @param[in] width Ancho de los arcos
-	 * @param[in] angle Angulo menor que forman los arcos
+	 * @param[in] angle Angulo menor que forman los arcos [0,360)
 	 * @param[in] ref_edge_id Identificador del arco que se tomara como referencia para dibujar las marcas viales
 	 */
 	private static void CreateContinuationNode (GameObject node, float radius, float edge_width, float angle, string ref_edge_id) {
-
+		
 		node.AddComponent< BoxCollider >();
 		node.AddComponent< MeshRenderer >();
 		node.renderer.material = asphalt_material;
@@ -1077,23 +1078,28 @@ public static class RoadMap {
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
 		
-		Vector2 left_point  = new Vector2 (-edge_width * .5f, -radius * .5f);
-		Vector2 right_point = new Vector2 ( edge_width * .5f, -radius * .5f);
+		float half_road_thickness = Constants.road_thickness * 0.5f;
+		float half_negative_radius = -radius * 0.5f;
+		float half_edge_width = edge_width * 0.5f;
+		
+		
+		Vector2 left_point  = new Vector2 (-half_edge_width, half_negative_radius);
+		Vector2 right_point = new Vector2 ( half_edge_width, half_negative_radius);
 
 		// Rotar angle grados los puntos left y right
-		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point, angle);
+		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point , angle);
 		Vector2 right_point_rotated = MyMathClass.rotatePoint(right_point, angle);
 		
-		#region Vertices
-		Vector3 p0 = new Vector3(  right_point_rotated.x,	-Constants.road_thickness * .5f,	right_point_rotated.y );
-		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-Constants.road_thickness * .5f,	left_point_rotated.y );
-		Vector3 p2 = new Vector3(  edge_width * .5f, 		-Constants.road_thickness * .5f,	-radius * .5f );
-		Vector3 p3 = new Vector3( -edge_width * .5f,		-Constants.road_thickness * .5f,	-radius * .5f );
+		#region Vertices 
+		Vector3 p0 = new Vector3(  right_point_rotated.x,	-half_road_thickness,	right_point_rotated.y );
+		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-half_road_thickness,	left_point_rotated.y  );
+		Vector3 p2 = new Vector3(  half_edge_width, 		-half_road_thickness,	half_negative_radius  );
+		Vector3 p3 = new Vector3( -half_edge_width,			-half_road_thickness,	half_negative_radius  );
 		
-		Vector3 p4 = new Vector3(  right_point_rotated.x,	 Constants.road_thickness * .5f,   	 right_point_rotated.y );
-		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 Constants.road_thickness * .5f,   	 left_point_rotated.y );
-		Vector3 p6 = new Vector3(  edge_width * .5f, 		 Constants.road_thickness * .5f,  	-radius * .5f );
-		Vector3 p7 = new Vector3( -edge_width * .5f,	 	 Constants.road_thickness * .5f,  	-radius * .5f );
+		Vector3 p4 = new Vector3(  right_point_rotated.x,	 half_road_thickness,	right_point_rotated.y );
+		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 half_road_thickness,	left_point_rotated.y  );
+		Vector3 p6 = new Vector3(  half_edge_width, 		 half_road_thickness,	half_negative_radius  );
+		Vector3 p7 = new Vector3( -half_edge_width,	 		 half_road_thickness,	half_negative_radius  );
 		
 		Vector3[] vertices = new Vector3[]
 		{
@@ -1215,25 +1221,43 @@ public static class RoadMap {
 		
 		// Fin plataforma
 		
+		Edge e = edges[ref_edge_id];
+		
+		// Calculos comunes
+		float pos_y_lines = (Constants.road_thickness/2)+(Constants.line_thickness/2);
+		float pos_z_lines = -((radius * 0.5f) + 0.1f);
+		Vector2 road_center_point = new Vector2(0, pos_z_lines);
+		Vector2 road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, angle);
+		float right_hard_shoulder_pos_x = (e.width / 2) - Constants.hard_shoulder_width;
+		float left_hard_shoulder_pos_x = -((e.width / 2) - Constants.hard_shoulder_width);
+		float lane_w_plus_line_w = Constants.lane_width + Constants.line_width;
+		
+		// Comprobar si el nodo es fuente o destino del arco de referencia
+		bool is_source = true;
+		
+		if (node.name == e.destination_id) {
+			is_source = false;
+		}
+		
 		// Lineas del arcen
 		
-		Vector2 hard_shoulder_right_point = new Vector2 (( edge_width * .5f) - Constants.hard_shoulder_width, -radius * .5f);
-		Vector2 hard_shoulder_left_point  = new Vector2 ((-edge_width * .5f) + Constants.hard_shoulder_width, -radius * .5f);
+		Vector2 hard_shoulder_right_point = new Vector2 (right_hard_shoulder_pos_x, half_negative_radius);
+		Vector2 hard_shoulder_left_point  = new Vector2 (left_hard_shoulder_pos_x , half_negative_radius);
 		
 		Vector2 hard_shoulder_right_rotated = MyMathClass.rotatePoint(hard_shoulder_right_point, angle);
 		Vector2 hard_shoulder_left_rotated  = MyMathClass.rotatePoint(hard_shoulder_left_point, angle);
 		
 		draw_continuous_line(Constants.line_width,
 		                     Constants.line_thickness,
-		                     new Vector3( hard_shoulder_left_point.x,    Constants.road_thickness * .5f, hard_shoulder_left_point.y ),
-		                     new Vector3( hard_shoulder_right_rotated.x, Constants.road_thickness * .5f, hard_shoulder_right_rotated.y ),
+		                     new Vector3( hard_shoulder_left_point.x,    pos_y_lines, hard_shoulder_left_point.y ),
+		                     new Vector3( hard_shoulder_right_rotated.x, pos_y_lines, hard_shoulder_right_rotated.y ),
 		                     Constants.Line_Name_Hard_Shoulder,
 		                     node);
 		
 		draw_continuous_line(Constants.line_width,
 		                     Constants.line_thickness,
-		                     new Vector3( hard_shoulder_right_point.x,  Constants.road_thickness * .5f, hard_shoulder_right_point.y ),
-		                     new Vector3( hard_shoulder_left_rotated.x, Constants.road_thickness * .5f, hard_shoulder_left_rotated.y ),
+		                     new Vector3( hard_shoulder_right_point.x,  pos_y_lines, hard_shoulder_right_point.y ),
+		                     new Vector3( hard_shoulder_left_rotated.x, pos_y_lines, hard_shoulder_left_rotated.y ),
 		                     Constants.Line_Name_Hard_Shoulder,
 		                     node);
 		
@@ -1247,53 +1271,117 @@ public static class RoadMap {
 				lane_diff = edges[ref_edge_id].src_des.Length - edges[ref_edge_id].des_src.Length;
 			}
 			
-			Vector2 center_point = new Vector2 (- (lane_diff * (Constants.lane_width/2)), -radius * .5f);
+			// Calcular el punto central de las lineas centrales y el correspondiente girado
+			Vector2 center_point;
+			
+			if (is_source) {
+				center_point = new Vector2 (+ (lane_diff * (Constants.lane_width/2)), pos_z_lines);
+			}
+			else {
+				center_point = new Vector2 (- (lane_diff * (Constants.lane_width/2)), pos_z_lines);
+			}
 			Vector2 center_point_rotated = MyMathClass.rotatePoint(center_point, angle);
 			
-			draw_continuous_line(Constants.line_width,
-			                     Constants.line_thickness,
-			                     new Vector3(        -center_point.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y),
-			                     new Vector3( center_point_rotated.x - (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
-			                     Constants.Line_Name_Center,
-			                     node);
+			// Restarle dos veces el vector con origen en el punto road_center_point_rotated y extremo en el punto center_point_rotated
+			// Para llevar el punto simetricamente al otro lado del punto central de la carretera
+			Vector2 cp_cpr = new Vector2(center_point_rotated.x - road_center_point_rotated.x, center_point_rotated.y - road_center_point_rotated.y);
+			center_point_rotated -= 2*cp_cpr;
 			
-			draw_continuous_line(Constants.line_width,
-			                     Constants.line_thickness,
-			                     new Vector3(        -center_point.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point.y ),
-			                     new Vector3( center_point_rotated.x + (Constants.center_lines_separation/2), Constants.road_thickness * .5f, center_point_rotated.y ),
-			                     Constants.Line_Name_Center,
-			                     node);
+			// Linea izquierda
+			
+			// Calcular el punto de inicio de la linea
+			Vector2 line_begin_point = new Vector2(center_point.x - (Constants.center_lines_separation/2), center_point.y);
+				
+			// Calcular el punto girado
+			Vector2 line_begin_point_rotated = MyMathClass.rotatePoint(line_begin_point, angle);
+			
+			// Restarle dos veces el vector con origen en el punto road_center_point_rotated y extremo en el punto line_begin_point_rotated
+			// Para llevar el punto simetricamente al otro lado del punto central de la carretera
+			Vector2 rcpr_lbpr = new Vector2(line_begin_point_rotated.x - road_center_point_rotated.x, line_begin_point_rotated.y - road_center_point_rotated.y);
+			line_begin_point_rotated -= 2*rcpr_lbpr;
+			
+			// Preparar las posiciones y pintar las lineas
+			Vector3 pos1 = new Vector3(line_begin_point.x,			pos_y_lines, line_begin_point.y);
+			Vector3 pos2 = new Vector3(line_begin_point_rotated.x,	pos_y_lines, line_begin_point_rotated.y);
+			
+			draw_continuous_line(Constants.line_width,Constants.line_thickness,pos1,pos2,Constants.Line_Name_Center,node);
+			
+			// Repetir lo mismo para la linea derecha ajustando line_begin_point
+			
+			line_begin_point = new Vector2(center_point.x + (Constants.center_lines_separation/2), center_point.y);
+			line_begin_point_rotated = MyMathClass.rotatePoint(line_begin_point, angle);
+			rcpr_lbpr = new Vector2(line_begin_point_rotated.x - road_center_point_rotated.x, line_begin_point_rotated.y - road_center_point_rotated.y);
+			line_begin_point_rotated -= 2*rcpr_lbpr;
+			pos1 = new Vector3(line_begin_point.x,			pos_y_lines, line_begin_point.y);
+			pos2 = new Vector3(line_begin_point_rotated.x,	pos_y_lines, line_begin_point_rotated.y);
+			draw_continuous_line(Constants.line_width,Constants.line_thickness,pos1,pos2,Constants.Line_Name_Center,node);
 		}
 		
 		// Lineas de carril
 		
-		Edge e = edges[ref_edge_id];
-		
-		Vector3 position1 = new Vector3 (0, node.transform.position.y + (Constants.road_thickness/2)+(Constants.line_thickness/2), -radius * .5f);
-		Vector3 position2 = new Vector3 (0, node.transform.position.y + (Constants.road_thickness/2)+(Constants.line_thickness/2), -radius * .5f);
-		
-		// Pintar tantas lineas de tipo de carril como carriles menos uno haya en cada direccion
+		// Si la direccion source -> destination tiene carriles
 		if (e.src_des != Constants.String_No_Lane) {
-		
+			
+			// Pintar una linea por cada uno de los carriles excepto el mas centrico
 			for (int i=0; i < e.src_des.Length-1; i++) {
+				
+				// Calcular el punto de inicio de la linea
+				Vector2 line_begin_point;
+				
+				if (is_source) {
+					line_begin_point = new Vector2(left_hard_shoulder_pos_x + (lane_w_plus_line_w * (i+1)), pos_z_lines);
+				}
+				else {
+					line_begin_point = new Vector2(right_hard_shoulder_pos_x - (lane_w_plus_line_w * (i+1)), pos_z_lines);
+				}
+				
+				// Calcular el punto girado
+				Vector2 line_begin_point_rotated = MyMathClass.rotatePoint(line_begin_point, angle);
+				
+				// Restarle dos veces el vector con origen en el punto road_center_point_rotated y extremo en el punto line_begin_point_rotated
+				// Para llevar el punto simetricamente al otro lado del punto central de la carretera
+				Vector2 rcpr_lbpr = new Vector2(line_begin_point_rotated.x - road_center_point_rotated.x, line_begin_point_rotated.y - road_center_point_rotated.y);
+				line_begin_point_rotated -= 2*rcpr_lbpr;
+				
+				// Preparar las posiciones y pintar las lineas
+				Vector3 pos1 = new Vector3(line_begin_point.x,			pos_y_lines, line_begin_point.y);
+				Vector3 pos2 = new Vector3(line_begin_point_rotated.x,	pos_y_lines, line_begin_point_rotated.y);
+				
 				char lane_type = e.src_des[i];
-				position1.x = -((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1));
-				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
-				position2.x = rotated.x;
-				position2.z = rotated.y;
-				draw_lane_line (lane_type, position1, position2, node);
+				draw_lane_line (lane_type, pos1, pos2, node);
 			}
 		}
 		
+		// Si la direccion destination -> source tiene carriles
 		if (e.des_src != Constants.String_No_Lane) {
-			
+		
+			// Pintar una linea por cada uno de los carriles excepto el mas centrico
 			for (int i=0; i < e.des_src.Length-1; i++) {
+				
+				// Calcular el punto de inicio de la linea
+				Vector2 line_begin_point;
+				
+				if (is_source) {
+					line_begin_point = new Vector2(right_hard_shoulder_pos_x - (lane_w_plus_line_w * (i+1)), pos_z_lines);
+				}
+				else {
+					line_begin_point = new Vector2(left_hard_shoulder_pos_x + (lane_w_plus_line_w * (i+1)), pos_z_lines);
+				}
+				
+				// Calcular el punto girado
+				Vector2 line_begin_point_rotated = MyMathClass.rotatePoint(line_begin_point, angle);
+				
+				// Restarle dos veces el vector con origen en el punto road_center_point_rotated y extremo en el punto line_begin_point_rotated
+				// Para llevar el punto simetricamente al otro lado del punto central de la carretera
+				Vector2 rcpr_lbpr = new Vector2(line_begin_point_rotated.x - road_center_point_rotated.x, line_begin_point_rotated.y - road_center_point_rotated.y);
+				line_begin_point_rotated -= 2*rcpr_lbpr;
+				
+				// Preparar las posiciones y pintar las lineas
+				Vector3 pos1 = new Vector3(line_begin_point.x,			pos_y_lines, line_begin_point.y);
+				Vector3 pos2 = new Vector3(line_begin_point_rotated.x,	pos_y_lines, line_begin_point_rotated.y);
+				
 				char lane_type = e.des_src[i];
-				position1.x = ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
-				Vector2 rotated = MyMathClass.rotatePoint(new Vector2(-position1.x,position1.z), angle);
-				position2.x = rotated.x;
-				position2.z = rotated.y;
-				draw_lane_line (lane_type, position1, position2, node);
+				draw_lane_line (lane_type, pos1, pos2, node);
 			}
 		}
 		// Fin marcas viales

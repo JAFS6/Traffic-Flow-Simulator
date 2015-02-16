@@ -133,7 +133,7 @@ public static class MyMathClass : object {
 	 * v1 para ponerlo en la direccion y sentido del vector v2
 	 * @param[in] v1 El primer vector
 	 * @param[in] v2 El segundo vector
-	 * @return El angulo calculado en grados [-180,180]
+	 * @return El angulo calculado en grados (-360,360)
 	 */
 	public static float RotationAngle (Vector2 v1, Vector2 v2) {
 		
