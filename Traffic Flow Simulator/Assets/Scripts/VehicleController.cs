@@ -196,7 +196,30 @@ public class VehicleController : MonoBehaviour {
 			Debug.DrawLine(down_ray_pos,down_ray_hit.point,Color.black);
 			
 			switch (down_ray_hit.transform.tag) {
-			
+				
+				case Constants.Tag_Node_Continuation:
+					// Orientar segun la direccion del nodo
+					
+					// Obtener la direccion del nodo en un sentido
+					Vector2 dir1 = RoadMap.getNodeDirection(down_ray_hit.transform.name, DirectionType.Source_Destination);
+					Vector2 dir2 = RoadMap.getNodeDirection(down_ray_hit.transform.name, DirectionType.Source_Destination);
+					
+					// Calcular el angulo a rotar la direccion del vehiculo para orientarse segun los vectores anteriores
+					float angle_dir1 = MyMathClass.RotationAngle(new Vector2(this.transform.forward.x,this.transform.forward.z),dir1);
+					float angle_dir2 = MyMathClass.RotationAngle(new Vector2(this.transform.forward.x,this.transform.forward.z),dir2);
+					
+					// Tomar el vector cuyo angulo sea menor
+					Vector2 dir = dir1;
+					
+					if (Mathf.Abs(angle_dir2) < Mathf.Abs(angle_dir1)) {
+						dir = dir2;
+					}
+					
+					// Orientar el vehiculo en esa direccion manteniendo el sentido que lleve
+					this.transform.rotation = Quaternion.LookRotation(new Vector3(dir.x, this.transform.position.y, dir.y));
+					
+					break;
+				
 				case Constants.Tag_Node_Intersection:
 				
 					if (intersection_detected && !on_intersection) {
@@ -228,7 +251,7 @@ public class VehicleController : MonoBehaviour {
 					if (edge_detected && on_intersection) { // Si estaba sobre una interseccion y acaba de llegar al arco
 						on_intersection = false;
 						current_location = down_ray_hit.transform.name;
-						// TODO Girar el vehiculo para ponerlo en la linea del arco
+						// Girar el vehiculo para ponerlo en la linea del arco
 						Vector2 edge_dir = RoadMap.getEdgeDirection(current_location, entry_orientation);
 						this.transform.rotation = Quaternion.LookRotation(new Vector3(edge_dir.x, this.transform.position.y, edge_dir.y));
 					}
