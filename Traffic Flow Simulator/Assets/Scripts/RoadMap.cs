@@ -254,13 +254,33 @@ public static class RoadMap {
 	 * @post Al finalizar la ejecucion del metodo, los parametros src_id y dst_id tendran los identificadores
 	 * buscados o la cadena Constants.String_Unknown si el arco no existe
 	 */
-	public static void getEdgeLimits (string edge_id, out string src_id, out string dst_id) {
+	public static void getEdgeNodeLimits (string edge_id, out string src_id, out string dst_id) {
 		src_id = Constants.String_Unknown;
 		dst_id = Constants.String_Unknown;
 		
 		if (edges.ContainsKey (edge_id)) {
 			src_id = edges[edge_id].source_id;
 			dst_id = edges[edge_id].destination_id;
+		}
+	}
+	
+	/**
+	 * @brief Devuelve las posiciones de cada extremo del arco pasado como argumento
+	 * @param[in] edge_id El identificador del arco
+	 * @param[out] src_pos La posicion del extremo fuente del arco
+	 * @param[out] dst_pos La posicion del extremo destino del arco
+	 * @post Al finalizar la ejecucion del metodo, los parametros src_pos y dst_pos tendran las posiciones
+	 * buscadas o (0,0) si el arco no existe
+	 */
+	public static void getEdgeLimitsPositions (string edge_id, out Vector2 src_pos, out Vector2 dst_pos) {
+		src_pos = new Vector2(0,0);
+		dst_pos = new Vector2(0,0);
+		
+		if (edges.ContainsKey (edge_id)) {
+			Vector2 aux = new Vector2(0,0);
+			aux = edges[edge_id].direction * (edges[edge_id].length / 2);
+			src_pos = (Vector2) edges[edge_id].fixed_position - aux;
+			dst_pos = (Vector2) edges[edge_id].fixed_position + aux;
 		}
 	}
 	

@@ -198,25 +198,6 @@ public class VehicleController : MonoBehaviour {
 			switch (down_ray_hit.transform.tag) {
 				
 				case Constants.Tag_Node_Continuation:
-					// Orientar segun la direccion del nodo
-					
-					// Obtener la direccion del nodo en un sentido
-					Vector2 dir1 = RoadMap.getNodeDirection(down_ray_hit.transform.name, DirectionType.Source_Destination);
-					Vector2 dir2 = RoadMap.getNodeDirection(down_ray_hit.transform.name, DirectionType.Source_Destination);
-					
-					// Calcular el angulo a rotar la direccion del vehiculo para orientarse segun los vectores anteriores
-					float angle_dir1 = MyMathClass.RotationAngle(new Vector2(this.transform.forward.x,this.transform.forward.z),dir1);
-					float angle_dir2 = MyMathClass.RotationAngle(new Vector2(this.transform.forward.x,this.transform.forward.z),dir2);
-					
-					// Tomar el vector cuyo angulo sea menor
-					Vector2 dir = dir1;
-					
-					if (Mathf.Abs(angle_dir2) < Mathf.Abs(angle_dir1)) {
-						dir = dir2;
-					}
-					
-					// Orientar el vehiculo en esa direccion manteniendo el sentido que lleve
-					this.transform.rotation = Quaternion.LookRotation(new Vector3(dir.x, this.transform.position.y, dir.y));
 					
 					break;
 				
