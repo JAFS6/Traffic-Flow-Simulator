@@ -35,10 +35,6 @@ public class VehicleController : MonoBehaviour {
 	private bool edge_detected = false;			// Indicador de si acaba de encontrarse con un arco
 	private bool on_intersection = false; 		// Indica si se encuentra sobre una interseccion
 	private DirectionType entry_orientation;
-	
-	// Variables para el giro basico
-	public float small_turn = 1f;
-	public float big_turn = 7f;
 
 	// Sensores (raycasting)
 	private const float front_sensor_y = 0.5f; // Altura de los sensores frontales
@@ -65,34 +61,47 @@ public class VehicleController : MonoBehaviour {
 	private RaycastHit left2_ray_hit;
 	private RaycastHit right2_ray_hit;
 	
+	// Multiplicadores de posicion
+	private float front_ray_pos_forward_multiplier = 2f; // Multiplicador del vector forward para la posicion del rayo frontal
+	private float left_right_rays_pos_forward_multiplier = 2f; // Multiplicador del vector forward para la posicion de los rayos laterales
+	private float left_right_rays_pos_right_multiplier = 0.8f; // Multiplicador del vector right para la posicion de los rayos laterales
+	private float left_right_rays_dir_forward_multiplier = 2f; // Multiplicador del vector forward para la direccion de los rayos izquierdo y derecho
+	private float left_right_rays_dir_forward_divisor = 2f; // Divisor del vector forward para la direccion de los rayos izquierdo y derecho
+	private float left_right2_rays_dir_forward_multiplier = 1.5f; // Multiplicador del vector forward para la direccion de los rayos izquierdo 2 y derecho 2
+	private float left_right2_rays_dir_forward_divisor = 4f; // Divisor del vector forward para la direccion de los rayos izquierdo 2 y derecho 2
+	
+	// Variables para el giro basico
+	public float small_turn = 0.5f;
+	public float big_turn = 7f;
+	
 	void Update () {
 		Debug.DrawLine(this.transform.position,this.transform.position + this.transform.forward * 6,Color.magenta);
 		
 		// Raycasting
 		// Front ray
-		Vector3 front_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * 2),
+		Vector3 front_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * front_ray_pos_forward_multiplier),
 											 this.transform.position.y + front_sensor_y,
-											 this.transform.position.z + (this.transform.forward.z * 2));
+		                                     this.transform.position.z + (this.transform.forward.z * front_ray_pos_forward_multiplier));
 		Vector3 front_ray_dir = new Vector3 ();
 		front_ray_dir = Vector3.Normalize ((this.transform.forward * 5) - this.transform.up);
 		
 		// Left ray
-		Vector3 left_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * 2),
+		Vector3 left_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * left_right_rays_pos_forward_multiplier),
 											this.transform.position.y + front_sensor_y,
-											this.transform.position.z + (this.transform.forward.z * 2));
-		left_ray_pos = left_ray_pos - this.transform.right * 0.8f;
+		                                    this.transform.position.z + (this.transform.forward.z * left_right_rays_pos_forward_multiplier));
+		left_ray_pos = left_ray_pos - this.transform.right * left_right_rays_pos_right_multiplier;
 		Vector3 left_ray_dir = new Vector3 ();
-		left_ray_dir = Vector3.Normalize ((this.transform.forward * 2) - this.transform.up);
-		left_ray_dir = Vector3.Normalize (left_ray_dir - this.transform.right/2);
+		left_ray_dir = Vector3.Normalize ((this.transform.forward * left_right_rays_dir_forward_multiplier) - this.transform.up);
+		left_ray_dir = Vector3.Normalize (left_ray_dir - this.transform.right/left_right_rays_dir_forward_divisor);
 		
 		// Right ray
-		Vector3 right_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * 2),
+		Vector3 right_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * left_right_rays_pos_forward_multiplier),
 											 this.transform.position.y + front_sensor_y,
-											 this.transform.position.z + (this.transform.forward.z * 2));
-		right_ray_pos = right_ray_pos + this.transform.right * 0.8f;
+		                                     this.transform.position.z + (this.transform.forward.z * left_right_rays_pos_forward_multiplier));
+		right_ray_pos = right_ray_pos + this.transform.right * left_right_rays_pos_right_multiplier;
 		Vector3 right_ray_dir = new Vector3 ();
-		right_ray_dir = Vector3.Normalize ((this.transform.forward * 2) - this.transform.up);
-		right_ray_dir = Vector3.Normalize (right_ray_dir +  this.transform.right/2);
+		right_ray_dir = Vector3.Normalize ((this.transform.forward * left_right_rays_dir_forward_multiplier) - this.transform.up);
+		right_ray_dir = Vector3.Normalize (right_ray_dir +  this.transform.right/left_right_rays_dir_forward_divisor);
 		
 		// Down ray
 		Vector3 down_ray_pos = new Vector3 (this.transform.position.x,
@@ -105,13 +114,13 @@ public class VehicleController : MonoBehaviour {
 		
 		// Left 2 ray
 		Vector3 left2_ray_dir = new Vector3 ();
-		left2_ray_dir = Vector3.Normalize ((this.transform.forward * 1.3f) - this.transform.up);
-		left2_ray_dir = Vector3.Normalize (left2_ray_dir - this.transform.right/2.5f);
+		left2_ray_dir = Vector3.Normalize ((this.transform.forward * left_right2_rays_dir_forward_multiplier) - this.transform.up);
+		left2_ray_dir = Vector3.Normalize (left2_ray_dir - this.transform.right/left_right2_rays_dir_forward_divisor);
 		
 		// Right 2 ray
 		Vector3 right2_ray_dir = new Vector3 ();
-		right2_ray_dir = Vector3.Normalize ((this.transform.forward * 1.3f) - this.transform.up);
-		right2_ray_dir = Vector3.Normalize (right2_ray_dir +  this.transform.right/2.5f);
+		right2_ray_dir = Vector3.Normalize ((this.transform.forward * left_right2_rays_dir_forward_multiplier) - this.transform.up);
+		right2_ray_dir = Vector3.Normalize (right2_ray_dir +  this.transform.right/left_right2_rays_dir_forward_divisor);
 
 		// Front ray check
 		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length)) {
