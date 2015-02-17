@@ -205,8 +205,7 @@ public class VehicleController : MonoBehaviour {
 						List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
 						
 						if (exits_edges.Count <= 0) {
-							Debug.LogError("Error: No exit path found.");
-							Debug.Log("No exit path found.");
+							Debug.LogError("Error: No exit path found. Vehicle type: "+this.vehicle_type.ToString()+".");
 						}
 						else {
 							// Actualizar posicion actual
