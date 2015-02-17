@@ -35,6 +35,10 @@ public class VehicleController : MonoBehaviour {
 	private bool edge_detected = false;			// Indicador de si acaba de encontrarse con un arco
 	private bool on_intersection = false; 		// Indica si se encuentra sobre una interseccion
 	private DirectionType entry_orientation;
+	
+	// Variables para el giro basico
+	public float small_turn = 1f;
+	public float big_turn = 7f;
 
 	// Sensores (raycasting)
 	private const float front_sensor_y = 0.5f; // Altura de los sensores frontales
@@ -52,6 +56,14 @@ public class VehicleController : MonoBehaviour {
 	private RaycastHit left_ray_hit;
 	private RaycastHit right_ray_hit;
 	private RaycastHit down_ray_hit;
+	
+	// Rayos para los giros mas pronunciados
+	
+	// Su posicion sera la misma que la de los rayos izquierdo y derecho, comparten origen
+	private Vector3 left2_ray_dir;
+	private Vector3 right2_ray_dir;
+	private RaycastHit left2_ray_hit;
+	private RaycastHit right2_ray_hit;
 	
 	void Update () {
 		Debug.DrawLine(this.transform.position,this.transform.position + this.transform.forward * 6,Color.magenta);
@@ -84,10 +96,22 @@ public class VehicleController : MonoBehaviour {
 		
 		// Down ray
 		Vector3 down_ray_pos = new Vector3 (this.transform.position.x,
-		                                     this.transform.position.y + 1f,
-		                                     this.transform.position.z);
+		                                    this.transform.position.y + 1f,
+		                                    this.transform.position.z);
 		Vector3 down_ray_dir = new Vector3 ();
 		down_ray_dir = Vector3.Normalize (- this.transform.up);
+		
+		// Rayos para los giros mas pronunciados
+		
+		// Left 2 ray
+		Vector3 left2_ray_dir = new Vector3 ();
+		left2_ray_dir = Vector3.Normalize ((this.transform.forward * 1.3f) - this.transform.up);
+		left2_ray_dir = Vector3.Normalize (left2_ray_dir - this.transform.right/2.5f);
+		
+		// Right 2 ray
+		Vector3 right2_ray_dir = new Vector3 ();
+		right2_ray_dir = Vector3.Normalize ((this.transform.forward * 1.3f) - this.transform.up);
+		right2_ray_dir = Vector3.Normalize (right2_ray_dir +  this.transform.right/2.5f);
 
 		// Front ray check
 		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length)) {
@@ -118,43 +142,45 @@ public class VehicleController : MonoBehaviour {
 						intersection_detected = false;
 					}
 					break;
-			}
-		}
+			} // End switch (front_ray_hit.transform.tag)
+		} // End Front ray check
+		
 		// Left ray check
 		if (Physics.Raycast(left_ray_pos,left_ray_dir, out left_ray_hit,sensor_length)) {
 			Debug.DrawLine(left_ray_pos,left_ray_hit.point,Color.red);
-
+			
 			switch (left_ray_hit.transform.name) {
 
 				case Constants.Line_Name_Hard_Shoulder:
-					Turn (TurnSide.Right, 1f);
+					Turn (TurnSide.Right, small_turn);
 					break;
 
 				case Constants.Line_Name_Normal_Lane:
 					
 					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					else {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					break;
 
 				case Constants.Line_Name_Center:
-					Turn (TurnSide.Right, 1f);
+					Turn (TurnSide.Right, small_turn);
 					break;
 
 				case Constants.Line_Name_Public_Transport_Lane:
 					
 					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					else {
-						Turn (TurnSide.Left, 1f);
+						Turn (TurnSide.Left, small_turn);
 					}
 					break;
 			} // End switch (left_ray_hit.transform.name)
-		}
+		} // End Left ray check
+		
 		// Right ray check
 		if (Physics.Raycast(right_ray_pos,right_ray_dir, out right_ray_hit,sensor_length)) {
 			Debug.DrawLine(right_ray_pos,right_ray_hit.point,Color.green);
@@ -162,44 +188,40 @@ public class VehicleController : MonoBehaviour {
 			switch (right_ray_hit.transform.name) {
 				
 				case Constants.Line_Name_Hard_Shoulder:
-					Turn (TurnSide.Left, 1f);
+					Turn (TurnSide.Left, small_turn);
 					break;
 					
 				case Constants.Line_Name_Normal_Lane:
 					
 					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					else {
-						Turn (TurnSide.Left, 1f);
+						Turn (TurnSide.Left, small_turn);
 					}
 					break;
 					
 				case Constants.Line_Name_Public_Transport_Lane:
 					
 					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					else {
-						Turn (TurnSide.Left, 1f);
+						Turn (TurnSide.Left, small_turn);
 					}
 					break;
 				
 				case Constants.Line_Name_Center:
-					Turn (TurnSide.Right, 1f);
+					Turn (TurnSide.Right, small_turn);
 					break;
 			} // End switch (right_ray_hit.transform.name)
-		}
+		} // End Right ray check
 		
 		// Down ray check
 		if (Physics.Raycast(down_ray_pos,down_ray_dir, out down_ray_hit,sensor_length)) {
 			Debug.DrawLine(down_ray_pos,down_ray_hit.point,Color.black);
 			
 			switch (down_ray_hit.transform.tag) {
-				
-				case Constants.Tag_Node_Continuation:
-					
-					break;
 				
 				case Constants.Tag_Node_Intersection:
 				
@@ -238,7 +260,79 @@ public class VehicleController : MonoBehaviour {
 					}
 					break;
 			} // End switch (down_ray_hit.transform.name)
-		}
+		} // End Down ray check
+		
+		// Left 2 ray check
+		if (Physics.Raycast(left_ray_pos,left2_ray_dir, out left2_ray_hit,sensor_length)) {
+			Debug.DrawLine(left_ray_pos,left2_ray_hit.point,Color.Lerp(Color.red,Color.white,0.5f));
+			
+			switch (left2_ray_hit.transform.name) {
+				
+				case Constants.Line_Name_Hard_Shoulder:
+					Turn (TurnSide.Right, big_turn);
+					break;
+					
+				case Constants.Line_Name_Normal_Lane:
+					
+					if (transport_type == TransportType.Public) {
+						Turn (TurnSide.Right, big_turn);
+					}
+					else {
+						Turn (TurnSide.Right, big_turn);
+					}
+					break;
+					
+				case Constants.Line_Name_Center:
+					Turn (TurnSide.Right, big_turn);
+					break;
+					
+				case Constants.Line_Name_Public_Transport_Lane:
+					
+					if (transport_type == TransportType.Public) {
+						Turn (TurnSide.Right, big_turn);
+					}
+					else {
+						Turn (TurnSide.Left, big_turn);
+					}
+					break;
+			} // End switch (left_ray_hit.transform.name)
+		} // End Left 2 ray check
+		
+		// Right 2 ray check
+		if (Physics.Raycast(right_ray_pos,right2_ray_dir, out right2_ray_hit,sensor_length)) {
+			Debug.DrawLine(right_ray_pos,right2_ray_hit.point,Color.Lerp(Color.green,Color.white,0.5f));
+			
+			switch (right2_ray_hit.transform.name) {
+				
+			case Constants.Line_Name_Hard_Shoulder:
+				Turn (TurnSide.Left, big_turn);
+				break;
+				
+			case Constants.Line_Name_Normal_Lane:
+				
+				if (transport_type == TransportType.Public) {
+					Turn (TurnSide.Right, big_turn);
+				}
+				else {
+					Turn (TurnSide.Left, big_turn);
+				}
+				break;
+				
+			case Constants.Line_Name_Public_Transport_Lane:
+				
+				if (transport_type == TransportType.Public) {
+					Turn (TurnSide.Right, big_turn);
+				}
+				else {
+					Turn (TurnSide.Left, big_turn);
+				}
+				break;
+				
+			case Constants.Line_Name_Center:
+				Turn (TurnSide.Right, big_turn);
+				break;
+			} // End switch (right2_ray_hit.transform.name)
+		} // End Right 2 ray check
 
 		// Increase speed
 		if (this.current_speed < max_speed) {
