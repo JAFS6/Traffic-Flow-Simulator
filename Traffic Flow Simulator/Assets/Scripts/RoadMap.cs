@@ -1078,6 +1078,8 @@ public static class RoadMap {
 			pos_aux.z += Constants.discontinuous_line_length * 2;
 		}
 		discontinuous_line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
+		discontinuous_line.AddComponent<BoxCollider>();
+		discontinuous_line.GetComponent<BoxCollider>().size = new Vector3(width, height, length);
 	}
 
 	/**
