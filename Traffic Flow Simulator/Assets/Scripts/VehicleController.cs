@@ -247,10 +247,7 @@ public class VehicleController : MonoBehaviour {
 						// Obtener lista de los arcos de salida
 						List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
 						
-						if (exits_edges.Count <= 0) {
-							Debug.LogError("Error: No exit path found. Vehicle type: "+this.vehicle_type.ToString()+".");
-						}
-						else {
+						if (exits_edges.Count > 0) {
 							// Actualizar posicion actual
 							current_location = down_ray_hit.transform.name;
 							// Elegir arco aleatoriamente
@@ -261,6 +258,9 @@ public class VehicleController : MonoBehaviour {
 							this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
 							                                                              this.transform.position.y,
 							                                                              entry_point.y - this.transform.position.z));
+                    	}
+                    	else {
+							Debug.LogError("Error: No exit path found. Vehicle type: "+this.vehicle_type.ToString()+".");
                     	}
 					}
 					break;
@@ -279,7 +279,7 @@ public class VehicleController : MonoBehaviour {
 		} // End Down ray check
 		
 		// Left 2 ray check
-		if (Physics.Raycast(left_ray_pos,left2_ray_dir, out left2_ray_hit,sensor_length)) {
+		if (Physics.Raycast(left_ray_pos,left2_ray_dir,out left2_ray_hit,sensor_length,roads_layer_mask)) {
 			Debug.DrawLine(left_ray_pos,left2_ray_hit.point,Color.Lerp(Color.red,Color.white,0.5f));
 			
 			switch (left2_ray_hit.transform.name) {
@@ -315,7 +315,7 @@ public class VehicleController : MonoBehaviour {
 		} // End Left 2 ray check
 		
 		// Right 2 ray check
-		if (Physics.Raycast(right_ray_pos,right2_ray_dir, out right2_ray_hit,sensor_length)) {
+		if (Physics.Raycast(right_ray_pos,right2_ray_dir,out right2_ray_hit,sensor_length,roads_layer_mask)) {
 			Debug.DrawLine(right_ray_pos,right2_ray_hit.point,Color.Lerp(Color.green,Color.white,0.5f));
 			
 			switch (right2_ray_hit.transform.name) {
