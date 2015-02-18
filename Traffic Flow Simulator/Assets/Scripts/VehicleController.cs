@@ -53,6 +53,9 @@ public class VehicleController : MonoBehaviour {
 	private RaycastHit right_ray_hit;
 	private RaycastHit down_ray_hit;
 	
+	private int roads_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Roads);
+	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
+	
 	// Rayos para los giros mas pronunciados
 	
 	// Su posicion sera la misma que la de los rayos izquierdo y derecho, comparten origen
@@ -123,17 +126,22 @@ public class VehicleController : MonoBehaviour {
 		right2_ray_dir = Vector3.Normalize (right2_ray_dir +  this.transform.right/left_right2_rays_dir_forward_divisor);
 
 		// Front ray check
-		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length)) {
+		// Vehicles layer
+		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,vehicles_layer_mask)) {
+			Debug.DrawLine(front_ray_pos,front_ray_hit.point,Color.white);
+			
+			if (front_ray_hit.transform.tag == Constants.Tag_Vehicle) {
+				current_speed = 0f;
+			}
+		}
+		// Roads layer
+		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,roads_layer_mask)) {
 			Debug.DrawLine(front_ray_pos,front_ray_hit.point,Color.white);
 			
 			switch (front_ray_hit.transform.tag) {
 			
 				case Constants.Tag_Node_Limit:
 					Destroy(this.gameObject);
-					break;
-					
-				case Constants.Tag_Vehicle:
-					current_speed = 0f;
 					break;
 					
 				case Constants.Tag_Node_Intersection:
@@ -155,7 +163,7 @@ public class VehicleController : MonoBehaviour {
 		} // End Front ray check
 		
 		// Left ray check
-		if (Physics.Raycast(left_ray_pos,left_ray_dir, out left_ray_hit,sensor_length)) {
+		if (Physics.Raycast(left_ray_pos,left_ray_dir,out left_ray_hit,sensor_length,roads_layer_mask)) {
 			Debug.DrawLine(left_ray_pos,left_ray_hit.point,Color.red);
 			
 			switch (left_ray_hit.transform.name) {
@@ -191,7 +199,7 @@ public class VehicleController : MonoBehaviour {
 		} // End Left ray check
 		
 		// Right ray check
-		if (Physics.Raycast(right_ray_pos,right_ray_dir, out right_ray_hit,sensor_length)) {
+		if (Physics.Raycast(right_ray_pos,right_ray_dir,out right_ray_hit,sensor_length,roads_layer_mask)) {
 			Debug.DrawLine(right_ray_pos,right_ray_hit.point,Color.green);
 
 			switch (right_ray_hit.transform.name) {
@@ -227,7 +235,7 @@ public class VehicleController : MonoBehaviour {
 		} // End Right ray check
 		
 		// Down ray check
-		if (Physics.Raycast(down_ray_pos,down_ray_dir, out down_ray_hit,sensor_length)) {
+		if (Physics.Raycast(down_ray_pos,down_ray_dir, out down_ray_hit,sensor_length,roads_layer_mask)) {
 			Debug.DrawLine(down_ray_pos,down_ray_hit.point,Color.black);
 			
 			switch (down_ray_hit.transform.tag) {
@@ -240,8 +248,7 @@ public class VehicleController : MonoBehaviour {
 						List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
 						
 						if (exits_edges.Count <= 0) {
-							Debug.LogError("Error: No exit path found.");
-							Debug.Log("No exit path found.");
+							Debug.LogError("Error: No exit path found. Vehicle type: "+this.vehicle_type.ToString()+".");
 						}
 						else {
 							// Actualizar posicion actual
