@@ -78,6 +78,10 @@ public static class Constants : object {
 	public const string Tag_Vehicle = "Vehicle";
 	public const string Tag_Ground = "Ground";
 	
+	// Layers
+	public const string Layer_Roads = "Roads";
+	public const string Layer_Vehicles = "Vehicles";
+	
 	// Data strings
 	public const string String_No_Lane = "0";
 	public const string String_Normal_Lane = "N";

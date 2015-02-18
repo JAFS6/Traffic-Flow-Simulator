@@ -430,28 +430,38 @@ public static class RoadMap {
 		List<string> exits = new List<string>();
 		exits.Clear();
 		
-		List<string> edge_keys = new List<string> (edges.Keys);
-		
-		foreach (string edge_id in edge_keys) {
+		if (nodes.ContainsKey(node_id) && edges.ContainsKey(entry_edge_id)) {
+			List<string> edge_keys = new List<string> (edges.Keys);
 			
-			if (edge_id != entry_edge_id) { // El arco no es el arco por el que ha entrado
+			foreach (string edge_id in edge_keys) {
 				
-				if (node_id == edges[edge_id].source_id && edges[edge_id].src_des != Constants.String_No_Lane) { // Hay algun carril de salida
+				if (edge_id != entry_edge_id) { // El arco no es el arco por el que ha entrado
 					
-					if ((tt == TransportType.Public && edges[edge_id].src_des.Contains(Constants.String_Public_Lane)) || 
-						(tt == TransportType.Private && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane))) { // Hay al menos un carril que se corresponde con el tipo de vehiculo
+					if (node_id == edges[edge_id].source_id && edges[edge_id].src_des != Constants.String_No_Lane) { // Hay algun carril de salida
 						
-						exits.Add(edge_id);
+						if ((tt == TransportType.Public && edges[edge_id].src_des.Contains(Constants.String_Public_Lane)) || 
+							(tt == TransportType.Private && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane))) { // Hay al menos un carril que se corresponde con el tipo de vehiculo
+							
+							exits.Add(edge_id);
+						}
+					}
+					else if (node_id == edges[edge_id].destination_id && edges[edge_id].des_src != Constants.String_No_Lane) { // Hay algun carril de salida
+						
+						if ((tt == TransportType.Public && edges[edge_id].des_src.Contains(Constants.String_Public_Lane)) || 
+						    (tt == TransportType.Private && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane))) { // Hay al menos un carril que se corresponde con el tipo de vehiculo
+							
+							exits.Add(edge_id);
+						}
 					}
 				}
-				else if (node_id == edges[edge_id].destination_id && edges[edge_id].des_src != Constants.String_No_Lane) { // Hay algun carril de salida
-					
-					if ((tt == TransportType.Public && edges[edge_id].des_src.Contains(Constants.String_Public_Lane)) || 
-					    (tt == TransportType.Private && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane))) { // Hay al menos un carril que se corresponde con el tipo de vehiculo
-						
-						exits.Add(edge_id);
-					}
-				}
+			}
+		}
+		else {
+			if (!nodes.ContainsKey(node_id)) {
+				Debug.LogError("exitPaths error: Node "+node_id+" don't exists.");
+			}
+			if (!edges.ContainsKey(entry_edge_id)) {
+				Debug.LogError("exitPaths error: Edge "+entry_edge_id+" don't exists.");
 			}
 		}
 		
@@ -617,6 +627,8 @@ public static class RoadMap {
 			Vector2 dir = new Vector2 (0,1);
 			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir,e.direction),Vector3.up);
 			aux_road.transform.position = pos;
+			// Poner el nodo en el layer de las carreteras
+			MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
 		else if (n.node_type == NodeType.Continuation) {  // DRAW CONTINUATION NODE
 			GameObject aux_road = new GameObject();
@@ -640,6 +652,8 @@ public static class RoadMap {
 			float rotation_degrees = MyMathClass.RotationAngle(new Vector2(0,-1),edge_direction);
 			aux_road.transform.rotation = Quaternion.AngleAxis (rotation_degrees, new Vector3(0,1,0));
 			aux_road.transform.position = pos;
+			// Poner el nodo en el layer de las carreteras
+			MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
 		else if (n.node_type == NodeType.Intersection) {  // DRAW INTERSECTION NODE
 		
@@ -651,7 +665,7 @@ public static class RoadMap {
 			else {
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
 				aux_road.transform.localScale = new Vector3(edges[n.widest_edge_id].width,Constants.road_thickness,edges[n.widest_edge_id].width);
-
+				
 				if (n.node_type == NodeType.Intersection) {
 					aux_road.name = node_id;
 					aux_road.tag = Constants.Tag_Node_Intersection;
@@ -660,12 +674,14 @@ public static class RoadMap {
 					aux_road.name = node_id;
 					aux_road.tag = Constants.Tag_Unknown;
 				}
+				// Poner el nodo en el layer de las carreteras
+				MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 			}
 		}
 		else {
 			Debug.Log("Trying to draw invalid node type");
 		}
-	}
+	} // End drawNode
 
 	/**
 	 * @brief Devuelve el ancho de los arcos que llegan el nodo continuacion pasado como argumento (ambos tienen el mismo ancho)
@@ -739,7 +755,7 @@ public static class RoadMap {
 	 */
 	private static void drawEdge (string edge_id) {
 		Edge e = edges[edge_id];
-
+		
 		// Plataforma
 		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		platform.name = edge_id;
@@ -748,7 +764,7 @@ public static class RoadMap {
 		platform.renderer.material.color = Color.gray;
 		platform.renderer.material = asphalt_material;
 		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
-
+		
 		Vector3 position;
 
 		// Marcas viales
@@ -842,7 +858,9 @@ public static class RoadMap {
 
 		platform.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir_pref,e.direction),Vector3.up);
 		platform.transform.position = e.fixed_position;
-	}
+		// Poner el arco en el layer de las carreteras
+		MyUtilitiesClass.MoveToLayer(platform.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+	} // End drawEdge
 	
 	/**
 	 * @brief Establece un objeto LaneStart en la posicion indicada
