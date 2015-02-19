@@ -3,35 +3,35 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
 http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-	<key id="tipo_nodo" for="node" attr.name="Tipo_de_nodo" attr.type="int">
+	<key id="node_type" for="node" attr.name="Node_type" attr.type="int">
 		<default>1</default>
 	</key>
-	<key id="pos_x" for="node" attr.name="Coordenada_X" attr.type="double"/>
-	<key id="pos_y" for="node" attr.name="Coordenada_Y" attr.type="double"/>
-	<key id="tipo_cruce" for="node" attr.name="Tipo_de_cruce" attr.type="int">
+	<key id="pos_x" for="node" attr.name="Coordinate_X" attr.type="double"/>
+	<key id="pos_y" for="node" attr.name="Coordinate_Y" attr.type="double"/>
+	<key id="crossing_type" for="node" attr.name="Crossing_type" attr.type="int">
 		<default>0</default>
 	</key>
-	<key id="nombre_via" for="edge" attr.name="Nombre_de_la_via" attr.type="string">
+	<key id="road_name" for="edge" attr.name="Road_name" attr.type="string">
 		<default></default>
 	</key>
-	<key id="ori_des" for="edge" attr.name="Vias_sentido_origen_destino" attr.type="string">
+	<key id="src_des" for="edge" attr.name="Lanes_on_source-destination_sense" attr.type="string">
 		<default>PNN</default>
 	</key>
-	<key id="des_ori" for="edge" attr.name="Vias_sentido_destino_origen" attr.type="string">
+	<key id="des_src" for="edge" attr.name="Lanes_on_destination-source_sense" attr.type="string">
 		<default>N</default>
 	</key>
-	<graph id="example_1" edgedefault="undirected">
+	<graph id="example_4" edgedefault="undirected">
 		<node id="n0">
 			<data key="pos_x">2168</data>
 			<data key="pos_y">581</data>
 		</node>
 		<node id="n1">
-			<data key="tipo_nodo">2</data>
+			<data key="node_type">2</data>
 			<data key="pos_x">2068</data>
 			<data key="pos_y">481</data>
 		</node>
 		<node id="n2">
-			<data key="tipo_nodo">0</data>
+			<data key="node_type">0</data>
 			<data key="pos_x">2168</data>
 			<data key="pos_y">481</data>
 		</node>
@@ -40,17 +40,17 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 			<data key="pos_y">481</data>
 		</node>
 		<node id="n4">
-			<data key="tipo_nodo">2</data>
+			<data key="node_type">2</data>
 			<data key="pos_x">1968</data>
 			<data key="pos_y">381</data>
 		</node>
 		<node id="n5">
-			<data key="tipo_nodo">0</data>
+			<data key="node_type">0</data>
 			<data key="pos_x">2068</data>
 			<data key="pos_y">381</data>
 		</node>
 		<node id="n6">
-			<data key="tipo_nodo">0</data>
+			<data key="node_type">0</data>
 			<data key="pos_x">2168</data>
 			<data key="pos_y">381</data>
 		</node>
@@ -71,38 +71,38 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 			<data key="pos_y">481</data>
 		</node>
 		<edge id="a0" source="n0" target="n2">
-			<data key="ori_des">PN</data>
+			<data key="src_des">PN</data>
 		</edge>
 		<edge id="a1" source="n1" target="n2">
-			<data key="ori_des">N</data>
+			<data key="src_des">N</data>
 		</edge>
 		<edge id="a2" source="n2" target="n3">
-			<data key="ori_des">0</data>
-			<data key="des_ori">NN</data>
+			<data key="src_des">0</data>
+			<data key="des_src">NN</data>
 		</edge>
 		<edge id="a3" source="n1" target="n5">
-			<data key="ori_des">N</data>
+			<data key="src_des">N</data>
 		</edge>
 		<edge id="a4" source="n2" target="n6">
-			<data key="ori_des">PN</data>
+			<data key="src_des">PN</data>
 		</edge>
 		<edge id="a5" source="n4" target="n5">
-			<data key="des_ori">PNN</data>
+			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a6" source="n5" target="n6">
-			<data key="des_ori">PNN</data>
+			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a7" source="n6" target="n7">
-			<data key="des_ori">PNN</data>
+			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a8" source="n5" target="n8">
-			<data key="ori_des">N</data>
+			<data key="src_des">N</data>
 		</edge>
 		<edge id="a9" source="n6" target="n9">
-			<data key="ori_des">PN</data>
+			<data key="src_des">PN</data>
 		</edge>
 		<edge id="a10" source="n4" target="n10">
-			<data key="des_ori">PNN</data>
+			<data key="des_src">PNN</data>
 		</edge>
 	</graph>
 </graphml>
