@@ -1,6 +1,6 @@
 Traffic Flow Simulator
 ======================
 
-Este proyecto nace del problema actual de tráfico en las grandes ciudades y la necesidad de mejorar el flujo de vehículos en puntos concretos de las zonas urbanas, que es actualmente un problema diario.
-
-Traffic Flow Simulator tiene como objetivo principal ser una herramienta útil que facilite la visualización de la simulación de tráfico en base a un modelo lógico, de forma que permita evaluar de manera clara las diferentes alternativas a situaciones concretas, permitiendo al usuario recrear dichas situaciones mediante la interacción con la herramienta teniendo en cuenta puntos importantes como son la congestión de las vías o los comportamientos de conducción, de forma que se pueda mejorar el flujo de tráfico en las vías urbanas.
+Traffic Flow Simulator is a PC multiplatform application, although only the Windows version will be generated until it is in an advanced stage of development.
+This project was born of the current traffic problem in big cities and the need to improve traffic flow at specific points in urban areas, currently a daily problem.
+Traffic Flow Simulator's main objective is to be a useful tool to facilitate the display of traffic simulation based on a logical model, so clearly to evaluate different alternatives to concrete situations, allowing users to recreate these situations by interaction with the tool considering important issues such as congestion of roads or driving behaviors, so that it can improve the flow of traffic on urban roads.
