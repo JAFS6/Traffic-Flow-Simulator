@@ -3,21 +3,21 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
 http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
-	<key id="tipo_nodo" for="node" attr.name="Tipo_de_nodo" attr.type="int">
+	<key id="node_type" for="node" attr.name="Node_type" attr.type="int">
 		<default>1</default>
 	</key>
-	<key id="pos_x" for="node" attr.name="Coordenada_X" attr.type="double"/>
-	<key id="pos_y" for="node" attr.name="Coordenada_Y" attr.type="double"/>
-	<key id="tipo_cruce" for="node" attr.name="Tipo_de_cruce" attr.type="int">
+	<key id="pos_x" for="node" attr.name="Coordinate_X" attr.type="double"/>
+	<key id="pos_y" for="node" attr.name="Coordinate_Y" attr.type="double"/>
+	<key id="crossing_type" for="node" attr.name="Crossing_type" attr.type="int">
 		<default>0</default>
 	</key>
-	<key id="nombre_via" for="edge" attr.name="Nombre_de_la_via" attr.type="string">
+	<key id="road_name" for="edge" attr.name="Road_name" attr.type="string">
 		<default></default>
 	</key>
-	<key id="ori_des" for="edge" attr.name="Vias_sentido_origen_destino" attr.type="string">
+	<key id="src_des" for="edge" attr.name="Lanes_on_source-destination_sense" attr.type="string">
 		<default>0</default>
 	</key>
-	<key id="des_ori" for="edge" attr.name="Vias_sentido_destino_origen" attr.type="string">
+	<key id="des_src" for="edge" attr.name="Lanes_on_destination-source_sense" attr.type="string">
 		<default>0</default>
 	</key>
 	<graph id="Manhattan" edgedefault="undirected">
@@ -34,12 +34,12 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 			<data key="pos_y">30</data>
 		</node>
 		<node id="n3">
-			<data key="tipo_nodo">0</data>
+			<data key="node_type">0</data>
 			<data key="pos_x">20</data>
 			<data key="pos_y">30</data>
 		</node>
 		<node id="n4">
-			<data key="tipo_nodo">0</data>
+			<data key="node_type">0</data>
 			<data key="pos_x">120</data>
 			<data key="pos_y">30</data>
 		</node>
@@ -52,12 +52,12 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 			<data key="pos_y">90</data>
 		</node>
 		<node id="n7">
-			<data key="tipo_nodo">0</data>
+			<data key="node_type">0</data>
 			<data key="pos_x">20</data>
 			<data key="pos_y">90</data>
 		</node>
 		<node id="n8">
-			<data key="tipo_nodo">0</data>
+			<data key="node_type">0</data>
 			<data key="pos_x">120</data>
 			<data key="pos_y">90</data>
 		</node>
@@ -74,52 +74,52 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 			<data key="pos_y">115</data>
 		</node>
 		<edge id="e0" source="n3" target="n0">
-			<data key="ori_des">PNN</data>
-			<data key="nombre_via">Broadway</data>
+			<data key="src_des">PNN</data>
+			<data key="road_name">Broadway</data>
 		</edge>
 		<edge id="e1" source="n1" target="n4">
-			<data key="ori_des">NN</data>
-			<data key="nombre_via">Lafayette St</data>
+			<data key="src_des">NN</data>
+			<data key="road_name">Lafayette St</data>
 		</edge>
 		<edge id="e2" source="n3" target="n2">
-			<data key="ori_des">N</data>
-			<data key="nombre_via">Great Jones St</data>
+			<data key="src_des">N</data>
+			<data key="road_name">Great Jones St</data>
 		</edge>
 		<edge id="e3" source="n4" target="n3">
-			<data key="ori_des">N</data>
-			<data key="nombre_via">Great Jones St</data>
+			<data key="src_des">N</data>
+			<data key="road_name">Great Jones St</data>
 		</edge>
 		<edge id="e4" source="n5" target="n4">
-			<data key="ori_des">N</data>
-			<data key="nombre_via">Great Jones St</data>
+			<data key="src_des">N</data>
+			<data key="road_name">Great Jones St</data>
 		</edge>
 		<edge id="e5" source="n7" target="n3">
-			<data key="ori_des">PNN</data>
-			<data key="nombre_via">Broadway</data>
+			<data key="src_des">PNN</data>
+			<data key="road_name">Broadway</data>
 		</edge>
 		<edge id="e6" source="n4" target="n8">
-			<data key="ori_des">NN</data>
-			<data key="nombre_via">Lafayette St</data>
+			<data key="src_des">NN</data>
+			<data key="road_name">Lafayette St</data>
 		</edge>
 		<edge id="e7" source="n6" target="n7">
-			<data key="ori_des">N</data>
-			<data key="nombre_via">E 4th St</data>
+			<data key="src_des">N</data>
+			<data key="road_name">E 4th St</data>
 		</edge>
 		<edge id="e8" source="n7" target="n8">
-			<data key="ori_des">N</data>
-			<data key="nombre_via">E 4th St</data>
+			<data key="src_des">N</data>
+			<data key="road_name">E 4th St</data>
 		</edge>
 		<edge id="e9" source="n8" target="n9">
-			<data key="ori_des">N</data>
-			<data key="nombre_via">E 4th St</data>
+			<data key="src_des">N</data>
+			<data key="road_name">E 4th St</data>
 		</edge>
 		<edge id="e10" source="n10" target="n7">
-			<data key="ori_des">PNN</data>
-			<data key="nombre_via">Broadway</data>
+			<data key="src_des">PNN</data>
+			<data key="road_name">Broadway</data>
 		</edge>
 		<edge id="e11" source="n8" target="n11">
-			<data key="ori_des">NN</data>
-			<data key="nombre_via">Lafayette St</data>
+			<data key="src_des">NN</data>
+			<data key="road_name">Lafayette St</data>
 		</edge>
 	</graph>
 </graphml>
