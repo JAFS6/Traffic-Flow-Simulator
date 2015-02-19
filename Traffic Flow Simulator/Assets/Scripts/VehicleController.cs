@@ -56,42 +56,53 @@ public class VehicleController : MonoBehaviour {
 	private int roads_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Roads);
 	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
 	
+	// Multiplicadores de posicion
+	private float front_ray_pos_forward_multiplier = 2f; // Multiplicador del vector forward para la posicion del rayo frontal
+	private float left_right_rays_pos_forward_multiplier = 2f; // Multiplicador del vector forward para la posicion de los rayos laterales
+	private float left_right_rays_pos_right_multiplier = 0.8f; // Multiplicador del vector right para la posicion de los rayos laterales
+	private float left_right_rays_dir_forward_multiplier = 2f; // Multiplicador del vector forward para la direccion de los rayos izquierdo y derecho
+	private float left_right_rays_dir_forward_divisor = 2f; // Divisor del vector forward para la direccion de los rayos izquierdo y derecho
+	
+	// Variables para el giro basico
+	public float small_turn = 0.5f;
+	public float big_turn = 7f;
+	
 	void Update () {
 		Debug.DrawLine(this.transform.position,this.transform.position + this.transform.forward * 6,Color.magenta);
 		
 		// Raycasting
 		// Front ray
-		Vector3 front_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * 2),
+		Vector3 front_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * front_ray_pos_forward_multiplier),
 											 this.transform.position.y + front_sensor_y,
-											 this.transform.position.z + (this.transform.forward.z * 2));
+		                                     this.transform.position.z + (this.transform.forward.z * front_ray_pos_forward_multiplier));
 		Vector3 front_ray_dir = new Vector3 ();
 		front_ray_dir = Vector3.Normalize ((this.transform.forward * 5) - this.transform.up);
 		
 		// Left ray
-		Vector3 left_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * 2),
+		Vector3 left_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * left_right_rays_pos_forward_multiplier),
 											this.transform.position.y + front_sensor_y,
-											this.transform.position.z + (this.transform.forward.z * 2));
-		left_ray_pos = left_ray_pos - this.transform.right * 0.8f;
+		                                    this.transform.position.z + (this.transform.forward.z * left_right_rays_pos_forward_multiplier));
+		left_ray_pos = left_ray_pos - this.transform.right * left_right_rays_pos_right_multiplier;
 		Vector3 left_ray_dir = new Vector3 ();
-		left_ray_dir = Vector3.Normalize ((this.transform.forward * 2) - this.transform.up);
-		left_ray_dir = Vector3.Normalize (left_ray_dir - this.transform.right/2);
+		left_ray_dir = Vector3.Normalize ((this.transform.forward * left_right_rays_dir_forward_multiplier) - this.transform.up);
+		left_ray_dir = Vector3.Normalize (left_ray_dir - this.transform.right/left_right_rays_dir_forward_divisor);
 		
 		// Right ray
-		Vector3 right_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * 2),
+		Vector3 right_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * left_right_rays_pos_forward_multiplier),
 											 this.transform.position.y + front_sensor_y,
-											 this.transform.position.z + (this.transform.forward.z * 2));
-		right_ray_pos = right_ray_pos + this.transform.right * 0.8f;
+		                                     this.transform.position.z + (this.transform.forward.z * left_right_rays_pos_forward_multiplier));
+		right_ray_pos = right_ray_pos + this.transform.right * left_right_rays_pos_right_multiplier;
 		Vector3 right_ray_dir = new Vector3 ();
-		right_ray_dir = Vector3.Normalize ((this.transform.forward * 2) - this.transform.up);
-		right_ray_dir = Vector3.Normalize (right_ray_dir +  this.transform.right/2);
+		right_ray_dir = Vector3.Normalize ((this.transform.forward * left_right_rays_dir_forward_multiplier) - this.transform.up);
+		right_ray_dir = Vector3.Normalize (right_ray_dir +  this.transform.right/left_right_rays_dir_forward_divisor);
 		
 		// Down ray
 		Vector3 down_ray_pos = new Vector3 (this.transform.position.x,
-		                                     this.transform.position.y + 1f,
-		                                     this.transform.position.z);
+		                                    this.transform.position.y + 1f,
+		                                    this.transform.position.z);
 		Vector3 down_ray_dir = new Vector3 ();
 		down_ray_dir = Vector3.Normalize (- this.transform.up);
-
+		
 		// Front ray check
 		// Vehicles layer
 		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,vehicles_layer_mask)) {
@@ -126,43 +137,45 @@ public class VehicleController : MonoBehaviour {
 						intersection_detected = false;
 					}
 					break;
-			}
-		}
+			} // End switch (front_ray_hit.transform.tag)
+		} // End Front ray check
+		
 		// Left ray check
 		if (Physics.Raycast(left_ray_pos,left_ray_dir,out left_ray_hit,sensor_length,roads_layer_mask)) {
 			Debug.DrawLine(left_ray_pos,left_ray_hit.point,Color.red);
-
+			
 			switch (left_ray_hit.transform.name) {
 
 				case Constants.Line_Name_Hard_Shoulder:
-					Turn (TurnSide.Right, 1f);
+					Turn (TurnSide.Right, small_turn);
 					break;
 
 				case Constants.Line_Name_Normal_Lane:
 					
 					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					else {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					break;
 
 				case Constants.Line_Name_Center:
-					Turn (TurnSide.Right, 1f);
+					Turn (TurnSide.Right, small_turn);
 					break;
 
 				case Constants.Line_Name_Public_Transport_Lane:
 					
 					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					else {
-						Turn (TurnSide.Left, 1f);
+						Turn (TurnSide.Left, small_turn);
 					}
 					break;
 			} // End switch (left_ray_hit.transform.name)
-		}
+		} // End Left ray check
+		
 		// Right ray check
 		if (Physics.Raycast(right_ray_pos,right_ray_dir,out right_ray_hit,sensor_length,roads_layer_mask)) {
 			Debug.DrawLine(right_ray_pos,right_ray_hit.point,Color.green);
@@ -170,41 +183,41 @@ public class VehicleController : MonoBehaviour {
 			switch (right_ray_hit.transform.name) {
 				
 				case Constants.Line_Name_Hard_Shoulder:
-					Turn (TurnSide.Left, 1f);
+					Turn (TurnSide.Left, small_turn);
 					break;
 					
 				case Constants.Line_Name_Normal_Lane:
 					
 					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					else {
-						Turn (TurnSide.Left, 1f);
+						Turn (TurnSide.Left, small_turn);
 					}
 					break;
 					
 				case Constants.Line_Name_Public_Transport_Lane:
 					
 					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, 1f);
+						Turn (TurnSide.Right, small_turn);
 					}
 					else {
-						Turn (TurnSide.Left, 1f);
+						Turn (TurnSide.Left, small_turn);
 					}
 					break;
 				
 				case Constants.Line_Name_Center:
-					Turn (TurnSide.Right, 1f);
+					Turn (TurnSide.Right, small_turn);
 					break;
 			} // End switch (right_ray_hit.transform.name)
-		}
+		} // End Right ray check
 		
 		// Down ray check
 		if (Physics.Raycast(down_ray_pos,down_ray_dir, out down_ray_hit,sensor_length,roads_layer_mask)) {
 			Debug.DrawLine(down_ray_pos,down_ray_hit.point,Color.black);
 			
 			switch (down_ray_hit.transform.tag) {
-			
+				
 				case Constants.Tag_Node_Intersection:
 				
 					if (intersection_detected && !on_intersection) {
@@ -212,10 +225,7 @@ public class VehicleController : MonoBehaviour {
 						// Obtener lista de los arcos de salida
 						List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
 						
-						if (exits_edges.Count <= 0) {
-							Debug.LogError("Error: No exit path found. Vehicle type: "+this.vehicle_type.ToString()+".");
-						}
-						else {
+						if (exits_edges.Count > 0) {
 							// Actualizar posicion actual
 							current_location = down_ray_hit.transform.name;
 							// Elegir arco aleatoriamente
@@ -227,6 +237,9 @@ public class VehicleController : MonoBehaviour {
 							                                                              this.transform.position.y,
 							                                                              entry_point.y - this.transform.position.z));
                     	}
+                    	else {
+							Debug.LogError("Error: No exit path found. Vehicle type: "+this.vehicle_type.ToString()+".");
+                    	}
 					}
 					break;
 				
@@ -235,13 +248,13 @@ public class VehicleController : MonoBehaviour {
 					if (edge_detected && on_intersection) { // Si estaba sobre una interseccion y acaba de llegar al arco
 						on_intersection = false;
 						current_location = down_ray_hit.transform.name;
-						// TODO Girar el vehiculo para ponerlo en la linea del arco
+						// Girar el vehiculo para ponerlo en la linea del arco
 						Vector2 edge_dir = RoadMap.getEdgeDirection(current_location, entry_orientation);
 						this.transform.rotation = Quaternion.LookRotation(new Vector3(edge_dir.x, this.transform.position.y, edge_dir.y));
 					}
 					break;
 			} // End switch (down_ray_hit.transform.name)
-		}
+		} // End Down ray check
 
 		// Increase speed
 		if (this.current_speed < max_speed) {

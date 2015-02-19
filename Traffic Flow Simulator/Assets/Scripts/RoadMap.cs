@@ -225,7 +225,7 @@ public static class RoadMap {
 	
 	/**
 	 * @brief Obtiene la direccion del arco con identificador edge_id en el plano XZ
-	 * @param[in] edge_id El identificador del nodo
+	 * @param[in] edge_id El identificador del arco
 	 * @param[in] d Indicador de direccion fuente-destino o destino-fuente
 	 * @return Un Vector2 con la direccion del arco en el plano XZ
 	 * @post Si el identificador no existe se devolvera un vector (0,0)
@@ -244,6 +244,44 @@ public static class RoadMap {
 		}
 		
 		return pos;
+	}
+	
+	/**
+	 * @brief Devuelve los ids de los nodos origen y destino del arco pasado como argumento
+	 * @param[in] edge_id El identificador del arco
+	 * @param[out] src_id El identificador del nodo origen del arco
+	 * @param[out] dst_id El identificador del nodo destino del arco
+	 * @post Al finalizar la ejecucion del metodo, los parametros src_id y dst_id tendran los identificadores
+	 * buscados o la cadena Constants.String_Unknown si el arco no existe
+	 */
+	public static void getEdgeNodeLimits (string edge_id, out string src_id, out string dst_id) {
+		src_id = Constants.String_Unknown;
+		dst_id = Constants.String_Unknown;
+		
+		if (edges.ContainsKey (edge_id)) {
+			src_id = edges[edge_id].source_id;
+			dst_id = edges[edge_id].destination_id;
+		}
+	}
+	
+	/**
+	 * @brief Devuelve las posiciones de cada extremo del arco pasado como argumento
+	 * @param[in] edge_id El identificador del arco
+	 * @param[out] src_pos La posicion del extremo fuente del arco
+	 * @param[out] dst_pos La posicion del extremo destino del arco
+	 * @post Al finalizar la ejecucion del metodo, los parametros src_pos y dst_pos tendran las posiciones
+	 * buscadas o (0,0) si el arco no existe
+	 */
+	public static void getEdgeLimitsPositions (string edge_id, out Vector2 src_pos, out Vector2 dst_pos) {
+		src_pos = new Vector2(0,0);
+		dst_pos = new Vector2(0,0);
+		
+		if (edges.ContainsKey (edge_id)) {
+			Vector2 aux = new Vector2(0,0);
+			aux = edges[edge_id].direction * (edges[edge_id].length / 2);
+			src_pos = (Vector2) edges[edge_id].fixed_position - aux;
+			dst_pos = (Vector2) edges[edge_id].fixed_position + aux;
+		}
 	}
 	
 	/**
@@ -271,29 +309,32 @@ public static class RoadMap {
 	 * @param[in] node_id Identificador del nodo continuacion
 	 * @param[out] edge1 Identificador de uno de los arcos que llega al nodo pasado como argumento
 	 * @param[out] edge2 Identificador de otro de los arcos que llega al nodo pasado como argumento
-	 * @post El finalizar la ejecucion del metodo, los parametros edge1 y edge2 tendran los identificadores
-	 * buscados o la cadena Constants.String_Unknown si el nodo no es de tipo continuacion
+	 * @post Al finalizar la ejecucion del metodo, los parametros edge1 y edge2 tendran los identificadores
+	 * buscados o la cadena Constants.String_Unknown si el nodo no es de tipo continuacion o no existe
 	 */
 	public static void getContinuationEdges (string node_id, out string edge1, out string edge2) {
 		
 		edge1 = Constants.String_Unknown;
 		edge2 = Constants.String_Unknown;
 		
-		if (nodes[node_id].node_type == NodeType.Continuation) {
+		if (nodes.ContainsKey (node_id)) {
 		
-			bool first_found = false;
+			if (nodes[node_id].node_type == NodeType.Continuation) {
 			
-			foreach (KeyValuePair<string, Edge> edge in edges) {
+				bool first_found = false;
 				
-				if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
-				
-					if (!first_found) {
-						first_found = true;
-						edge1 = edge.Value.id;
-					}
-					else {
-						edge2 = edge.Value.id;
-						break;
+				foreach (KeyValuePair<string, Edge> edge in edges) {
+					
+					if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+					
+						if (!first_found) {
+							first_found = true;
+							edge1 = edge.Value.id;
+						}
+						else {
+							edge2 = edge.Value.id;
+							break;
+						}
 					}
 				}
 			}
@@ -646,7 +687,7 @@ public static class RoadMap {
 				selected_edge = edgeID2;
 			}
 			// Crear el nodo de continuacion
-			CreateContinuationNode(aux_road, edge_width, edge_width, nodeAngle(n.id), selected_edge);
+			CreateContinuationNode(node_id, aux_road, edge_width, edge_width, nodeAngle(n.id), selected_edge);
 			
 			Vector2 edge_direction = edges[selected_edge].direction;
 			float rotation_degrees = MyMathClass.RotationAngle(new Vector2(0,-1),edge_direction);
@@ -1084,12 +1125,14 @@ public static class RoadMap {
 	/**
 	 * @brief Crea una malla para los nodos de tipo continuacion. El algoritmo ha sido obtenido de 
 	 * http://wiki.unity3d.com/index.php/ProceduralPrimitives y adaptado a las necesidades de esta aplicacion
+	 * @param[in] node_id Identificador del nodo que se esta creando
+	 * @param[in] node El GameObject que se esta creando
 	 * @param[in] radius Radio de la circunferencia circunscrita por los arcos
 	 * @param[in] width Ancho de los arcos
 	 * @param[in] angle Angulo menor que forman los arcos [0,360)
 	 * @param[in] ref_edge_id Identificador del arco que se tomara como referencia para dibujar las marcas viales
 	 */
-	private static void CreateContinuationNode (GameObject node, float radius, float edge_width, float angle, string ref_edge_id) {
+	private static void CreateContinuationNode (string node_id, GameObject node, float radius, float edge_width, float angle, string ref_edge_id) {
 		
 		node.AddComponent< BoxCollider >();
 		node.AddComponent< MeshRenderer >();
@@ -1255,7 +1298,7 @@ public static class RoadMap {
 		// Comprobar si el nodo es fuente o destino del arco de referencia
 		bool is_source = true;
 		
-		if (node.name == e.destination_id) {
+		if (node_id == e.destination_id) {
 			is_source = false;
 		}
 		
@@ -1283,7 +1326,7 @@ public static class RoadMap {
 		
 		// Lineas del centro
 		
-		if (nodes[node.name].two_ways) {
+		if (nodes[node_id].two_ways) {
 		
 			int lane_diff = 0; // Mismo numero de carriles en cada sentido
 			
