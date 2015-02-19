@@ -56,22 +56,12 @@ public class VehicleController : MonoBehaviour {
 	private int roads_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Roads);
 	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
 	
-	// Rayos para los giros mas pronunciados
-	
-	// Su posicion sera la misma que la de los rayos izquierdo y derecho, comparten origen
-	private Vector3 left2_ray_dir;
-	private Vector3 right2_ray_dir;
-	private RaycastHit left2_ray_hit;
-	private RaycastHit right2_ray_hit;
-	
 	// Multiplicadores de posicion
 	private float front_ray_pos_forward_multiplier = 2f; // Multiplicador del vector forward para la posicion del rayo frontal
 	private float left_right_rays_pos_forward_multiplier = 2f; // Multiplicador del vector forward para la posicion de los rayos laterales
 	private float left_right_rays_pos_right_multiplier = 0.8f; // Multiplicador del vector right para la posicion de los rayos laterales
 	private float left_right_rays_dir_forward_multiplier = 2f; // Multiplicador del vector forward para la direccion de los rayos izquierdo y derecho
 	private float left_right_rays_dir_forward_divisor = 2f; // Divisor del vector forward para la direccion de los rayos izquierdo y derecho
-	private float left_right2_rays_dir_forward_multiplier = 1.5f; // Multiplicador del vector forward para la direccion de los rayos izquierdo 2 y derecho 2
-	private float left_right2_rays_dir_forward_divisor = 4f; // Divisor del vector forward para la direccion de los rayos izquierdo 2 y derecho 2
 	
 	// Variables para el giro basico
 	public float small_turn = 0.5f;
@@ -113,18 +103,6 @@ public class VehicleController : MonoBehaviour {
 		Vector3 down_ray_dir = new Vector3 ();
 		down_ray_dir = Vector3.Normalize (- this.transform.up);
 		
-		// Rayos para los giros mas pronunciados
-		
-		// Left 2 ray
-		Vector3 left2_ray_dir = new Vector3 ();
-		left2_ray_dir = Vector3.Normalize ((this.transform.forward * left_right2_rays_dir_forward_multiplier) - this.transform.up);
-		left2_ray_dir = Vector3.Normalize (left2_ray_dir - this.transform.right/left_right2_rays_dir_forward_divisor);
-		
-		// Right 2 ray
-		Vector3 right2_ray_dir = new Vector3 ();
-		right2_ray_dir = Vector3.Normalize ((this.transform.forward * left_right2_rays_dir_forward_multiplier) - this.transform.up);
-		right2_ray_dir = Vector3.Normalize (right2_ray_dir +  this.transform.right/left_right2_rays_dir_forward_divisor);
-
 		// Front ray check
 		// Vehicles layer
 		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,vehicles_layer_mask)) {
@@ -277,78 +255,6 @@ public class VehicleController : MonoBehaviour {
 					break;
 			} // End switch (down_ray_hit.transform.name)
 		} // End Down ray check
-		
-		// Left 2 ray check
-		if (Physics.Raycast(left_ray_pos,left2_ray_dir,out left2_ray_hit,sensor_length,roads_layer_mask)) {
-			Debug.DrawLine(left_ray_pos,left2_ray_hit.point,Color.Lerp(Color.red,Color.white,0.5f));
-			
-			switch (left2_ray_hit.transform.name) {
-				
-				case Constants.Line_Name_Hard_Shoulder:
-					Turn (TurnSide.Right, big_turn);
-					break;
-					
-				case Constants.Line_Name_Normal_Lane:
-					
-					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, big_turn);
-					}
-					else {
-						Turn (TurnSide.Right, big_turn);
-					}
-					break;
-					
-				case Constants.Line_Name_Center:
-					Turn (TurnSide.Right, big_turn);
-					break;
-					
-				case Constants.Line_Name_Public_Transport_Lane:
-					
-					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, big_turn);
-					}
-					else {
-						Turn (TurnSide.Left, big_turn);
-					}
-					break;
-			} // End switch (left_ray_hit.transform.name)
-		} // End Left 2 ray check
-		
-		// Right 2 ray check
-		if (Physics.Raycast(right_ray_pos,right2_ray_dir,out right2_ray_hit,sensor_length,roads_layer_mask)) {
-			Debug.DrawLine(right_ray_pos,right2_ray_hit.point,Color.Lerp(Color.green,Color.white,0.5f));
-			
-			switch (right2_ray_hit.transform.name) {
-				
-			case Constants.Line_Name_Hard_Shoulder:
-				Turn (TurnSide.Left, big_turn);
-				break;
-				
-			case Constants.Line_Name_Normal_Lane:
-				
-				if (transport_type == TransportType.Public) {
-					Turn (TurnSide.Right, big_turn);
-				}
-				else {
-					Turn (TurnSide.Left, big_turn);
-				}
-				break;
-				
-			case Constants.Line_Name_Public_Transport_Lane:
-				
-				if (transport_type == TransportType.Public) {
-					Turn (TurnSide.Right, big_turn);
-				}
-				else {
-					Turn (TurnSide.Left, big_turn);
-				}
-				break;
-				
-			case Constants.Line_Name_Center:
-				Turn (TurnSide.Right, big_turn);
-				break;
-			} // End switch (right2_ray_hit.transform.name)
-		} // End Right 2 ray check
 
 		// Increase speed
 		if (this.current_speed < max_speed) {
