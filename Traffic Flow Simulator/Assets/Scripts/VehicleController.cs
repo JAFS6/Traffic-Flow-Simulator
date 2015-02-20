@@ -35,6 +35,7 @@ public class VehicleController : MonoBehaviour {
 	private bool edge_detected = false;			// Indicador de si acaba de encontrarse con un arco
 	private bool on_intersection = false; 		// Indica si se encuentra sobre una interseccion
 	private DirectionType entry_orientation;
+	private bool obstacle_detected = false;
 
 	// Sensores (raycasting)
 	private const float front_sensor_y = 0.5f; // Altura de los sensores frontales
@@ -105,11 +106,14 @@ public class VehicleController : MonoBehaviour {
 		
 		// Front ray check
 		// Vehicles layer
+		this.obstacle_detected = false;
+		
 		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,vehicles_layer_mask)) {
 			Debug.DrawLine(front_ray_pos,front_ray_hit.point,Color.white);
 			
 			if (front_ray_hit.transform.tag == Constants.Tag_Vehicle) {
-				current_speed = 0f;
+				this.current_speed = 0f;
+				this.obstacle_detected = true;
 			}
 		}
 		// Roads layer
@@ -257,8 +261,11 @@ public class VehicleController : MonoBehaviour {
 		} // End Down ray check
 
 		// Increase speed
-		if (this.current_speed < max_speed) {
-			this.current_speed += acceleration;
+		if (!this.obstacle_detected) {
+		
+			if (this.current_speed < max_speed) {
+				this.current_speed += acceleration;
+			}
 		}
 
 		// Movement
