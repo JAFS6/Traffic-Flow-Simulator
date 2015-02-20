@@ -28,7 +28,7 @@ public static class RoadMap {
 	// Materials
 	private static Material black_material;
 	private static Material asphalt_material;
-	private static Material asphalt_white_material;
+	private static Material white_asphalt_material;
 
 	public static void CreateNewMap (string map_name) {
 		map_name = map_name;
@@ -37,7 +37,7 @@ public static class RoadMap {
 		
 		black_material = Resources.Load ("Materials/Simple_Black", typeof(Material)) as Material;
 		asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
-		asphalt_white_material = Resources.Load ("Materials/Asphalt_White", typeof(Material)) as Material;
+		white_asphalt_material = Resources.Load ("Materials/White_asphalt", typeof(Material)) as Material;
 	}
 	
 	/**
@@ -1027,8 +1027,8 @@ public static class RoadMap {
 		line.transform.position = MyMathClass.middlePoint(position1,position2);
 		line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
 		line.renderer.material.color = Color.white;
-		//line3.renderer.material = asphalt_white_material;
-		//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
+		line.renderer.material = white_asphalt_material;
+		line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
 		line.transform.parent = parent.transform;
 	}
 
@@ -1089,8 +1089,8 @@ public static class RoadMap {
 			line.transform.localScale = new Vector3(width, height, Constants.discontinuous_line_length);
 			line.transform.position = pos_aux;
 			line.renderer.material.color = Color.white;
-			//line3.renderer.material = asphalt_white_material;
-			//line3.renderer.material.mainTextureScale = new Vector2(line3.transform.localScale.x,line3.transform.localScale.z);
+			line.renderer.material = white_asphalt_material;
+			line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
 			line.transform.parent = discontinuous_line.transform;
 			
 			pos_aux.z += Constants.discontinuous_line_length * 2;
