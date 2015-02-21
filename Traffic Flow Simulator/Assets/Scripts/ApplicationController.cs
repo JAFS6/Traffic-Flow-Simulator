@@ -142,9 +142,10 @@ public class ApplicationController : MonoBehaviour {
 		GameObject bus_prefab = Resources.Load("Prefabs/Bus", typeof(GameObject)) as GameObject;
 		GameObject truck1_prefab = Resources.Load("Prefabs/Truck1", typeof(GameObject)) as GameObject;
 		GameObject Pontiac_GTO_67_prefab = Resources.Load("Prefabs/Pontiac_GTO_67", typeof(GameObject)) as GameObject;
+		GameObject Taxi_prefab = Resources.Load("Prefabs/Taxi", typeof(GameObject)) as GameObject;
 		Vector2 dir_prefab = new Vector3 (0,1);
 		
-		int num_prefabs = 6;
+		int num_prefabs = 7;
 		GameObject [] prefab = new GameObject[num_prefabs];
 		prefab[0] = Chevrolet_Camaro_prefab;
 		prefab[1] = green_jeep_prefab;
@@ -152,6 +153,7 @@ public class ApplicationController : MonoBehaviour {
 		prefab[3] = bus_prefab;
 		prefab[4] = truck1_prefab;
 		prefab[5] = Pontiac_GTO_67_prefab;
+		prefab[6] = Taxi_prefab;
 		
 		// Obtener los ids de los nodos
 		List<string> node_IDs = RoadMap.getNodeIDs();

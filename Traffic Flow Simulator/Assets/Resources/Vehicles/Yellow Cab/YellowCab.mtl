@@ -1,0 +1,151 @@
+# Max2Mtl Version 4.0 Mar 10th, 2001
+#
+newmtl taxchrome
+Ka  0.4 0.4 0.4
+Kd  0.8 0.8 0.8
+Ks  1.0 1.0 1.0
+d  1.0
+Ns  7.3
+illum 2
+#
+newmtl taxrubber
+Ka  0.1 0.1 0.1
+Kd  0.2 0.2 0.2
+Ks  0.3 0.3 0.3
+d  1.0
+Ns  2.5
+illum 2
+map_Kd taxtire.jpg
+#
+newmtl taxspeed
+Ka  0.3 0.3 0.3
+Kd  0.4 0.4 0.4
+Ks  1.0 1.0 1.0
+d  1.0
+Ns  7.0
+illum 2
+map_Kd taxisped.jpg
+#
+newmtl taxyellow
+Ka  0.8 0.7 0.2
+Kd  0.9 0.7 0.0
+Ks  0.6 0.5 0.0
+d  1.0
+Ns  1.0
+illum 2
+#
+newmtl taxglass
+Ka  0.0 0.0 0.2
+Kd  0.1 0.2 0.4
+Ks  0.8 0.9 1.0
+d  0.3
+Ns  7.9
+illum 2
+#
+newmtl taxblack
+Ka  0.1 0.1 0.1
+Kd  0.3 0.3 0.3
+Ks  0.5 0.5 0.5
+d  1.0
+Ns  2.0
+illum 2
+#
+newmtl taxcheck
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  2.5
+illum 2
+map_Kd taxcheck.jpg
+#
+newmtl taxhdlite
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  5.5
+illum 2
+map_Kd taxihdlt.jpg
+#
+newmtl taxglite
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  5.8
+illum 2
+map_Kd taxisglt.jpg
+#
+newmtl taxwhite
+Ka  0.6 0.6 0.6
+Kd  0.9 0.9 0.8
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  3.0
+illum 2
+#
+newmtl taxtllite
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  5.2
+illum 2
+map_Kd taxired.jpg
+#
+newmtl taxplate
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  1.3
+illum 2
+map_Kd taxiplat.jpg
+#
+newmtl taxsn
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  3.0
+illum 2
+map_Kd taxicabn.jpg
+#
+newmtl taxcb
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  3.0
+illum 2
+map_Kd taxicb.jpg
+#
+newmtl taxrad2
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  3.0
+illum 2
+map_Kd taxirad2.jpg
+#
+newmtl taxradio
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.6 0.6 0.6
+d  1.0
+Ns  3.0
+illum 2
+map_Kd taxirado.jpg
+#
+newmtl taxseat
+Ka  0.1 0.1 0.1
+Kd  0.7 0.7 0.7
+Ks  0.9 0.9 0.9
+d  1.0
+Ns  0.8
+illum 2
+map_Kd taxseat.jpg
+#
+# EOF
