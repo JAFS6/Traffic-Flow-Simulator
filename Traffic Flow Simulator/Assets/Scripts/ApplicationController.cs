@@ -136,20 +136,22 @@ public class ApplicationController : MonoBehaviour {
 
 	private IEnumerator spawnVehicles () {
 		// Cargar prefabs vehiculos
-		GameObject sport_car_prefab = Resources.Load("Prefabs/Sport_Car", typeof(GameObject)) as GameObject;
+		GameObject Chevrolet_Camaro_prefab = Resources.Load("Prefabs/Chevrolet_Camaro", typeof(GameObject)) as GameObject;
 		GameObject green_jeep_prefab = Resources.Load("Prefabs/GreenJeep", typeof(GameObject)) as GameObject;
 		GameObject orange_jeep_prefab = Resources.Load("Prefabs/OrangeJeep", typeof(GameObject)) as GameObject;
 		GameObject bus_prefab = Resources.Load("Prefabs/Bus", typeof(GameObject)) as GameObject;
 		GameObject truck1_prefab = Resources.Load("Prefabs/Truck1", typeof(GameObject)) as GameObject;
+		GameObject Pontiac_GTO_67_prefab = Resources.Load("Prefabs/Pontiac_GTO_67", typeof(GameObject)) as GameObject;
 		Vector2 dir_prefab = new Vector3 (0,1);
 		
-		int num_prefabs = 5;
+		int num_prefabs = 6;
 		GameObject [] prefab = new GameObject[num_prefabs];
-		prefab[0] = sport_car_prefab;
+		prefab[0] = Chevrolet_Camaro_prefab;
 		prefab[1] = green_jeep_prefab;
 		prefab[2] = orange_jeep_prefab;
 		prefab[3] = bus_prefab;
 		prefab[4] = truck1_prefab;
+		prefab[5] = Pontiac_GTO_67_prefab;
 		
 		// Obtener los ids de los nodos
 		List<string> node_IDs = RoadMap.getNodeIDs();
