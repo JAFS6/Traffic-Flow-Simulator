@@ -160,10 +160,11 @@ public class ApplicationController : MonoBehaviour {
 		int random;
 		
 		while (true) {
-		
-			foreach (string id in node_IDs) {
-				random = Random.Range(0,num_prefabs);
-				vehicle = spawnVehicle (prefab[random], dir_prefab, id);
+			if (!SimulationUIController.is_paused) {
+				foreach (string id in node_IDs) {
+					random = Random.Range(0,num_prefabs);
+					vehicle = spawnVehicle (prefab[random], dir_prefab, id);
+				}
 			}
 			yield return new WaitForSeconds(5);
 		}

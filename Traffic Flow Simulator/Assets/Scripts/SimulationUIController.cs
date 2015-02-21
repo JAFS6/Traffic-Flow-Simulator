@@ -17,13 +17,51 @@ using UnityEngine;
 using System.Collections;
 
 public class SimulationUIController : MonoBehaviour {
+	// Pause control
+	public static bool is_paused = false;
 	
 	// Update is called once per frame
 	void Update () {
 		
 		if (Input.GetKeyDown(KeyCode.Escape)) {
 			Screen.showCursor = true;
-			Application.LoadLevel("Main_Menu");
+			is_paused = true;
+			hidePauseHint();
+			showPausePanel();
 		}
+	}
+	
+	public void resumeSimulation () {
+		hidePausePanel();
+		showPauseHint();
+		Screen.showCursor = false;
+		is_paused = false;
+	}
+	
+	public void backToMainMenu () {
+		hidePausePanel();
+		Screen.showCursor = true;
+		is_paused = false;
+		Application.LoadLevel("Main_Menu");
+	}
+	
+	private void showPausePanel () {
+		GameObject pause_panel = GameObject.Find("Pause Panel");
+		pause_panel.GetComponent<CanvasGroup>().alpha = 1;
+	}
+	
+	private void hidePausePanel () {
+		GameObject pause_panel = GameObject.Find("Pause Panel");
+		pause_panel.GetComponent<CanvasGroup>().alpha = 0;
+	}
+	
+	private void showPauseHint () {
+		GameObject o = GameObject.Find("Pause Hint");
+		o.GetComponent<CanvasGroup>().alpha = 1;
+	}
+	
+	private void hidePauseHint () {
+		GameObject o = GameObject.Find("Pause Hint");
+		o.GetComponent<CanvasGroup>().alpha = 0;
 	}
 }
