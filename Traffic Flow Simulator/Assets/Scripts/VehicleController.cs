@@ -69,210 +69,213 @@ public class VehicleController : MonoBehaviour {
 	public float big_turn = 7f;
 	
 	void Update () {
-		Debug.DrawLine(this.transform.position,this.transform.position + this.transform.forward * 6,Color.magenta);
-		
-		// Raycasting
-		// Front ray
-		Vector3 front_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * front_ray_pos_forward_multiplier),
-											 this.transform.position.y + front_sensor_y,
-		                                     this.transform.position.z + (this.transform.forward.z * front_ray_pos_forward_multiplier));
-		Vector3 front_ray_dir = new Vector3 ();
-		front_ray_dir = Vector3.Normalize ((this.transform.forward * 5) - this.transform.up);
-		
-		// Left ray
-		Vector3 left_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * left_right_rays_pos_forward_multiplier),
-											this.transform.position.y + front_sensor_y,
-		                                    this.transform.position.z + (this.transform.forward.z * left_right_rays_pos_forward_multiplier));
-		left_ray_pos = left_ray_pos - this.transform.right * left_right_rays_pos_right_multiplier;
-		Vector3 left_ray_dir = new Vector3 ();
-		left_ray_dir = Vector3.Normalize ((this.transform.forward * left_right_rays_dir_forward_multiplier) - this.transform.up);
-		left_ray_dir = Vector3.Normalize (left_ray_dir - this.transform.right/left_right_rays_dir_forward_divisor);
-		
-		// Right ray
-		Vector3 right_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * left_right_rays_pos_forward_multiplier),
-											 this.transform.position.y + front_sensor_y,
-		                                     this.transform.position.z + (this.transform.forward.z * left_right_rays_pos_forward_multiplier));
-		right_ray_pos = right_ray_pos + this.transform.right * left_right_rays_pos_right_multiplier;
-		Vector3 right_ray_dir = new Vector3 ();
-		right_ray_dir = Vector3.Normalize ((this.transform.forward * left_right_rays_dir_forward_multiplier) - this.transform.up);
-		right_ray_dir = Vector3.Normalize (right_ray_dir +  this.transform.right/left_right_rays_dir_forward_divisor);
-		
-		// Down ray
-		Vector3 down_ray_pos = new Vector3 (this.transform.position.x,
-		                                    this.transform.position.y + 1f,
-		                                    this.transform.position.z);
-		Vector3 down_ray_dir = new Vector3 ();
-		down_ray_dir = Vector3.Normalize (- this.transform.up);
-		
-		// Front ray check
-		// Vehicles layer
-		this.obstacle_detected = false;
-		
-		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,vehicles_layer_mask)) {
-			Debug.DrawLine(front_ray_pos,front_ray_hit.point,Color.white);
+		if (!SimulationUIController.is_paused) {
+			Debug.DrawLine(this.transform.position,this.transform.position + this.transform.forward * 6,Color.magenta);
 			
-			if (front_ray_hit.transform.tag == Constants.Tag_Vehicle) {
-				this.current_speed = 0f;
-				this.obstacle_detected = true;
+			// Raycasting
+			// Front ray
+			Vector3 front_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * front_ray_pos_forward_multiplier),
+												 this.transform.position.y + front_sensor_y,
+			                                     this.transform.position.z + (this.transform.forward.z * front_ray_pos_forward_multiplier));
+			Vector3 front_ray_dir = new Vector3 ();
+			front_ray_dir = Vector3.Normalize ((this.transform.forward * 5) - this.transform.up);
+			
+			// Left ray
+			Vector3 left_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * left_right_rays_pos_forward_multiplier),
+												this.transform.position.y + front_sensor_y,
+			                                    this.transform.position.z + (this.transform.forward.z * left_right_rays_pos_forward_multiplier));
+			left_ray_pos = left_ray_pos - this.transform.right * left_right_rays_pos_right_multiplier;
+			Vector3 left_ray_dir = new Vector3 ();
+			left_ray_dir = Vector3.Normalize ((this.transform.forward * left_right_rays_dir_forward_multiplier) - this.transform.up);
+			left_ray_dir = Vector3.Normalize (left_ray_dir - this.transform.right/left_right_rays_dir_forward_divisor);
+			
+			// Right ray
+			Vector3 right_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * left_right_rays_pos_forward_multiplier),
+												 this.transform.position.y + front_sensor_y,
+			                                     this.transform.position.z + (this.transform.forward.z * left_right_rays_pos_forward_multiplier));
+			right_ray_pos = right_ray_pos + this.transform.right * left_right_rays_pos_right_multiplier;
+			Vector3 right_ray_dir = new Vector3 ();
+			right_ray_dir = Vector3.Normalize ((this.transform.forward * left_right_rays_dir_forward_multiplier) - this.transform.up);
+			right_ray_dir = Vector3.Normalize (right_ray_dir +  this.transform.right/left_right_rays_dir_forward_divisor);
+			
+			// Down ray
+			Vector3 down_ray_pos = new Vector3 (this.transform.position.x,
+			                                    this.transform.position.y + 1f,
+			                                    this.transform.position.z);
+			Vector3 down_ray_dir = new Vector3 ();
+			down_ray_dir = Vector3.Normalize (- this.transform.up);
+			
+			// Front ray check
+			// Vehicles layer
+			this.obstacle_detected = false;
+			
+			if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,vehicles_layer_mask)) {
+				Debug.DrawLine(front_ray_pos,front_ray_hit.point,Color.white);
+				
+				if (front_ray_hit.transform.tag == Constants.Tag_Vehicle) {
+					this.current_speed = 0f;
+					this.obstacle_detected = true;
+				}
 			}
-		}
-		// Roads layer
-		if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,roads_layer_mask)) {
-			Debug.DrawLine(front_ray_pos,front_ray_hit.point,Color.white);
-			
-			switch (front_ray_hit.transform.tag) {
-			
-				case Constants.Tag_Node_Limit:
-					Destroy(this.gameObject);
-					break;
-					
-				case Constants.Tag_Node_Intersection:
+			// Roads layer
+			if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,roads_layer_mask)) {
+				Debug.DrawLine(front_ray_pos,front_ray_hit.point,Color.white);
 				
-					if (!intersection_detected && !on_intersection) {
-						intersection_detected = true;
-						edge_detected = false;
-					}
-					break;
-					
-				case Constants.Tag_Edge:
-					
-					if (!edge_detected && on_intersection) {
-						edge_detected = true;
-						intersection_detected = false;
-					}
-					break;
-			} // End switch (front_ray_hit.transform.tag)
-		} // End Front ray check
-		
-		// Left ray check
-		if (Physics.Raycast(left_ray_pos,left_ray_dir,out left_ray_hit,sensor_length,roads_layer_mask)) {
-			Debug.DrawLine(left_ray_pos,left_ray_hit.point,Color.red);
-			
-			switch (left_ray_hit.transform.name) {
-
-				case Constants.Line_Name_Hard_Shoulder:
-					Turn (TurnSide.Right, small_turn);
-					break;
-
-				case Constants.Line_Name_Normal_Lane:
-					
-					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, small_turn);
-					}
-					else {
-						Turn (TurnSide.Right, small_turn);
-					}
-					break;
-
-				case Constants.Line_Name_Center:
-					Turn (TurnSide.Right, small_turn);
-					break;
-
-				case Constants.Line_Name_Public_Transport_Lane:
-					
-					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, small_turn);
-					}
-					else {
-						Turn (TurnSide.Left, small_turn);
-					}
-					break;
-			} // End switch (left_ray_hit.transform.name)
-		} // End Left ray check
-		
-		// Right ray check
-		if (Physics.Raycast(right_ray_pos,right_ray_dir,out right_ray_hit,sensor_length,roads_layer_mask)) {
-			Debug.DrawLine(right_ray_pos,right_ray_hit.point,Color.green);
-
-			switch (right_ray_hit.transform.name) {
+				switch (front_ray_hit.transform.tag) {
 				
-				case Constants.Line_Name_Hard_Shoulder:
-					Turn (TurnSide.Left, small_turn);
-					break;
-					
-				case Constants.Line_Name_Normal_Lane:
-					
-					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, small_turn);
-					}
-					else {
-						Turn (TurnSide.Left, small_turn);
-					}
-					break;
-					
-				case Constants.Line_Name_Public_Transport_Lane:
-					
-					if (transport_type == TransportType.Public) {
-						Turn (TurnSide.Right, small_turn);
-					}
-					else {
-						Turn (TurnSide.Left, small_turn);
-					}
-					break;
-				
-				case Constants.Line_Name_Center:
-					Turn (TurnSide.Right, small_turn);
-					break;
-			} // End switch (right_ray_hit.transform.name)
-		} // End Right ray check
-		
-		// Down ray check
-		if (Physics.Raycast(down_ray_pos,down_ray_dir, out down_ray_hit,sensor_length,roads_layer_mask)) {
-			Debug.DrawLine(down_ray_pos,down_ray_hit.point,Color.black);
-			
-			switch (down_ray_hit.transform.tag) {
-				
-				case Constants.Tag_Node_Intersection:
-				
-					if (intersection_detected && !on_intersection) {
-						on_intersection = true;
-						// Obtener lista de los arcos de salida
-						List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
+					case Constants.Tag_Node_Limit:
+						Destroy(this.gameObject);
+						break;
 						
-						if (exits_edges.Count > 0) {
-							// Actualizar posicion actual
-							current_location = down_ray_hit.transform.name;
-							// Elegir arco aleatoriamente
-							string selected_edge = exits_edges[Random.Range(0,exits_edges.Count)];
-							// Elegir punto de entrada al carril
-							Vector2 entry_point = getNearestLaneStartPoint (selected_edge, out entry_orientation);
-							// Girar hacia el punto
-							this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
-							                                                              this.transform.position.y,
-							                                                              entry_point.y - this.transform.position.z));
-                    	}
-                    	else {
-							Debug.LogError("Error: No exit path found. Vehicle type: "+this.vehicle_type.ToString()+".");
-                    	}
-					}
-					break;
-				
-				case Constants.Tag_Edge:
+					case Constants.Tag_Node_Intersection:
 					
-					if (edge_detected && on_intersection) { // Si estaba sobre una interseccion y acaba de llegar al arco
-						on_intersection = false;
-						current_location = down_ray_hit.transform.name;
-						// Girar el vehiculo para ponerlo en la linea del arco
-						Vector2 edge_dir = RoadMap.getEdgeDirection(current_location, entry_orientation);
-						this.transform.rotation = Quaternion.LookRotation(new Vector3(edge_dir.x, this.transform.position.y, edge_dir.y));
-					}
-					break;
-			} // End switch (down_ray_hit.transform.name)
-		} // End Down ray check
-
-		// Increase speed
-		if (!this.obstacle_detected) {
-		
-			if (this.current_speed < max_speed) {
-				this.current_speed += acceleration;
+						if (!intersection_detected && !on_intersection) {
+							intersection_detected = true;
+							edge_detected = false;
+						}
+						break;
+						
+					case Constants.Tag_Edge:
+						
+						if (!edge_detected && on_intersection) {
+							edge_detected = true;
+							intersection_detected = false;
+						}
+						break;
+				} // End switch (front_ray_hit.transform.tag)
+			} // End Front ray check
+			
+			// Left ray check
+			if (Physics.Raycast(left_ray_pos,left_ray_dir,out left_ray_hit,sensor_length,roads_layer_mask)) {
+				Debug.DrawLine(left_ray_pos,left_ray_hit.point,Color.red);
+				
+				switch (left_ray_hit.transform.name) {
+	
+					case Constants.Line_Name_Hard_Shoulder:
+						Turn (TurnSide.Right, small_turn);
+						break;
+	
+					case Constants.Line_Name_Normal_Lane:
+						
+						if (transport_type == TransportType.Public) {
+							Turn (TurnSide.Right, small_turn);
+						}
+						else {
+							Turn (TurnSide.Right, small_turn);
+						}
+						break;
+	
+					case Constants.Line_Name_Center:
+						Turn (TurnSide.Right, small_turn);
+						break;
+	
+					case Constants.Line_Name_Public_Transport_Lane:
+						
+						if (transport_type == TransportType.Public) {
+							Turn (TurnSide.Right, small_turn);
+						}
+						else {
+							Turn (TurnSide.Left, small_turn);
+						}
+						break;
+				} // End switch (left_ray_hit.transform.name)
+			} // End Left ray check
+			
+			// Right ray check
+			if (Physics.Raycast(right_ray_pos,right_ray_dir,out right_ray_hit,sensor_length,roads_layer_mask)) {
+				Debug.DrawLine(right_ray_pos,right_ray_hit.point,Color.green);
+	
+				switch (right_ray_hit.transform.name) {
+					
+					case Constants.Line_Name_Hard_Shoulder:
+						Turn (TurnSide.Left, small_turn);
+						break;
+						
+					case Constants.Line_Name_Normal_Lane:
+						
+						if (transport_type == TransportType.Public) {
+							Turn (TurnSide.Right, small_turn);
+						}
+						else {
+							Turn (TurnSide.Left, small_turn);
+						}
+						break;
+						
+					case Constants.Line_Name_Public_Transport_Lane:
+						
+						if (transport_type == TransportType.Public) {
+							Turn (TurnSide.Right, small_turn);
+						}
+						else {
+							Turn (TurnSide.Left, small_turn);
+						}
+						break;
+					
+					case Constants.Line_Name_Center:
+						Turn (TurnSide.Right, small_turn);
+						break;
+				} // End switch (right_ray_hit.transform.name)
+			} // End Right ray check
+			
+			// Down ray check
+			if (Physics.Raycast(down_ray_pos,down_ray_dir, out down_ray_hit,sensor_length,roads_layer_mask)) {
+				Debug.DrawLine(down_ray_pos,down_ray_hit.point,Color.black);
+				
+				switch (down_ray_hit.transform.tag) {
+					
+					case Constants.Tag_Node_Intersection:
+					
+						if (intersection_detected && !on_intersection) {
+							on_intersection = true;
+							// Obtener lista de los arcos de salida
+							List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
+							
+							if (exits_edges.Count > 0) {
+								// Actualizar posicion actual
+								current_location = down_ray_hit.transform.name;
+								// Elegir arco aleatoriamente
+								string selected_edge = exits_edges[Random.Range(0,exits_edges.Count)];
+								// Elegir punto de entrada al carril
+								Vector2 entry_point = getNearestLaneStartPoint (selected_edge, out entry_orientation);
+								// Girar hacia el punto
+								this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
+								                                                              this.transform.position.y,
+								                                                              entry_point.y - this.transform.position.z));
+	                    	}
+	                    	else {
+								Debug.LogError("Error: No exit path found. Vehicle type: "+this.vehicle_type.ToString()+".");
+	                    	}
+						}
+						break;
+					
+					case Constants.Tag_Edge:
+						
+						if (edge_detected && on_intersection) { // Si estaba sobre una interseccion y acaba de llegar al arco
+							on_intersection = false;
+							current_location = down_ray_hit.transform.name;
+							// Girar el vehiculo para ponerlo en la linea del arco
+							Vector2 edge_dir = RoadMap.getEdgeDirection(current_location, entry_orientation);
+							this.transform.rotation = Quaternion.LookRotation(new Vector3(edge_dir.x, this.transform.position.y, edge_dir.y));
+						}
+						break;
+				} // End switch (down_ray_hit.transform.name)
+			} // End Down ray check
+	
+			// Increase speed
+			if (!this.obstacle_detected) {
+			
+				if (this.current_speed < max_speed) {
+					this.current_speed += acceleration;
+				}
 			}
-		}
-
-		// Movement
-		Vector3 position = this.transform.position;
-		position += this.transform.forward * this.current_speed * Time.deltaTime;
-		this.transform.position = position;
-	}
+	
+			// Movement
+			Vector3 position = this.transform.position;
+			position += this.transform.forward * this.current_speed * Time.deltaTime;
+			this.transform.position = position;
+			
+		} // End if (!SimulationUIController.is_paused)
+	} // End void Update
 
 	/**
 	 * @brief Gira el vehiculo degrees grados hacia el lado t

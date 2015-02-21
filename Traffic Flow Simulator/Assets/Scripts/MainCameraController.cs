@@ -29,21 +29,22 @@ public class MainCameraController : MonoBehaviour {
 	}
 
 	void Update () {
-	
-		if (Input.GetKeyDown(KeyCode.LeftShift)) {
-			speed = movement_velocity * movement_modifier;
-		}
+		if (!SimulationUIController.is_paused) {
+			if (Input.GetKeyDown(KeyCode.LeftShift)) {
+				speed = movement_velocity * movement_modifier;
+			}
+			
+			if (Input.GetKeyDown(KeyCode.LeftControl)) {
+				speed = movement_velocity / movement_modifier;
+			}
+			
+			if (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.LeftControl)) {
+				speed = movement_velocity;
+			}
 		
-		if (Input.GetKeyDown(KeyCode.LeftControl)) {
-			speed = movement_velocity / movement_modifier;
+			this.transform.Translate (Input.GetAxis("Horizontal") * Vector3.right * Time.deltaTime * speed, this.transform);
+			this.transform.Translate (Input.GetAxis("Forward") * Vector3.forward * Time.deltaTime * speed, this.transform);
 		}
-		
-		if (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.LeftControl)) {
-			speed = movement_velocity;
-		}
-	
-		this.transform.Translate (Input.GetAxis("Horizontal") * Vector3.right * Time.deltaTime * speed, this.transform);
-		this.transform.Translate (Input.GetAxis("Forward") * Vector3.forward * Time.deltaTime * speed, this.transform);
 	}
 
 	public void goTo (float x, float y, float z) {
