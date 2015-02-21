@@ -1,0 +1,147 @@
+fileFormatVersion: 2
+guid: 8e4ddc455396c6e4f905465c70b6d165
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: taxblack
+    100002: taxcb
+    100004: taxcheck
+    100006: taxchrome
+    100008: taxglass
+    100010: taxglite
+    100012: taxhdlite
+    100014: taxplate
+    100016: taxrad2
+    100018: taxradio
+    100020: taxrubber
+    100022: taxseat
+    100024: taxsn
+    100026: taxspeed
+    100028: taxtllite
+    100030: taxwhite
+    100032: taxyellow
+    100034: //RootNode
+    400000: taxblack
+    400002: taxcb
+    400004: taxcheck
+    400006: taxchrome
+    400008: taxglass
+    400010: taxglite
+    400012: taxhdlite
+    400014: taxplate
+    400016: taxrad2
+    400018: taxradio
+    400020: taxrubber
+    400022: taxseat
+    400024: taxsn
+    400026: taxspeed
+    400028: taxtllite
+    400030: taxwhite
+    400032: taxyellow
+    400034: //RootNode
+    2300000: taxblack
+    2300002: taxcb
+    2300004: taxcheck
+    2300006: taxchrome
+    2300008: taxglass
+    2300010: taxglite
+    2300012: taxhdlite
+    2300014: taxplate
+    2300016: taxrad2
+    2300018: taxradio
+    2300020: taxrubber
+    2300022: taxseat
+    2300024: taxsn
+    2300026: taxspeed
+    2300028: taxtllite
+    2300030: taxwhite
+    2300032: taxyellow
+    3300000: taxblack
+    3300002: taxcb
+    3300004: taxcheck
+    3300006: taxchrome
+    3300008: taxglass
+    3300010: taxglite
+    3300012: taxhdlite
+    3300014: taxplate
+    3300016: taxrad2
+    3300018: taxradio
+    3300020: taxrubber
+    3300022: taxseat
+    3300024: taxsn
+    3300026: taxspeed
+    3300028: taxtllite
+    3300030: taxwhite
+    3300032: taxyellow
+    4300000: taxblack
+    4300002: taxcb
+    4300004: taxcheck
+    4300006: taxchrome
+    4300008: taxglass
+    4300010: taxglite
+    4300012: taxhdlite
+    4300014: taxplate
+    4300016: taxrad2
+    4300018: taxradio
+    4300020: taxrubber
+    4300022: taxseat
+    4300024: taxsn
+    4300026: taxspeed
+    4300028: taxtllite
+    4300030: taxwhite
+    4300032: taxyellow
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  additionalBone: 0
+  userData: 
