@@ -49,10 +49,12 @@ public class VehicleController : MonoBehaviour {
 	private Vector3 left_ray_dir;
 	private Vector3 right_ray_dir;
 	private Vector3 down_ray_dir;
+	private Vector3 down_ray_2_dir;
 	private RaycastHit front_ray_hit;
 	private RaycastHit left_ray_hit;
 	private RaycastHit right_ray_hit;
 	private RaycastHit down_ray_hit;
+	private RaycastHit down_ray_2_hit;
 	
 	private int roads_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Roads);
 	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
@@ -105,6 +107,11 @@ public class VehicleController : MonoBehaviour {
 			Vector3 down_ray_dir = new Vector3 ();
 			down_ray_dir = Vector3.Normalize (- this.transform.up);
 			
+			// Down ray 2
+			Vector3 down_ray_2_dir = new Vector3 ();
+			down_ray_2_dir = - this.transform.up + this.transform.forward;
+			down_ray_2_dir = down_ray_2_dir.normalized;
+			
 			// Front ray check
 			// Vehicles layer
 			this.obstacle_detected = false;
@@ -123,10 +130,6 @@ public class VehicleController : MonoBehaviour {
 				
 				switch (front_ray_hit.transform.tag) {
 				
-					case Constants.Tag_Node_Limit:
-						Destroy(this.gameObject);
-						break;
-						
 					case Constants.Tag_Node_Intersection:
 					
 						if (!intersection_detected && !on_intersection) {
@@ -216,6 +219,15 @@ public class VehicleController : MonoBehaviour {
 						break;
 				} // End switch (right_ray_hit.transform.name)
 			} // End Right ray check
+			
+			// Down ray 2 check
+			if (Physics.Raycast(down_ray_pos,down_ray_2_dir, out down_ray_2_hit,sensor_length,roads_layer_mask)) {
+				Debug.DrawLine(down_ray_pos,down_ray_2_hit.point,Color.gray);
+				
+				if (down_ray_2_hit.transform.tag == Constants.Tag_Node_Limit) {
+					Destroy(this.gameObject);
+				}
+			}
 			
 			// Down ray check
 			if (Physics.Raycast(down_ray_pos,down_ray_dir, out down_ray_hit,sensor_length,roads_layer_mask)) {
