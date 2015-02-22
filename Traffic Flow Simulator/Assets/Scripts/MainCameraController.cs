@@ -22,6 +22,7 @@ public class MainCameraController : MonoBehaviour {
 	public float movement_modifier = 3f;
 
 	private float speed;
+	float max_x,min_x,max_z,min_z;
 	
 	void Start () {
 		Screen.showCursor = false;
@@ -41,14 +42,42 @@ public class MainCameraController : MonoBehaviour {
 			if (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.LeftControl)) {
 				speed = movement_velocity;
 			}
-		
+			
 			this.transform.Translate (Input.GetAxis("Horizontal") * Vector3.right * Time.deltaTime * speed, this.transform);
 			this.transform.Translate (Input.GetAxis("Forward") * Vector3.forward * Time.deltaTime * speed, this.transform);
+			
+			Vector3 new_pos = this.transform.position;
+			
+			// If the new position is out of the limits, clamp the position to the limit
+			
+			if (new_pos.x > max_x) {
+				new_pos.x = max_x;
+			}
+			else if (new_pos.x < min_x) {
+				new_pos.x = min_x;
+			}
+			
+			if (new_pos.z > max_z) {
+				new_pos.z = max_z;
+			}
+			else if (new_pos.z < min_z) {
+				new_pos.z = min_z;
+			}
+			
+			this.transform.position = new_pos;
 		}
 	}
 
-	public void goTo (float x, float y, float z) {
-		Vector3 v = new Vector3 (x,y,z);
+	public void goTo (Vector3 pos, Vector3 dir) {
+		Vector3 v = new Vector3 (pos.x,pos.y,pos.z);
 		this.transform.position = v;
+		this.transform.rotation = Quaternion.LookRotation(dir,Vector3.up);
+	}
+	
+	public void setLimits (float max_x,float min_x,float max_z,float min_z) {
+		this.max_x = max_x;
+		this.min_x = min_x;
+		this.max_z = max_z;
+		this.min_z = min_z;
 	}
 }

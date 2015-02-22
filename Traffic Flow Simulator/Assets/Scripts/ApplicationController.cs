@@ -35,9 +35,8 @@ public class ApplicationController : MonoBehaviour {
 
 	// Variables de control de las posiciones predeterminadas de la camara
 	private GameObject main_camera;
-	private float initial_camera_position_x = 0;
-	private float initial_camera_position_y = 100f;
-	private float initial_camera_position_z = 0;
+	private Vector3 initial_camera_position;
+	private Vector3 initial_camera_direction;
 	private Vector2[] node_positions;
 
 	// Acciones a realizar cuando se inicia la aplicacion
@@ -63,7 +62,7 @@ public class ApplicationController : MonoBehaviour {
 		calculateCameraInitialPosition();
 
 		// Colocar la camara en la posicion inicial
-		main_camera.GetComponent<MainCameraController> ().goTo (initial_camera_position_x,initial_camera_position_y,initial_camera_position_z);
+		main_camera.GetComponent<MainCameraController> ().goTo (initial_camera_position,initial_camera_direction);
 		
 		// Guardar los identificadores de los nodos de entrada al mapa
 		saveEntryNodes ();
@@ -109,9 +108,10 @@ public class ApplicationController : MonoBehaviour {
 				min_z = node.y;
 			}
 		}
+		initial_camera_position = new Vector3(min_x,20f,min_z);
+		initial_camera_direction = new Vector3(max_x - min_x, -20f, max_z-min_z);
 		
-		initial_camera_position_x = (max_x + min_x) / 2;
-		initial_camera_position_z = (max_z + min_z) / 2;
+		main_camera.GetComponent<MainCameraController> ().setLimits (max_x,min_x,max_z,min_z);
 	}
 	
 	private void saveEntryNodes () {
