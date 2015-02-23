@@ -157,15 +157,13 @@ public class ApplicationController : MonoBehaviour {
 		
 		// Get the node ids
 		List<string> node_IDs = RoadMap.getNodeIDs();
-		
-		GameObject vehicle = null;
 		int random;
 		
 		while (true) {
 			if (!SimulationUIController.is_paused) {
 				foreach (string id in node_IDs) {
 					random = Random.Range(0,num_prefabs);
-					vehicle = spawnVehicle (prefab[random], dir_prefab, id);
+					spawnVehicle (prefab[random], dir_prefab, id);
 				}
 			}
 			yield return new WaitForSeconds(5);

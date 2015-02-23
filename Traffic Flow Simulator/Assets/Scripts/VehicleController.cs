@@ -68,7 +68,6 @@ public class VehicleController : MonoBehaviour {
 	
 	// Variables for the basic rotation
 	private float small_turn = 0.5f;
-	private float big_turn = 7f;
 	
 	void Update () {
 		if (!SimulationUIController.is_paused) {

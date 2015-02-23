@@ -30,8 +30,8 @@ public static class RoadMap {
 	private static Material asphalt_material;
 	private static Material white_asphalt_material;
 
-	public static void CreateNewMap (string map_name) {
-		map_name = map_name;
+	public static void CreateNewMap (string name) {
+		map_name = name;
 		nodes = new Dictionary<string, Node> ();
 		edges = new Dictionary<string, Edge> ();
 		
@@ -653,8 +653,6 @@ public static class RoadMap {
 
 		if (n.node_type == NodeType.Limit) {  // DRAW LIMIT NODE
 			Edge e = edges[getLimitEdge(n.id)];
-			Node src_node = nodes[e.source_id];
-			Node dst_node = nodes[e.destination_id];
 
 			float width = (e.lane_num*Constants.lane_width) + 2*Constants.lane_width; // To protrude from both sides
 
@@ -1077,8 +1075,6 @@ public static class RoadMap {
 		}
 		
 		Vector3 pos_aux = MyMathClass.middlePoint(position1,position2);
-		
-		float white_and_no_line_lenght = ((piece_num * 2) - 1) * Constants.discontinuous_line_length;
 		
 		pos_aux.z -= Constants.discontinuous_line_length * ((float)piece_num - 1);
 		
