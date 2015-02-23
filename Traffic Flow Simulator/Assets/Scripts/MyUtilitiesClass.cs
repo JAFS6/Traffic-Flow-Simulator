@@ -19,9 +19,9 @@ using System.Collections;
 public static class MyUtilitiesClass : object {
 
 	/**
-	 * @brief Asigna la jerarquia cuya raiz se pasa como argumento al layer pasado como argumento
-	 * @param[in] root Raiz de la jerarquia
-	 * @param[in] layer El indice del layer
+	 * @brief Assigns the hierarchy whose root is passed as argument to the layer passed as argument
+	 * @param[in] root Root of the hierarchy
+	 * @param[in] layer Layer index
 	 */
 	public static void MoveToLayer(Transform root, int layer) {
 		root.gameObject.layer = layer;
