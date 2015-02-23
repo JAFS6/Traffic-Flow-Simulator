@@ -30,7 +30,7 @@ public class VehicleController : MonoBehaviour {
 
 	// Control variables of the vehicle
 	private float current_speed; 				// Current speed in meters per second
-	private string current_location; 			// Identifier node or edge where the vehicle is located
+	public string current_location; 			// Identifier node or edge where the vehicle is located
 	private bool intersection_detected = false;	// Indicator if just met an intersection
 	private bool edge_detected = false;			// Indicator if just met with an edge
 	private bool on_intersection = false; 		// Indicates whether located on an intersection
@@ -241,6 +241,10 @@ public class VehicleController : MonoBehaviour {
 							on_intersection = true;
 							// Get list of exit edges
 							List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
+							
+							if (exits_edges.Contains(current_location)) {
+								Debug.LogError("A "+this.vehicle_type.ToString()+" can leave the intersection by the edge it has entered");
+							}
 							
 							if (exits_edges.Count > 0) {
 								// Reload current position
