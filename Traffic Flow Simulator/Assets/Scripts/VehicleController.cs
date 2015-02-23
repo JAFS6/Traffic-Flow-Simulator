@@ -20,7 +20,7 @@ using System.Collections.Generic;
 public class VehicleController : MonoBehaviour {
 
 	public enum TurnSide : byte {Left, Right};
-	public enum VehicleType : byte {Car, Bus, Truck};
+	public enum VehicleType : byte {Car, Bus, Truck, Taxi};
 	
 	// Dependent variables of each car
 	public VehicleType vehicle_type;	// Vehicle type
