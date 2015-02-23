@@ -30,44 +30,44 @@ public class ApplicationController : MonoBehaviour {
 	
 	public static string map_filename = "";
 	
-	// Variables de control para instanciar vehiculos
+	// Control variables to instantiate vehicles
 	private Dictionary<string, EntryNodeInfo> entryNodes;
 
-	// Variables de control de las posiciones predeterminadas de la camara
+	// Control variables predetermined positions of the camera
 	private GameObject main_camera;
 	private Vector3 initial_camera_position;
 	private Vector3 initial_camera_direction;
 	private Vector2[] node_positions;
 
-	// Acciones a realizar cuando se inicia la aplicacion
+	// Actions to take when the application starts
 	void Start () {
 		
-		// Obtener la referencia a la camara del simulador
+		// Get the reference to the simulator's camera
 		main_camera = GameObject.Find("Main Camera");
 
-		// Crear mapa nuevo
+		// Create new map
 		RoadMap.CreateNewMap(map_filename);
 
-		// Cargar los datos del mapa
+		// Load map data
 		MapLoader loader = new MapLoader();
 		loader.LoadMap(map_filename);
 
-		// Dibujar el mapa
+		// Draw the map
 		RoadMap.draw ();
 
-		// Guardar las posiciones de los nodos para posicionar la camara
+		// Store the positions of the nodes to position the camera
 		saveNodePositions ();
 		
-		// Calcular posicion inicial de la camara
+		// Calculate initial camera position
 		calculateCameraInitialPosition();
 
-		// Colocar la camara en la posicion inicial
+		// Place the camera in the initial position
 		main_camera.GetComponent<MainCameraController> ().goTo (initial_camera_position,initial_camera_direction);
 		
-		// Guardar los identificadores de los nodos de entrada al mapa
+		// Save the identifiers of the input nodes to the map
 		saveEntryNodes ();
 		
-		// Instanciar vehiculos
+		// Instantiate vehicles
 		StartCoroutine(spawnVehicles ());
 	}
 
@@ -135,7 +135,7 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	private IEnumerator spawnVehicles () {
-		// Cargar prefabs vehiculos
+		// Load vehicle prefabs
 		GameObject Chevrolet_Camaro_prefab = Resources.Load("Prefabs/Chevrolet_Camaro", typeof(GameObject)) as GameObject;
 		GameObject green_jeep_prefab = Resources.Load("Prefabs/GreenJeep", typeof(GameObject)) as GameObject;
 		GameObject orange_jeep_prefab = Resources.Load("Prefabs/OrangeJeep", typeof(GameObject)) as GameObject;
@@ -155,7 +155,7 @@ public class ApplicationController : MonoBehaviour {
 		prefab[5] = Pontiac_GTO_67_prefab;
 		prefab[6] = Taxi_prefab;
 		
-		// Obtener los ids de los nodos
+		// Get the node ids
 		List<string> node_IDs = RoadMap.getNodeIDs();
 		
 		GameObject vehicle = null;
@@ -173,13 +173,13 @@ public class ApplicationController : MonoBehaviour {
 	}
 
 	/**
-	 * @brief Instancia el vehiculo prefab en el nodo node_id
-	 * @param[in] prefab El prefab a instanciar
-	 * @param[in] prefab_orientation La orientacion del prefab
-	 * @param[in] node_id El identificador del nodo limite donde se instanciara el vehiculo
-	 * @return Devuelve una referencia al objeto instanciado
-	 * @post Si node_id no existe o no es un nodo de tipo limite o no es un nodo de entrada de vehiculos
-	 * no se instanciara el vehiculo
+	 * @brief Instantiante the vehicle prefab in the node node_id
+	 * @param[in] prefab The prefab to instantiate
+	 * @param[in] prefab_orientation Orientation of the prefab
+	 * @param[in] node_id The limit node identifier where the vehicle will be instantiated
+	 * @return Returns a reference to the instantiated object
+	 * @post If node_id not exist or is not a limit node type or not an input node of vehicles,
+	 * no vehicle shall be instantiated
 	 */
 	private GameObject spawnVehicle (GameObject prefab, Vector2 prefab_orientation, string node_id) {
 
@@ -188,17 +188,17 @@ public class ApplicationController : MonoBehaviour {
 
 		if (RoadMap.existsNode(node_id) && node_type == NodeType.Limit && RoadMap.isEntryNode(node_id, out valid_transports_types)) {
 		
-			// Obtener el tipo de vehiculo
+			// Get the type of vehicle
 			TransportType vehicle_tt = prefab.GetComponent<VehicleController>().transport_type;
 			
-			// Comprobar si se puede instanciar el vehiculo debido a su tipo
+			// Check if it can instantiate the vehicle due to their type
 			if (valid_transports_types == vehicle_tt || valid_transports_types == TransportType.PublicAndPrivate) {
 			
-				// Obtener los puntos de entrada a los carriles
+				// Get the entry points to the lanes
 				List<GameObject> startPoints = RoadMap.getLaneStartPoints(node_id);
 				
-				// Seleccionar el carril por el que entrara
-				// Si hay varios del tipo requerido seleccionarlo aleatoriamente
+				// Select the lane it will enter
+				// If there are multiple lanes of the required type, select randomly
 				List<GameObject> candidates = new List<GameObject>();
 				
 				startPoints.ForEach(delegate(GameObject point) {
