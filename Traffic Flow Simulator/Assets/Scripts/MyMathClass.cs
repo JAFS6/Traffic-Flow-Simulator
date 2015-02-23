@@ -19,10 +19,10 @@ using System.Collections;
 public static class MyMathClass : object {
 
 	/**
-	 * @brief Calcula la distancia minima entre dos puntos del espacio tridimensional
-	 * @param[in] p1 Un vector (x,y,z) con las coordenadas del primer punto
-	 * @param[in] p2 Un vector (x,y,z) con las coordenadas del segundo punto
-	 * @return La distancia minima entre los dos puntos
+	 * @brief Gets the minimum distance between two points in three-dimensional space
+	 * @param[in] p1 A vector (x,y,z) with the coordinates of the first point
+	 * @param[in] p2 A vector (x,y,z) with the coordinates of the second point
+	 * @return The minimum distance between the two points
 	 */
 	public static float Distance (Vector3 p1, Vector3 p2) {
 		float dx = p2.x - p1.x;
@@ -39,10 +39,10 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calcula la distancia minima entre dos puntos del espacio bidimensional
-	 * @param[in] p1 Un vector (x,y) con las coordenadas del primer punto
-	 * @param[in] p2 Un vector (x,y) con las coordenadas del segundo punto
-	 * @return La distancia minima entre los dos puntos
+	 * @brief Gets the minimum distance between two points in two-dimensional space
+	 * @param[in] p1 A vector (x,y) with the coordinates of the first point
+	 * @param[in] p2 A vector (x,y) with the coordinates of the second point
+	 * @return The minimum distance between the two points
 	 */
 	public static float Distance (Vector2 p1, Vector2 p2) {
 		float dx = p2.x - p1.x;
@@ -57,28 +57,28 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calcula el modulo de un vector de tres dimensiones
-	 * @param[in] v Un vector de tres dimensiones
-	 * @return El modulo del vector v
+	 * @brief Gets the modulus of a vector of three dimensions
+	 * @param[in] v A vector of three dimensions
+	 * @return The modulus of v
 	 */
 	public static float module (Vector3 v) {
 		return Mathf.Sqrt (v.x * v.x + v.y * v.y + v.z * v.z);
 	}
 	
 	/**
-	 * @brief Calcula el modulo de un vector de dos dimensiones
-	 * @param[in] v Un vector de dos dimensiones
-	 * @return El modulo del vector v
+	 * @brief Gets the modulus of a vector of two dimensions
+	 * @param[in] v A vector of two dimensions
+	 * @return The modulus of v
 	 */
 	public static float module (Vector2 v) {
 		return Mathf.Sqrt (v.x * v.x + v.y * v.y);
 	}
 	
 	/**
-	 * @brief Calcula el punto medio entre dos puntos del espacio tridimensional
-	 * @param[in] p1 Un vector (x,y,z) con las coordenadas del primer punto
-	 * @param[in] p2 Un vector (x,y,z) con las coordenadas del segundo punto
-	 * @return Un vector (x,y,z) con las coordenadas del punto medio
+	 * @brief Gets the midpoint between two points in three-dimensional space
+	 * @param[in] p1 A vector (x,y,z) with the coordinates of the first point
+	 * @param[in] p2 A vector (x,y,z) with the coordinates of the second point
+	 * @return A vector (x,y,z) with the coordinates of the midpoint
 	 */
 	public static Vector3 middlePoint (Vector3 p1, Vector3 p2) {
 		Vector3 middle_point = new Vector3();
@@ -89,10 +89,10 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calcula el punto medio entre dos puntos del espacio bidimensional
-	 * @param[in] p1 Un vector (x,y) con las coordenadas del primer punto
-	 * @param[in] p2 Un vector (x,y) con las coordenadas del segundo punto
-	 * @return Un vector (x,y) con las coordenadas del punto medio
+	 * @brief Gets the midpoint between two points in two-dimensional space
+	 * @param[in] p1 A vector (x,y) with the coordinates of the first point
+	 * @param[in] p2 A vector (x,y) with the coordinates of the second point
+	 * @return A vector (x,y) with the coordinates of the midpoint
 	 */
 	public static Vector2 middlePoint (Vector2 p1, Vector2 p2) {
 		Vector2 middle_point = new Vector2();
@@ -102,10 +102,10 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calcula el vector orientacion con origen en p1 y extremo en p2
-	 * @param[in] p1 Un vector (x,y,z) con las coordenadas del primer punto
-	 * @param[in] p2 Un vector (x,y,z) con las coordenadas del segundo punto
-	 * @return El vector (x,y,z) calculado
+	 * @brief Calculates the orientation vector with origin in p1 and end en p2 in three-dimensional space
+	 * @param[in] p1 A vector (x,y,z) with the coordinates of the first point
+	 * @param[in] p2 A vector (x,y,z) with the coordinates of the second point
+	 * @return The calculated vector (x,y,z)
 	 */
 	public static Vector3 orientationVector (Vector3 p1, Vector3 p2) {
 		Vector3 orientation = new Vector3();
@@ -116,10 +116,10 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calcula el vector orientacion con origen en p1 y extremo en p2
-	 * @param[in] p1 Un vector (x,y) con las coordenadas del primer punto
-	 * @param[in] p2 Un vector (x,y) con las coordenadas del segundo punto
-	 * @return El vector (x,y) calculado
+	 * @brief Calculates the orientation vector with origin in p1 and end en p2 in two-dimensional space
+	 * @param[in] p1 A vector (x,y) with the coordinates of the first point
+	 * @param[in] p2 A vector (x,y) with the coordinates of the second point
+	 * @return The calculated vector (x,y)
 	 */
 	public static Vector2 orientationVector (Vector2 p1, Vector2 p2) {
 		Vector2 orientation = new Vector2();
@@ -129,11 +129,10 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calcula el angulo en grados que hay que girar el vector 
-	 * v1 para ponerlo en la direccion y sentido del vector v2
-	 * @param[in] v1 El primer vector
-	 * @param[in] v2 El segundo vector
-	 * @return El angulo calculado en grados (-360,360)
+	 * @brief Calculates the angle in degrees, to turn the vector v1 to put it in the direction and sense of vector v2
+	 * @param[in] v1 The first vector
+	 * @param[in] v2 The second vector
+	 * @return The angle calculated in degrees (-360,360)
 	 */
 	public static float RotationAngle (Vector2 v1, Vector2 v2) {
 		
@@ -150,10 +149,10 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Rota un punto en el plano respecto al origen de coodenadas
-	 * @param[in] p El punto a rotar
-	 * @param[in] degrees Grados de rotacion
-	 * @return El resultado de rotar el punto
+	 * @brief Rotates a point in the plane about the origin of coordinates
+	 * @param[in] p The point to be rotated
+	 * @param[in] degrees Degrees to rotate
+	 * @return The result of rotating the point
 	 */
 	public static Vector2 rotatePoint (Vector2 p, float degrees) {
 		float radians = (degrees * Mathf.PI) / 180f;
@@ -166,9 +165,9 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calcula el angulo (en grados) de las coordenadas polares del vector pasado como argumento
-	 * @param[in] v El vector
-	 * @return El angulo calculado en grados [0,360)
+	 * @brief Calculates the angle (in degrees) of the polar coordinates of the vector passed as argument
+	 * @param[in] v The vector
+	 * @return The angle calculated in degrees [0,360)
 	 */
 	public static float PolarAngle (Vector2 v) {
 
@@ -198,9 +197,9 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Convierte coordenadas polares a cartesianas
-	 * @param[in] magnitude La magnitud del vector
-	 * @param[in] polar_angle El angulo en grados de las coordenadas polares
+	 * @brief Converts polar coordinates to Cartesian
+	 * @param[in] magnitude The magnitude of the vector
+	 * @param[in] polar_angle The angle in degrees of polar coordinates
 	 */
 	public static Vector2 PolarToCartesian (float magnitude, float polar_angle) {
 		Vector2 v = new Vector2 ();

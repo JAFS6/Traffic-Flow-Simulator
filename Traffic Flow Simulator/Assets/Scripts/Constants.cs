@@ -29,7 +29,7 @@ public struct Node
 	public float y;
 	public IntersectionType intersection_type;
 	public string widest_edge_id;
-	public bool two_ways; // Indica si hay dos sentidos (true) o uno (false)
+	public bool two_ways; // Indicates whether two directions (true) or one (false).
 }
 
 public struct Edge
@@ -44,8 +44,8 @@ public struct Edge
 	public float width;
 	public int lane_num;
 	public Vector2 direction;
-	public Vector2 fixed_position_vector; // Vector de ajuste de posicion
-	public Vector3 fixed_position; // Posicion ya ajustada
+	public Vector2 fixed_position_vector; // Position adjustment vector
+	public Vector3 fixed_position; // Position already set
 }
 
 public static class Constants : object {

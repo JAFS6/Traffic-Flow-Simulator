@@ -22,24 +22,24 @@ public class VehicleController : MonoBehaviour {
 	public enum TurnSide : byte {Left, Right};
 	public enum VehicleType : byte {Car, Bus, Truck};
 	
-	// Variables dependientes de cada vehiculo
-	public VehicleType vehicle_type;	// Tipo de vehiculo
-	public TransportType transport_type;// Tipo de transporte
-	public float max_speed = 10f;		// Velocidad maxima que puede alcanzar el vehiculo
-	public float acceleration = 0.1f;	// Aceleracion del vehiculo
+	// Dependent variables of each car
+	public VehicleType vehicle_type;	// Vehicle type
+	public TransportType transport_type;// Transport type
+	public float max_speed = 10f;		// Vehicle maximum speed
+	public float acceleration = 0.1f;	// Vehicle acceleration
 
-	// Variables de control del vehiculo
-	private float current_speed; 				// Velocidad actual en metros por segundo
-	public string current_location; 			// Identificador del nodo o arco en el que se encuentra
-	private bool intersection_detected = false;	// Indicador de si acaba de encontrarse con una interseccion
-	private bool edge_detected = false;			// Indicador de si acaba de encontrarse con un arco
-	private bool on_intersection = false; 		// Indica si se encuentra sobre una interseccion
+	// Control variables of the vehicle
+	private float current_speed; 				// Current speed in meters per second
+	private string current_location; 			// Identifier node or edge where the vehicle is located
+	private bool intersection_detected = false;	// Indicator if just met an intersection
+	private bool edge_detected = false;			// Indicator if just met with an edge
+	private bool on_intersection = false; 		// Indicates whether located on an intersection
 	private DirectionType entry_orientation;
 	private bool obstacle_detected = false;
 
-	// Sensores (raycasting)
-	private const float front_sensor_y = 0.5f; // Altura de los sensores frontales
-	private const float sensor_length = 10f; // Alcance del sensor
+	// Sensors (raycasting)
+	private const float front_sensor_y = 0.5f; // Height of the front sensors
+	private const float sensor_length = 10f; // Sensor range
 
 	private Vector3 front_ray_pos;
 	private Vector3 left_ray_pos;
@@ -59,16 +59,16 @@ public class VehicleController : MonoBehaviour {
 	private int roads_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Roads);
 	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
 	
-	// Multiplicadores de posicion
-	private float front_ray_pos_forward_multiplier = 2f; // Multiplicador del vector forward para la posicion del rayo frontal
-	private float left_right_rays_pos_forward_multiplier = 2f; // Multiplicador del vector forward para la posicion de los rayos laterales
-	private float left_right_rays_pos_right_multiplier = 0.8f; // Multiplicador del vector right para la posicion de los rayos laterales
-	private float left_right_rays_dir_forward_multiplier = 2f; // Multiplicador del vector forward para la direccion de los rayos izquierdo y derecho
-	private float left_right_rays_dir_forward_divisor = 2f; // Divisor del vector forward para la direccion de los rayos izquierdo y derecho
+	// Position multipliers
+	private float front_ray_pos_forward_multiplier = 2f; // Forward vector multiplier for the position of the front ray
+	private float left_right_rays_pos_forward_multiplier = 2f; // Forward vector multiplier for the position of the lateral rays
+	private float left_right_rays_pos_right_multiplier = 0.8f; // Right vector multiplier for the position of the lateral rays
+	private float left_right_rays_dir_forward_multiplier = 2f; // Multiplier forward direction vector for the left and right rays
+	private float left_right_rays_dir_forward_divisor = 2f; // Splitter forward direction vector for the left and right rays
 	
-	// Variables para el giro basico
-	public float small_turn = 0.5f;
-	public float big_turn = 7f;
+	// Variables for the basic rotation
+	private float small_turn = 0.5f;
+	private float big_turn = 7f;
 	
 	void Update () {
 		if (!SimulationUIController.is_paused) {
@@ -239,17 +239,17 @@ public class VehicleController : MonoBehaviour {
 					
 						if (intersection_detected && !on_intersection) {
 							on_intersection = true;
-							// Obtener lista de los arcos de salida
+							// Get list of exit edges
 							List<string> exits_edges = RoadMap.exitPaths(front_ray_hit.transform.name, current_location, transport_type);
 							
 							if (exits_edges.Count > 0) {
-								// Actualizar posicion actual
+								// Reload current position
 								current_location = down_ray_hit.transform.name;
-								// Elegir arco aleatoriamente
+								// Choose edge randomly
 								string selected_edge = exits_edges[Random.Range(0,exits_edges.Count)];
-								// Elegir punto de entrada al carril
+								// Choose entry point into the lane
 								Vector2 entry_point = getNearestLaneStartPoint (selected_edge, out entry_orientation);
-								// Girar hacia el punto
+								// Turn to the point
 								this.transform.rotation = Quaternion.LookRotation(new Vector3(entry_point.x - this.transform.position.x,
 								                                                              this.transform.position.y,
 								                                                              entry_point.y - this.transform.position.z));
@@ -262,10 +262,10 @@ public class VehicleController : MonoBehaviour {
 					
 					case Constants.Tag_Edge:
 						
-						if (edge_detected && on_intersection) { // Si estaba sobre una interseccion y acaba de llegar al arco
+						if (edge_detected && on_intersection) { // If he was on an intersection and just come edge
 							on_intersection = false;
 							current_location = down_ray_hit.transform.name;
-							// Girar el vehiculo para ponerlo en la linea del arco
+							// Turn vehicle to put it on the edge direction
 							Vector2 edge_dir = RoadMap.getEdgeDirection(current_location, entry_orientation);
 							this.transform.rotation = Quaternion.LookRotation(new Vector3(edge_dir.x, this.transform.position.y, edge_dir.y));
 						}
@@ -290,19 +290,19 @@ public class VehicleController : MonoBehaviour {
 	} // End void Update
 
 	/**
-	 * @brief Gira el vehiculo degrees grados hacia el lado t
-	 * @param[in] t El lado hacia el que girara el vehiculo
-	 * @param[in] degrees Los grados que girara el vehiculo
+	 * @brief Turn the vehicle d degrees to the side t
+	 * @param[in] t The side to which rotates the vehicle
+	 * @param[in] d Grades that rotates the vehicle
 	 */
-	private void Turn (TurnSide t, float degrees) {
+	private void Turn (TurnSide t, float d) {
 
 		Quaternion rotation = Quaternion.AngleAxis(0f,new Vector3(0,1,0));
 
 		if (t == TurnSide.Left) {
-			rotation = Quaternion.AngleAxis(-degrees,new Vector3(0,1,0));
+			rotation = Quaternion.AngleAxis(-d,new Vector3(0,1,0));
 		}
 		else if (t == TurnSide.Right) {
-			rotation = Quaternion.AngleAxis(degrees,new Vector3(0,1,0));
+			rotation = Quaternion.AngleAxis(d,new Vector3(0,1,0));
 		}
 
 		Vector3 new_rotation_v = rotation * this.transform.forward;
@@ -313,12 +313,12 @@ public class VehicleController : MonoBehaviour {
 	}
 	
 	/**
-	 * @brief Obtiene las coordenadas en el plano 2D del punto de entrada al carril mas cercano
-	 * al vehiculo del arco seleccionado y que se corresponda con su tipo de vehiculo
-	 * @param[in] edge_id Arco seleccionado
-	 * @param[out] d Direccion respecto al arco: Source_Destination si el punto de entrada 
-	 * pertenece al LaneStartPointGroup fuente o Destination_Source si pertenece al de destino
-	 * @return La posicion del punto mas cercano
+	 * @brief Gets the coordinates in the 2D plane of the entry point of the closest lane of the selected edge to the vehicle 
+	 * and that corresponds to its type of vehicle
+	 * @param[in] edge_id Selected edge
+	 * @param[out] d Direction relative to the edge: Source_Destination if the entry point belongs to LaneStartPointGroup source or
+	 * Destination_Source if the entry point belongs to LaneStartPointGroup destination
+	 * @return The position of the closest point
 	 */
 	private Vector2 getNearestLaneStartPoint (string edge_id, out DirectionType d) {
 	

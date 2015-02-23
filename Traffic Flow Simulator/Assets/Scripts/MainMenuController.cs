@@ -26,20 +26,20 @@ public class MainMenuController : MonoBehaviour {
 	}
 	
 	public void showStart () {
-		// Eliminar los posibles botones de carga de mapa anteriores
+		// Delete possible previous load map buttons
 		GameObject [] buttons = GameObject.FindGameObjectsWithTag ("LoadMapButton");
 		
 		foreach (GameObject item in buttons) {
 			Destroy(item);
 		}
 	
-		// Ocultar los otros paneles
+		// Hide other panels
 		hideOptionsPanel();
 		hideCreditsPanel();
-		// Mostrar el panel de inicio
+		// Show the start panel
 		showStartPanel();
 		
-		// Buscar los mapas disponibles y añadir un boton por cada uno de ellos
+		// Search maps available and add a load map button for each one
 		DirectoryInfo info = new DirectoryInfo(Application.dataPath + "/Resources/Maps/");
 		FileInfo [] fileInfo = info.GetFiles();
 		float i = 0;
@@ -69,18 +69,18 @@ public class MainMenuController : MonoBehaviour {
 	}
 	
 	public void showOptions () {
-		// Ocultar los otros paneles
+		// Hide other panels
 		hideStartPanel();
 		hideCreditsPanel();
-		// Mostrar el panel de opciones
+		// Show the options panel
 		showOptionsPanel();
 	}
 	
 	public void showCredits () {
-		// Ocultar los otros paneles
+		// Hide other panels
 		hideStartPanel();
 		hideOptionsPanel();
-		// Mostrar el panel de opciones
+		// Show the credits panel
 		showCreditsPanel();
 	}
 	
