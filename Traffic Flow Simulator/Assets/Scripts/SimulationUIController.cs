@@ -20,9 +20,8 @@ public class SimulationUIController : MonoBehaviour {
 	// Pause control
 	public static bool is_paused = false;
 	
-	// Update is called once per frame
 	void Update () {
-		
+		// Key ESC shows pause menu
 		if (Input.GetKeyDown(KeyCode.Escape)) {
 			Screen.showCursor = true;
 			is_paused = true;
