@@ -26,14 +26,14 @@ public class MapLoader {
 
 	public void LoadMap (string mapFilename) {
 		
-		// Preparar nombre del fichero del mapa a cargar
+		// Prepare filename of the map to load
 		string full_path = Application.dataPath + "/Resources/Maps/" + mapFilename + ".topology.graphml";
 		MapLoaderRoutine (full_path);
 	}
 	
 	private void MapLoaderRoutine (string full_path) {
 		
-		// Variables para tomar valores por defecto
+		// Variables to take defaults values
 		NodeType node_type_default = NodeType.Intersection;
 		IntersectionType intersection_type_default = IntersectionType.Normal;
 		float x_default = 0.0f;
@@ -49,7 +49,7 @@ public class MapLoader {
 		
 		RoadMap.setMapName(xml_graphml.xml_Graphs[0].ID);
 		
-		// Procesar la seccion de valores por defecto del grafo
+		// Process the defaults values section of the graph
 		
 		foreach (xml_MapKey k in xml_graphml.xml_Keys) {
 			
@@ -105,7 +105,7 @@ public class MapLoader {
 			} // switch(k.ID)
 		} // foreach (xml_MapKey k in xml_graphml.xml_Keys)
 		
-		// Procesar los nodos del grafo
+		// Process the nodes of the graph
 		
 		foreach (xml_Node n in xml_graphml.xml_Graphs[0].xml_Nodes) {
 			NodeType node_type_value = node_type_default;
@@ -139,7 +139,7 @@ public class MapLoader {
 			
 		} // foreach(xml_Node n in xml_graphml.xml_Graphs[0].xml_Nodes)
 		
-		// Procesar los arcos del grafo
+		// Process the edges of the graph
 		
 		foreach (xml_Edge e in xml_graphml.xml_Graphs[0].xml_Edges) {
 			string id = e.ID;
