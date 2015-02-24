@@ -23,7 +23,6 @@ public class SimulationUIController : MonoBehaviour {
 	void Update () {
 		// Key ESC shows pause menu
 		if (Input.GetKeyDown(KeyCode.Escape)) {
-			Screen.showCursor = true;
 			is_paused = true;
 			hidePauseHint();
 			showPausePanel();
@@ -33,13 +32,12 @@ public class SimulationUIController : MonoBehaviour {
 	public void resumeSimulation () {
 		hidePausePanel();
 		showPauseHint();
-		Screen.showCursor = false;
 		is_paused = false;
+		Screen.showCursor = true;
 	}
 	
 	public void backToMainMenu () {
 		hidePausePanel();
-		Screen.showCursor = true;
 		is_paused = false;
 		Application.LoadLevel("Main_Menu");
 	}
@@ -47,11 +45,15 @@ public class SimulationUIController : MonoBehaviour {
 	private void showPausePanel () {
 		GameObject pause_panel = GameObject.Find("Pause Panel");
 		pause_panel.GetComponent<CanvasGroup>().alpha = 1;
+		pause_panel.GetComponent<CanvasGroup>().interactable = true;
+		pause_panel.GetComponent<CanvasGroup>().blocksRaycasts = true;
 	}
 	
 	private void hidePausePanel () {
 		GameObject pause_panel = GameObject.Find("Pause Panel");
 		pause_panel.GetComponent<CanvasGroup>().alpha = 0;
+		pause_panel.GetComponent<CanvasGroup>().interactable = false;
+		pause_panel.GetComponent<CanvasGroup>().blocksRaycasts = false;
 	}
 	
 	private void showPauseHint () {

@@ -23,14 +23,28 @@ public class MainCameraController : MonoBehaviour {
 
 	private float speed;
 	float max_x,min_x,max_z,min_z;
+	float min_y = 0.5f;
+	
+	public static bool can_move = false;
 	
 	void Start () {
-		Screen.showCursor = false;
+		Screen.showCursor = true;
 		speed = movement_velocity;
 	}
 
 	void Update () {
 		if (!SimulationUIController.is_paused) {
+		
+			if (Input.GetMouseButtonDown(1)) {
+				can_move = true;
+				Screen.showCursor = false;
+			}
+			
+			if (Input.GetMouseButtonUp(1)) {
+				can_move = false;
+				Screen.showCursor = true;
+			}
+		
 			if (Input.GetKeyDown(KeyCode.LeftShift)) {
 				speed = movement_velocity * movement_modifier;
 			}
@@ -62,6 +76,10 @@ public class MainCameraController : MonoBehaviour {
 			}
 			else if (new_pos.z < min_z) {
 				new_pos.z = min_z;
+			}
+			
+			if (new_pos.y < min_y) {
+				new_pos.y = min_y;
 			}
 			
 			this.transform.position = new_pos;
