@@ -136,13 +136,13 @@ public class ApplicationController : MonoBehaviour {
 
 	private IEnumerator spawnVehicles () {
 		// Load vehicle prefabs
-		GameObject Chevrolet_Camaro_prefab = Resources.Load("Prefabs/Chevrolet_Camaro", typeof(GameObject)) as GameObject;
-		GameObject green_jeep_prefab = Resources.Load("Prefabs/GreenJeep", typeof(GameObject)) as GameObject;
-		GameObject orange_jeep_prefab = Resources.Load("Prefabs/OrangeJeep", typeof(GameObject)) as GameObject;
-		GameObject bus_prefab = Resources.Load("Prefabs/Bus", typeof(GameObject)) as GameObject;
-		GameObject truck1_prefab = Resources.Load("Prefabs/Truck1", typeof(GameObject)) as GameObject;
-		GameObject Pontiac_GTO_67_prefab = Resources.Load("Prefabs/Pontiac_GTO_67", typeof(GameObject)) as GameObject;
-		GameObject Taxi_prefab = Resources.Load("Prefabs/Checker_Marathon", typeof(GameObject)) as GameObject;
+		GameObject Chevrolet_Camaro_prefab 	= Resources.Load("Prefabs/Vehicles/Chevrolet_Camaro", typeof(GameObject)) as GameObject;
+		GameObject green_jeep_prefab 		= Resources.Load("Prefabs/Vehicles/GreenJeep"		, typeof(GameObject)) as GameObject;
+		GameObject orange_jeep_prefab 		= Resources.Load("Prefabs/Vehicles/OrangeJeep"		, typeof(GameObject)) as GameObject;
+		GameObject bus_prefab 				= Resources.Load("Prefabs/Vehicles/Bus"				, typeof(GameObject)) as GameObject;
+		GameObject truck1_prefab 			= Resources.Load("Prefabs/Vehicles/Truck1"			, typeof(GameObject)) as GameObject;
+		GameObject Pontiac_GTO_67_prefab 	= Resources.Load("Prefabs/Vehicles/Pontiac_GTO_67"	, typeof(GameObject)) as GameObject;
+		GameObject Taxi_prefab 				= Resources.Load("Prefabs/Vehicles/Checker_Marathon", typeof(GameObject)) as GameObject;
 		Vector2 dir_prefab = new Vector3 (0,1);
 		
 		int num_prefabs = 7;
