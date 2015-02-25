@@ -25,7 +25,6 @@ public class VehicleController : MonoBehaviour {
 	// Dependent variables of each car
 	public VehicleType vehicle_type;	// Vehicle type
 	public TransportType transport_type;// Transport type
-	public float max_speed = 10f;		// Vehicle maximum speed
 	public float acceleration = 0.1f;	// Vehicle acceleration
 
 	// Control variables of the vehicle
@@ -68,6 +67,10 @@ public class VehicleController : MonoBehaviour {
 	
 	// Variables for the basic rotation
 	private float small_turn = 0.5f;
+	
+	void Start () {
+		this.current_speed = Constants.urban_speed_limit;
+	}
 	
 	void Update () {
 		if (!SimulationUIController.is_paused) {
@@ -279,8 +282,8 @@ public class VehicleController : MonoBehaviour {
 			// Increase speed
 			if (!this.obstacle_detected) {
 			
-				if (this.current_speed < max_speed) {
-					this.current_speed += acceleration;
+				if (this.current_speed < Constants.urban_speed_limit) {
+					this.current_speed += acceleration * Time.deltaTime;
 				}
 			}
 	
