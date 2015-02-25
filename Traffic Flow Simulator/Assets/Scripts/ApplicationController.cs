@@ -142,7 +142,7 @@ public class ApplicationController : MonoBehaviour {
 		GameObject bus_prefab = Resources.Load("Prefabs/Bus", typeof(GameObject)) as GameObject;
 		GameObject truck1_prefab = Resources.Load("Prefabs/Truck1", typeof(GameObject)) as GameObject;
 		GameObject Pontiac_GTO_67_prefab = Resources.Load("Prefabs/Pontiac_GTO_67", typeof(GameObject)) as GameObject;
-		GameObject Taxi_prefab = Resources.Load("Prefabs/Taxi", typeof(GameObject)) as GameObject;
+		GameObject Taxi_prefab = Resources.Load("Prefabs/Checker_Marathon", typeof(GameObject)) as GameObject;
 		Vector2 dir_prefab = new Vector3 (0,1);
 		
 		int num_prefabs = 7;

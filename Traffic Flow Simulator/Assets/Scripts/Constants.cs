@@ -115,4 +115,7 @@ public static class Constants : object {
 	public const float discontinuous_line_length = 1.3f;
 	public const float discontinuous_line_min_margin = 0.3f;
 	public const float cont_nodes_lines_extra_length = 0.05f;
+	
+	public const float urban_speed_limit = 13.8f; // Meters per second (50 Km/h)
 }
+ 
