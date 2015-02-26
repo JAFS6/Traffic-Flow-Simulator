@@ -111,7 +111,8 @@ public class ApplicationController : MonoBehaviour {
 		initial_camera_position = new Vector3(min_x,20f,min_z);
 		initial_camera_direction = new Vector3(max_x - min_x, -20f, max_z-min_z);
 		
-		main_camera.GetComponent<MainCameraController> ().setLimits (max_x,min_x,max_z,min_z);
+		float half_grass_ground_padding = Constants.grass_ground_padding/2;
+		main_camera.GetComponent<MainCameraController> ().setLimits (max_x+half_grass_ground_padding,min_x-half_grass_ground_padding,max_z+half_grass_ground_padding,min_z-half_grass_ground_padding);
 	}
 	
 	private void saveEntryNodes () {
