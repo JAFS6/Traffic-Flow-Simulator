@@ -54,6 +54,9 @@ public class VehicleController : MonoBehaviour {
 	private RaycastHit right_ray_hit;
 	private RaycastHit down_ray_hit;
 	private RaycastHit down_ray_2_hit;
+	private Vector3 collision_ray_pos;
+	private Vector3 collision_ray_dir;
+	private RaycastHit collision_ray_hit;
 	
 	private int roads_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Roads);
 	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
@@ -76,7 +79,8 @@ public class VehicleController : MonoBehaviour {
 		if (!SimulationUIController.is_paused) {
 			Debug.DrawLine(this.transform.position,this.transform.position + this.transform.forward * 6,Color.magenta);
 			
-			// Raycasting
+			// Guidance
+			
 			// Front ray
 			Vector3 front_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * front_ray_pos_forward_multiplier),
 												 this.transform.position.y + front_sensor_y,
@@ -114,15 +118,21 @@ public class VehicleController : MonoBehaviour {
 			down_ray_2_dir = - this.transform.up + this.transform.forward;
 			down_ray_2_dir = down_ray_2_dir.normalized;
 			
-			// Front ray check
+			// Colission
+			Vector3 collision_ray_pos = new Vector3 (this.transform.position.x + (this.transform.forward.x * front_ray_pos_forward_multiplier),
+			                                         this.transform.position.y + front_sensor_y,
+			                                         this.transform.position.z + (this.transform.forward.z * front_ray_pos_forward_multiplier));
+			Vector3 collision_ray_dir = new Vector3 ();
+			collision_ray_dir = Vector3.Normalize (this.transform.forward * 5);
+			
+			// Collision ray check
 			// Vehicles layer
 			this.obstacle_detected = false;
 			
-			if (Physics.Raycast(front_ray_pos,front_ray_dir, out front_ray_hit,sensor_length,vehicles_layer_mask)) {
-				Debug.DrawLine(front_ray_pos,front_ray_hit.point,Color.white);
-				
-				if (front_ray_hit.transform.tag == Constants.Tag_Vehicle) {
-					this.current_speed = 0f;
+			if (Physics.Raycast(collision_ray_pos,collision_ray_dir, out collision_ray_hit,sensor_length,vehicles_layer_mask)) {
+				Debug.DrawLine(collision_ray_pos,collision_ray_hit.point,Color.yellow);
+					
+				if (collision_ray_hit.transform.tag == Constants.Tag_Vehicle) {
 					this.obstacle_detected = true;
 				}
 			}
@@ -284,6 +294,20 @@ public class VehicleController : MonoBehaviour {
 			
 				if (this.current_speed < Constants.urban_speed_limit) {
 					this.current_speed += acceleration * Time.deltaTime;
+					
+					if (this.current_speed > Constants.urban_speed_limit) {
+						this.current_speed = Constants.urban_speed_limit;
+					}
+				}
+			}
+			else {
+				
+				if (this.current_speed > 0) {
+					this.current_speed -= 2 * acceleration * Time.deltaTime;
+					
+					if (this.current_speed < 0) {
+						this.current_speed = 0;
+					}
 				}
 			}
 	
