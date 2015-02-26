@@ -1477,10 +1477,10 @@ public static class RoadMap {
 			}
 		}
 		
-		max_x += 100;
-		max_y += 100;
-		min_x -= 100;
-		min_y -= 100;
+		max_x += Constants.grass_ground_padding;
+		max_y += Constants.grass_ground_padding;
+		min_x -= Constants.grass_ground_padding;
+		min_y -= Constants.grass_ground_padding;
 		
 		Material grass_material = Resources.Load ("Materials/Grass", typeof(Material)) as Material;
 		
