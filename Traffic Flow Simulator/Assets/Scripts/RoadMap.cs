@@ -1332,6 +1332,16 @@ public static class RoadMap {
 	} // CreateContinuationNode
 	
 	/**
+	 * @brief Create a Mesh based on a Bezier cuve
+	 * @param[in] obj The gameobject
+	 * @param[in] start_point The initial point for the Bezier curve
+	 * @param[in] end_point The last point for the Bezier curve
+	 */
+	private static void BezierMesh (GameObject obj, Vector3 start_point, Vector3 end_point) {
+		
+	} // End BezierMesh
+	
+	/**
 	 * @brief Create a mesh with 8 vertex which seems a deformed box. The algorithm has been obtained from
 	 * http://wiki.unity3d.com/index.php/ProceduralPrimitives and has been adapted to the needs of this application
 	 * @param[in] obj The gameobject
