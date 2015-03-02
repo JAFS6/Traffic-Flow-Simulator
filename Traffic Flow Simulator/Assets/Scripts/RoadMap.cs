@@ -1119,8 +1119,7 @@ public static class RoadMap {
 	}
 
 	/**
-	 * @brief Creates a mesh for the nodes of type continuation. The algorithm has been obtained from
-	 * http://wiki.unity3d.com/index.php/ProceduralPrimitives and has been adapted to the needs of this application
+	 * @brief Creates a mesh for the nodes of type continuation.
 	 * @param[in] node_id ID of the node that is being created
 	 * @param[in] node The GameObject that is being created
 	 * @param[in] radius Radius of the circle circumscribed by the edges
@@ -1133,14 +1132,10 @@ public static class RoadMap {
 		node.AddComponent< BoxCollider >();
 		node.AddComponent< MeshRenderer >();
 		node.renderer.material = asphalt_material;
-		MeshFilter filter = node.AddComponent< MeshFilter >();
-		Mesh mesh = filter.mesh;
-		mesh.Clear();
 		
 		float half_road_thickness = Constants.road_thickness * 0.5f;
 		float half_negative_radius = -radius * 0.5f;
 		float half_edge_width = edge_width * 0.5f;
-		
 		
 		Vector2 left_point  = new Vector2 (-half_edge_width, half_negative_radius);
 		Vector2 right_point = new Vector2 ( half_edge_width, half_negative_radius);
@@ -1148,137 +1143,27 @@ public static class RoadMap {
 		// Rotate angle degrees the points left and right
 		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point , angle);
 		Vector2 right_point_rotated = MyMathClass.rotatePoint(right_point, angle);
-		
-		#region Vertices 
+		 
 		Vector3 p0 = new Vector3(  right_point_rotated.x,	-half_road_thickness,	right_point_rotated.y );
 		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-half_road_thickness,	left_point_rotated.y  );
 		Vector3 p2 = new Vector3(  half_edge_width, 		-half_road_thickness,	half_negative_radius  );
 		Vector3 p3 = new Vector3( -half_edge_width,			-half_road_thickness,	half_negative_radius  );
-		
 		Vector3 p4 = new Vector3(  right_point_rotated.x,	 half_road_thickness,	right_point_rotated.y );
 		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 half_road_thickness,	left_point_rotated.y  );
 		Vector3 p6 = new Vector3(  half_edge_width, 		 half_road_thickness,	half_negative_radius  );
 		Vector3 p7 = new Vector3( -half_edge_width,	 		 half_road_thickness,	half_negative_radius  );
 		
-		Vector3[] vertices = new Vector3[]
-		{
-			// Bottom
-			p0, p1, p2, p3,
-			
-			// Left
-			p7, p4, p0, p3,
-			
-			// Front
-			p4, p5, p1, p0,
-			
-			// Back
-			p6, p7, p3, p2,
-			
-			// Right
-			p5, p6, p2, p1,
-			
-			// Top
-			p7, p6, p5, p4
-		};
-		#endregion
+		Vector3[] vertex_array = new Vector3[8];
+		vertex_array[0] = p0;
+		vertex_array[1] = p1;
+		vertex_array[2] = p2;
+		vertex_array[3] = p3;
+		vertex_array[4] = p4;
+		vertex_array[5] = p5;
+		vertex_array[6] = p6;
+		vertex_array[7] = p7;
 		
-		#region Normales
-		Vector3 up 	= Vector3.up;
-		Vector3 down 	= Vector3.down;
-		Vector3 front 	= Vector3.forward;
-		Vector3 back 	= Vector3.back;
-		Vector3 left 	= Vector3.left;
-		Vector3 right 	= Vector3.right;
-		
-		Vector3[] normales = new Vector3[]
-		{
-			// Bottom
-			down, down, down, down,
-			
-			// Left
-			left, left, left, left,
-			
-			// Front
-			front, front, front, front,
-			
-			// Back
-			back, back, back, back,
-			
-			// Right
-			right, right, right, right,
-			
-			// Top
-			up, up, up, up
-		};
-		#endregion	
-		
-		#region UVs
-		Vector2 _00 = new Vector2( 0f, 0f );
-		Vector2 _10 = new Vector2( 1f, 0f );
-		Vector2 _01 = new Vector2( 0f, 1f );
-		Vector2 _11 = new Vector2( 1f, 1f );
-		
-		Vector2[] uvs = new Vector2[]
-		{
-			// Bottom
-			_11, _01, _00, _10,
-			
-			// Left
-			_11, _01, _00, _10,
-			
-			// Front
-			_11, _01, _00, _10,
-			
-			// Back
-			_11, _01, _00, _10,
-			
-			// Right
-			_11, _01, _00, _10,
-			
-			// Top
-			_11, _01, _00, _10,
-		};
-		#endregion
-		
-		#region Triangles
-		int[] triangles = new int[]
-		{
-			// Bottom
-			3, 1, 0,
-			3, 2, 1,			
-			
-			// Left
-			3 + 4 * 1, 1 + 4 * 1, 0 + 4 * 1,
-			3 + 4 * 1, 2 + 4 * 1, 1 + 4 * 1,
-			
-			// Front
-			3 + 4 * 2, 1 + 4 * 2, 0 + 4 * 2,
-			3 + 4 * 2, 2 + 4 * 2, 1 + 4 * 2,
-			
-			// Back
-			3 + 4 * 3, 1 + 4 * 3, 0 + 4 * 3,
-			3 + 4 * 3, 2 + 4 * 3, 1 + 4 * 3,
-			
-			// Right
-			3 + 4 * 4, 1 + 4 * 4, 0 + 4 * 4,
-			3 + 4 * 4, 2 + 4 * 4, 1 + 4 * 4,
-			
-			// Top
-			3 + 4 * 5, 1 + 4 * 5, 0 + 4 * 5,
-			3 + 4 * 5, 2 + 4 * 5, 1 + 4 * 5,
-			
-		};
-		#endregion
-		
-		mesh.vertices = vertices;
-		mesh.normals = normales;
-		mesh.uv = uvs;
-		mesh.triangles = triangles;
-		
-		mesh.RecalculateBounds();
-		mesh.Optimize();
-		
-		// End of platform
+		eightMesh(node,vertex_array);
 		
 		Edge e = edges[ref_edge_id];
 		
@@ -1444,7 +1329,147 @@ public static class RoadMap {
 			}
 		}
 		// End road markings
-	}
+	} // CreateContinuationNode
+	
+	/**
+	 * @brief Create a mesh with 8 vertex which seems a deformed box. The algorithm has been obtained from
+	 * http://wiki.unity3d.com/index.php/ProceduralPrimitives and has been adapted to the needs of this application
+	 * @param[in] obj The gameobject
+	 * @param[in] vertex_array The array with 8 Vector3 with the positions of all vertex
+	 */
+	private static void eightMesh (GameObject obj, Vector3[] vertex_array) {
+		MeshFilter filter = obj.AddComponent< MeshFilter >();
+		Mesh mesh = filter.mesh;
+		mesh.Clear();
+		
+		#region Vertices
+		Vector3 p0 = new Vector3(vertex_array[0].x, vertex_array[0].y, vertex_array[0].z);
+		Vector3 p1 = new Vector3(vertex_array[1].x, vertex_array[1].y, vertex_array[1].z);
+		Vector3 p2 = new Vector3(vertex_array[2].x, vertex_array[2].y, vertex_array[2].z);
+		Vector3 p3 = new Vector3(vertex_array[3].x, vertex_array[3].y, vertex_array[3].z);	
+		Vector3 p4 = new Vector3(vertex_array[4].x, vertex_array[4].y, vertex_array[4].z);
+		Vector3 p5 = new Vector3(vertex_array[5].x, vertex_array[5].y, vertex_array[5].z);
+		Vector3 p6 = new Vector3(vertex_array[6].x, vertex_array[6].y, vertex_array[6].z);
+		Vector3 p7 = new Vector3(vertex_array[7].x, vertex_array[7].y, vertex_array[7].z);
+		
+		Vector3[] vertices = new Vector3[]
+		{
+			// Bottom
+			p0, p1, p2, p3,
+			
+			// Left
+			p7, p4, p0, p3,
+			
+			// Front
+			p4, p5, p1, p0,
+			
+			// Back
+			p6, p7, p3, p2,
+			
+			// Right
+			p5, p6, p2, p1,
+			
+			// Top
+			p7, p6, p5, p4
+		};
+		#endregion
+		
+		#region Normales
+		Vector3 up 	= Vector3.up;
+		Vector3 down 	= Vector3.down;
+		Vector3 front 	= Vector3.forward;
+		Vector3 back 	= Vector3.back;
+		Vector3 left 	= Vector3.left;
+		Vector3 right 	= Vector3.right;
+		
+		Vector3[] normales = new Vector3[]
+		{
+			// Bottom
+			down, down, down, down,
+			
+			// Left
+			left, left, left, left,
+			
+			// Front
+			front, front, front, front,
+			
+			// Back
+			back, back, back, back,
+			
+			// Right
+			right, right, right, right,
+			
+			// Top
+			up, up, up, up
+		};
+		#endregion	
+		
+		#region UVs
+		Vector2 _00 = new Vector2( 0f, 0f );
+		Vector2 _10 = new Vector2( 1f, 0f );
+		Vector2 _01 = new Vector2( 0f, 1f );
+		Vector2 _11 = new Vector2( 1f, 1f );
+		
+		Vector2[] uvs = new Vector2[]
+		{
+			// Bottom
+			_11, _01, _00, _10,
+			
+			// Left
+			_11, _01, _00, _10,
+			
+			// Front
+			_11, _01, _00, _10,
+			
+			// Back
+			_11, _01, _00, _10,
+			
+			// Right
+			_11, _01, _00, _10,
+			
+			// Top
+			_11, _01, _00, _10,
+		};
+		#endregion
+		
+		#region Triangles
+		int[] triangles = new int[]
+		{
+			// Bottom
+			3, 1, 0,
+			3, 2, 1,			
+			
+			// Left
+			3 + 4 * 1, 1 + 4 * 1, 0 + 4 * 1,
+			3 + 4 * 1, 2 + 4 * 1, 1 + 4 * 1,
+			
+			// Front
+			3 + 4 * 2, 1 + 4 * 2, 0 + 4 * 2,
+			3 + 4 * 2, 2 + 4 * 2, 1 + 4 * 2,
+			
+			// Back
+			3 + 4 * 3, 1 + 4 * 3, 0 + 4 * 3,
+			3 + 4 * 3, 2 + 4 * 3, 1 + 4 * 3,
+			
+			// Right
+			3 + 4 * 4, 1 + 4 * 4, 0 + 4 * 4,
+			3 + 4 * 4, 2 + 4 * 4, 1 + 4 * 4,
+			
+			// Top
+			3 + 4 * 5, 1 + 4 * 5, 0 + 4 * 5,
+			3 + 4 * 5, 2 + 4 * 5, 1 + 4 * 5,
+			
+		};
+		#endregion
+		
+		mesh.vertices = vertices;
+		mesh.normals = normales;
+		mesh.uv = uvs;
+		mesh.triangles = triangles;
+		
+		mesh.RecalculateBounds();
+		mesh.Optimize();
+	} // End eightMesh
 	
 	/**
 	 * @brief Draw the grass floor
@@ -1493,5 +1518,5 @@ public static class RoadMap {
 		
 		Vector3 ground_position = new Vector3((max_x+min_x)/2,0,(max_y+min_y)/2);
 		ground.transform.position = ground_position;
-	}
+	} // End drawGround
 }
