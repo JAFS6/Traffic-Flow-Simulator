@@ -142,19 +142,17 @@ public class ApplicationController : MonoBehaviour {
 		GameObject orange_jeep_prefab 		= Resources.Load("Prefabs/Vehicles/OrangeJeep"		, typeof(GameObject)) as GameObject;
 		GameObject bus_prefab 				= Resources.Load("Prefabs/Vehicles/Bus"				, typeof(GameObject)) as GameObject;
 		GameObject truck1_prefab 			= Resources.Load("Prefabs/Vehicles/Truck1"			, typeof(GameObject)) as GameObject;
-		GameObject Pontiac_GTO_67_prefab 	= Resources.Load("Prefabs/Vehicles/Pontiac_GTO_67"	, typeof(GameObject)) as GameObject;
 		GameObject Taxi_prefab 				= Resources.Load("Prefabs/Vehicles/Checker_Marathon", typeof(GameObject)) as GameObject;
 		Vector2 dir_prefab = new Vector3 (0,1);
 		
-		int num_prefabs = 7;
+		int num_prefabs = 6;
 		GameObject [] prefab = new GameObject[num_prefabs];
 		prefab[0] = Chevrolet_Camaro_prefab;
 		prefab[1] = green_jeep_prefab;
 		prefab[2] = orange_jeep_prefab;
 		prefab[3] = bus_prefab;
 		prefab[4] = truck1_prefab;
-		prefab[5] = Pontiac_GTO_67_prefab;
-		prefab[6] = Taxi_prefab;
+		prefab[5] = Taxi_prefab;
 		
 		// Get the node ids
 		List<string> node_IDs = RoadMap.getNodeIDs();

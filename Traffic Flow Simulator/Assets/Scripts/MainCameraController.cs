@@ -25,8 +25,6 @@ public class MainCameraController : MonoBehaviour {
 	float max_x,min_x,max_z,min_z;
 	float min_y = 0.5f;
 	
-	public static bool can_move = false;
-	
 	void Start () {
 		Screen.showCursor = true;
 		speed = movement_velocity;
@@ -36,12 +34,10 @@ public class MainCameraController : MonoBehaviour {
 		if (!SimulationUIController.is_paused) {
 		
 			if (Input.GetMouseButtonDown(1)) {
-				can_move = true;
 				Screen.showCursor = false;
 			}
 			
 			if (Input.GetMouseButtonUp(1)) {
-				can_move = false;
 				Screen.showCursor = true;
 			}
 		
