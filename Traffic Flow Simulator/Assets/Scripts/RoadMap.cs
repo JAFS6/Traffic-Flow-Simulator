@@ -1332,12 +1332,16 @@ public static class RoadMap {
 	} // CreateContinuationNode
 	
 	/**
-	 * @brief Create a Mesh based on a Bezier cuve
+	 * @brief Create a thin Mesh based on a Bezier curve and rectangular sections
 	 * @param[in] obj The gameobject
-	 * @param[in] start_point The initial point for the Bezier curve
-	 * @param[in] end_point The last point for the Bezier curve
+	 * @param[in] thick The thick of the mesh sections
+	 * @param[in] width The width of the mesh sections
+	 * @param[in] p0 The initial point for the Bezier curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The last point for the Bezier curve
 	 */
-	private static void BezierMesh (GameObject obj, Vector3 start_point, Vector3 end_point) {
+	private static void BezierMesh (GameObject obj, float thick, float width Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
 		
 	} // End BezierMesh
 	
