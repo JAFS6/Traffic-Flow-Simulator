@@ -34,7 +34,7 @@ public class MouseLook : MonoBehaviour {
 	{
 		if (!SimulationUIController.is_paused) {
 		
-			if (MainCameraController.can_move) {
+			if (Input.GetMouseButton(1)) {
 				
 				if (axes == RotationAxes.MouseXAndY)
 				{
