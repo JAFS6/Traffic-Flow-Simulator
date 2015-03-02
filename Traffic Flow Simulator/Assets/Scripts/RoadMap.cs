@@ -1341,7 +1341,7 @@ public static class RoadMap {
 	 * @param[in] p2 Other control point of the curve
 	 * @param[in] p3 The last point for the Bezier curve
 	 */
-	private static void BezierMesh (GameObject obj, float thick, float width Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+	private static void BezierMesh (GameObject obj, float thick, float width, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
 		
 	} // End BezierMesh
 	
