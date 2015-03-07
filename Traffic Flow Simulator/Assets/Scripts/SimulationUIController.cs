@@ -18,14 +18,24 @@ using System.Collections;
 
 public class SimulationUIController : MonoBehaviour {
 	// Pause control
-	public static bool is_paused = false;
+	public static bool is_paused;
+	
+	void Start () {
+		is_paused = false;
+	}
 	
 	void Update () {
-		// Key ESC shows pause menu
+		
 		if (Input.GetKeyDown(KeyCode.Escape)) {
-			is_paused = true;
-			hidePauseHint();
-			showPausePanel();
+			
+			if (!is_paused) { // Key ESC shows pause menu
+				is_paused = true;
+				hidePauseHint();
+				showPausePanel();
+			}
+			else if (is_paused) { // Key ESC resumes simulation
+				resumeSimulation ();
+			}
 		}
 	}
 	
