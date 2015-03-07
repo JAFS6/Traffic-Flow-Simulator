@@ -6,8 +6,12 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 	<key id="node_type" for="node" attr.name="Node_type" attr.type="int">
 		<default>1</default>
 	</key>
-	<key id="pos_x" for="node" attr.name="Coordinate_X" attr.type="double"/>
-	<key id="pos_y" for="node" attr.name="Coordinate_Y" attr.type="double"/>
+	<key id="pos_x" for="node" attr.name="Coordinate_X" attr.type="double">
+		<default>0</default>
+	</key>
+	<key id="pos_y" for="node" attr.name="Coordinate_Y" attr.type="double">
+		<default>-50</default>
+	</key>
 	<key id="crossing_type" for="node" attr.name="Crossing_type" attr.type="int">
 		<default>0</default>
 	</key>
@@ -15,23 +19,19 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 		<default></default>
 	</key>
 	<key id="src_des" for="edge" attr.name="Lanes_on_source-destination_sense" attr.type="string">
-		<default>0</default>
+		<default>PNN</default>
 	</key>
 	<key id="des_src" for="edge" attr.name="Lanes_on_destination-source_sense" attr.type="string">
-		<default>0</default>
+		<default>NN</default>
 	</key>
 	<graph id="example_5" edgedefault="undirected">
 		<node id="n0">
-			<data key="pos_x">0</data>
-			<data key="pos_y">-50</data>
 		</node>
 		<node id="n1">
 			<data key="node_type">2</data>
-			<data key="pos_x">0</data>
 			<data key="pos_y">0</data>
 		</node>
 		<node id="n2">
-			<data key="pos_x">0</data>
 			<data key="pos_y">50</data>
 		</node>
 		<node id="n3">
@@ -139,76 +139,40 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 			<data key="pos_y">-40</data>
 		</node>
 		<edge id="a0" source="n0" target="n1">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a1" source="n1" target="n2">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a2" source="n3" target="n4">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a3" source="n4" target="n5">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a4" source="n6" target="n7">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a5" source="n7" target="n8">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a6" source="n9" target="n10">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a7" source="n10" target="n11">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a8" source="n12" target="n13">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a9" source="n13" target="n14">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a2_2" source="n3_2" target="n4_2">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a3_2" source="n4_2" target="n5_2">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a4_2" source="n6_2" target="n7_2">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a5_2" source="n7_2" target="n8_2">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a6_2" source="n9_2" target="n10_2">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a7_2" source="n10_2" target="n11_2">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a8_2" source="n12_2" target="n13_2">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 		<edge id="a9_2" source="n13_2" target="n14_2">
-			<data key="src_des">PNN</data>
-			<data key="des_src">PNN</data>
 		</edge>
 	</graph>
 </graphml>
