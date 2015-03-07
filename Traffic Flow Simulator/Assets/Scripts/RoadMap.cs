@@ -24,6 +24,8 @@ public static class RoadMap {
 	private static string map_name;
 	private static Dictionary<string, Node> nodes;
 	private static Dictionary<string, Edge> edges;
+	
+	public static float max_x,min_x,max_z,min_z; // Ground limits
 
 	// Materials
 	private static Material black_material;
@@ -1454,10 +1456,10 @@ public static class RoadMap {
 		
 		Vector2 first_pos = RoadMap.getNodePosition (node_IDs [0]);
 		
-		float min_x = first_pos.x;
-		float max_x = first_pos.x;
-		float min_y = first_pos.y;
-		float max_y = first_pos.y;
+		min_x = first_pos.x;
+		max_x = first_pos.x;
+		min_z = first_pos.y;
+		max_z = first_pos.y;
 		
 		foreach (string ID in node_IDs) {
 			Vector2 pos = RoadMap.getNodePosition (ID);
@@ -1469,29 +1471,29 @@ public static class RoadMap {
 				max_x = pos.x;
 			}
 			
-			if (pos.y < min_y) {
-				min_y = pos.y;
+			if (pos.y < min_z) {
+				min_z = pos.y;
 			}
-			else if (pos.y > max_y) {
-				max_y = pos.y;
+			else if (pos.y > max_z) {
+				max_z = pos.y;
 			}
 		}
 		
 		max_x += Constants.grass_ground_padding;
-		max_y += Constants.grass_ground_padding;
+		max_z += Constants.grass_ground_padding;
 		min_x -= Constants.grass_ground_padding;
-		min_y -= Constants.grass_ground_padding;
+		min_z -= Constants.grass_ground_padding;
 		
 		Material grass_material = Resources.Load ("Materials/Grass", typeof(Material)) as Material;
 		
 		GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
 		ground.name = Constants.Name_Ground;
 		ground.tag = Constants.Tag_Ground;
-		ground.transform.localScale = new Vector3((max_x-min_x)/10, 1, (max_y-min_y)/10); // It is divided by 10 because measurements of the plane are 10x10 in Unity
+		ground.transform.localScale = new Vector3((max_x-min_x)/10, 1, (max_z-min_z)/10); // It is divided by 10 because measurements of the plane are 10x10 in Unity
 		ground.renderer.material = grass_material;
 		ground.renderer.material.mainTextureScale = new Vector2(ground.transform.localScale.x, ground.transform.localScale.z);
 		
-		Vector3 ground_position = new Vector3((max_x+min_x)/2,0,(max_y+min_y)/2);
+		Vector3 ground_position = new Vector3((max_x+min_x)/2,0,(max_z+min_z)/2);
 		ground.transform.position = ground_position;
 	}
 }
