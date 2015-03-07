@@ -114,26 +114,29 @@ public class MapLoader {
 			float y_value = y_default;
 			string id = n.ID;
 			
-			foreach (xml_Node_data d in n.xml_Node_datas) {
-				
-				switch (d.key) {
-					case Constants.xml_graphml_key_node_type:
-						node_type_value = stringToNodeType(d.Value);
-						break;
-						
-					case Constants.xml_graphml_key_pos_x:
-						x_value = float.Parse(d.Value, System.Globalization.CultureInfo.InvariantCulture);
-						break;
-						
-					case Constants.xml_graphml_key_pos_y:
-						y_value = float.Parse(d.Value, System.Globalization.CultureInfo.InvariantCulture);
-						break;
-						
-					case Constants.xml_graphml_key_intersection_type:
-						intersection_type_value = stringToIntersectionType(d.Value);
-						break;
-				}
-			} // foreach (xml_Node_data d in n.xml_Node_datas)
+			if (n.xml_Node_datas != null) {
+			
+				foreach (xml_Node_data d in n.xml_Node_datas) {
+					
+					switch (d.key) {
+						case Constants.xml_graphml_key_node_type:
+							node_type_value = stringToNodeType(d.Value);
+							break;
+							
+						case Constants.xml_graphml_key_pos_x:
+							x_value = float.Parse(d.Value, System.Globalization.CultureInfo.InvariantCulture);
+							break;
+							
+						case Constants.xml_graphml_key_pos_y:
+							y_value = float.Parse(d.Value, System.Globalization.CultureInfo.InvariantCulture);
+							break;
+							
+						case Constants.xml_graphml_key_intersection_type:
+							intersection_type_value = stringToIntersectionType(d.Value);
+							break;
+					}
+				} // foreach (xml_Node_data d in n.xml_Node_datas)
+			}
 			
 			SaveNode (id, node_type_value, x_value, y_value, intersection_type_value);
 			
@@ -149,22 +152,25 @@ public class MapLoader {
 			string src_des_value = src_des_default;
 			string des_src_value = des_src_default;
 			
-			foreach (xml_Edge_data d in e.xml_Edge_datas) {
+			if (e.xml_Edge_datas != null) {
 			
-				switch (d.key) {
-					case Constants.xml_graphml_key_road_name:
-						name_value = d.Value;
-						break;
-					
-					case Constants.xml_graphml_key_src_des:
-						src_des_value = d.Value;
-						break;
+				foreach (xml_Edge_data d in e.xml_Edge_datas) {
+				
+					switch (d.key) {
+						case Constants.xml_graphml_key_road_name:
+							name_value = d.Value;
+							break;
 						
-					case Constants.xml_graphml_key_des_src:
-						des_src_value = d.Value;
-						break;
-				}
-			} // foreach (xml_Edge_data d in e.xml_Edge_datas)
+						case Constants.xml_graphml_key_src_des:
+							src_des_value = d.Value;
+							break;
+							
+						case Constants.xml_graphml_key_des_src:
+							des_src_value = d.Value;
+							break;
+					}
+				} // foreach (xml_Edge_data d in e.xml_Edge_datas)
+			}
 			
 			SaveEdge (id, src_id, des_id, name_value, src_des_value, des_src_value);
 			

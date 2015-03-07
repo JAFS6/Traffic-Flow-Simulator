@@ -75,6 +75,12 @@ public class VehicleController : MonoBehaviour {
 	}
 	
 	void Update () {
+	
+		if (outOfBounds()) {
+			Destroy(this.gameObject);
+			Debug.LogWarning(vehicle_type.ToString()+" has reached map limits.");
+		}
+	
 		if (!SimulationUIController.is_paused) {
 			Debug.DrawLine(this.transform.position,this.transform.position + this.transform.forward * 6,Color.magenta);
 			
@@ -399,5 +405,30 @@ public class VehicleController : MonoBehaviour {
 			}
 		}
 		return position;
+	}
+	
+	/**
+	 * @brief Checks if the vehicle is out of the bounds of the map
+	 * @return True if it is out, false otherwise
+	 */
+	private bool outOfBounds () {
+	
+		if (this.transform.position.x > RoadMap.max_x) {
+			return true;
+		}
+		
+		if (this.transform.position.x < RoadMap.min_x) {
+			return true;
+		}
+		
+		if (this.transform.position.z > RoadMap.max_z) {
+			return true;
+		}
+		
+		if (this.transform.position.z < RoadMap.min_z) {
+			return true;
+		}
+		
+		return false;
 	}
 }
