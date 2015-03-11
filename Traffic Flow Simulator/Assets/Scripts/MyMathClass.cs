@@ -116,7 +116,7 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calculates the orientation vector with origin in p1 and end en p2 in two-dimensional space
+	 * @brief Calculates the orientation vector with origin in p1 and end in p2 in two-dimensional space
 	 * @param[in] p1 A vector (x,y) with the coordinates of the first point
 	 * @param[in] p2 A vector (x,y) with the coordinates of the second point
 	 * @return The calculated vector (x,y)
@@ -286,5 +286,25 @@ public static class MyMathClass : object {
 		p += ttt * p3;		  //fourth term
 		
 		return p;
+	}
+	
+	/**
+	 * @brief Gets the perpendicular vector to the right of the vector passed as an argument
+	 * @param[in] v The original vector
+	 * @return The calculated vector
+	 */
+	public static Vector2 getRightPerpendicular (Vector2 v) {
+		Vector2 v2 = new Vector2(v.y,-v.x);
+		return v2;
+	}
+	
+	/**
+	 * @brief Gets the perpendicular vector to the left of the vector passed as an argument
+	 * @param[in] v The original vector
+	 * @return The calculated vector
+	 */
+	public static Vector2 getLeftPerpendicular (Vector2 v) {
+		Vector2 v2 = new Vector2(-v.y,v.x);
+		return v2;
 	}
 }
