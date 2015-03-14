@@ -307,4 +307,63 @@ public static class MyMathClass : object {
 		Vector2 v2 = new Vector2(-v.y,v.x);
 		return v2;
 	}
+	
+	/**
+	 * @brief Calculate the intersection of two straights, which are defined by a point and a vector each.
+	 * @param[in] point_a Point by passing the first straight.
+	 * @param[in] vector_a Vector director of the first straight.
+	 * @param[in] point_b Point by passing the second straight.
+	 * @param[in] vector_b Vector director of the second straight.
+	 * @return The intersection point calculated. If the vectors are parallel, the returned point
+	 * will be the middle point between point_a and point_b.
+	 */
+	public static Vector2 intersectionPoint(Vector2 point_a, Vector2 vector_a, Vector2 point_b, Vector2 vector_b) {
+		
+		vector_a.Normalize();
+		vector_b.Normalize();
+		
+		float m1,m2,b1,b2,x,y;
+		Vector2 intersection_point;
+		
+		// If they are parallel, it must return the middle point between point_a and point_b
+		if ((vector_a.x == 0 && vector_b.x == 0) || (vector_a.x == vector_b.x && vector_a.y == vector_b.y)) {
+			return MyMathClass.middlePoint(point_a,point_b);
+		}
+		else if(vector_a.x == 0) {
+			m2 = vector_b.y / vector_b.x;
+			b2 = point_b.y - m2 * point_b.x;
+			
+			x = point_a.x;
+			y = m2 * point_a.x + b2;
+			
+			intersection_point = new Vector2(x,y);
+		}
+		else if (vector_b.x == 0) {
+			m1 = vector_a.y / vector_a.x;
+			b1 = point_a.y - m1 * point_a.x;
+			
+			x = point_b.x;
+			y = m1 * point_b.x + b1;
+			
+			intersection_point = new Vector2(x,y);
+		}
+		else {
+			// Calculate the ecuation of both straights in explicit form Y = mx + b
+			
+			m1 = vector_a.y / vector_a.x;
+			b1 = point_a.y - m1 * point_a.x;
+			
+			m2 = vector_b.y / vector_b.x;
+			b2 = point_b.y - m2 * point_b.x;
+			
+			// Calculate the intersection point
+			
+			x = (b2 - b1) / (m1 - m2);
+			y = (b1*m2 - b2*m1) / (m2 - m1);
+			
+			intersection_point = new Vector2(x,y);
+		}
+		
+		return intersection_point;
+	}
 }
