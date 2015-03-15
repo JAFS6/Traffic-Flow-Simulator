@@ -1212,9 +1212,10 @@ public static class RoadMap {
 		
 		Vector3 start = position1;
 		Vector3 end;
+		int total = 9;
 		
-		for (int i=1; i<=10; i++) {
-			end = MyMathClass.CalculateBezierPoint((float)i/10,position1,position2,position2,position3);
+		for (int i=1; i<=total; i++) {
+			end = MyMathClass.CalculateBezierPoint((float)i/total,position1,position2,position2,position3);
 			
 			if (i%2 == 0) {
 				GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
