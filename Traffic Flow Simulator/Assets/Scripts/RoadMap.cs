@@ -1255,12 +1255,6 @@ public static class RoadMap {
 		
 		BezierMesh (node, Constants.road_thickness, edge_width, start_point, control_point, end_point, angle, side);
 		
-		// Road markings
-		
-		
-		
-		// End road markings
-		
 	} // CreateContinuationNode
 	
 	/**
@@ -1298,6 +1292,12 @@ public static class RoadMap {
 		float bottom_y = -top_y;
 		float half_width = width/2;
 		
+		float rotation_angle = angle;
+		
+		if (side == TurnSide.Left) {
+			rotation_angle = -angle;
+		}
+		
 		Vector2 LP = new Vector2 (start_point.x - half_width, start_point.z); // Left point
 		Vector2 RP = new Vector2 (start_point.x + half_width, start_point.z); // Right point
 		
@@ -1305,14 +1305,8 @@ public static class RoadMap {
 			Due to the equal distance to the center of the imaginary lines start and end, rotate the left point give us
 			the corresponding rotated point for the right point and the same applies to the right point. */
 		
-		float rotation_angle = angle;
-		
-		if (side == TurnSide.Left) {
-			rotation_angle = -angle;
-		}
-		
-		Vector2 LPR = MyMathClass.rotatePoint(RP, rotation_angle);
-		Vector2 RPR = MyMathClass.rotatePoint(LP, rotation_angle);
+		Vector2 LPR = MyMathClass.rotatePoint(RP, rotation_angle); // Left point rotated
+		Vector2 RPR = MyMathClass.rotatePoint(LP, rotation_angle); // Right point rotated
 		
 		// Calculate control points for the Bezier curves
 		Vector2 start_point_2D = new Vector2(start_point.x,start_point.z);
@@ -1341,6 +1335,42 @@ public static class RoadMap {
 			vertex_array[7] = new Vector3(point0.x, top_y   , point0.y);
 			eightMesh(obj,vertex_array);
 		}
+		
+		// Attention: Variable reuse due to similar procedures
+		// Road markings
+		
+		// Hard shoulders
+		LP = new Vector2 (start_point.x - (half_width - Constants.hard_shoulder_width), start_point.z);
+		RP = new Vector2 (start_point.x + (half_width - Constants.hard_shoulder_width), start_point.z);
+		
+		/*	Rotate angle degrees the points left and right.
+			Due to the equal distance to the center of the imaginary lines start and end, rotate the left point give us
+			the corresponding rotated point for the right point and the same applies to the right point. */
+		
+		LPR = MyMathClass.rotatePoint(RP, rotation_angle);
+		RPR = MyMathClass.rotatePoint(LP, rotation_angle);
+		
+		LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
+		RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
+		
+		float half_line_thickness = Constants.line_thickness / 2;
+		Vector3 LP_3D  = new Vector3(LP.x,     top_y + half_line_thickness, LP.y);
+		Vector3 RP_3D  = new Vector3(RP.x,     top_y + half_line_thickness, RP.y);
+		Vector3 LPR_3D = new Vector3(LPR.x,    top_y + half_line_thickness, LPR.y);
+		Vector3 RPR_3D = new Vector3(RPR.x,    top_y + half_line_thickness, RPR.y);
+		Vector3 LCB_3D = new Vector3(LCB_2D.x, top_y + half_line_thickness, LCB_2D.y);
+		Vector3 RCB_3D = new Vector3(RCB_2D.x, top_y + half_line_thickness, RCB_2D.y);
+		
+		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,obj);
+		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,obj);
+		
+		// Center lines
+		
+		
+		// Lane lines
+		
+		
+		// End road markings
 		
 	} // End BezierMesh
 	
