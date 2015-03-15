@@ -1026,6 +1026,35 @@ public static class RoadMap {
 				break;
 			}
 	}
+	
+	/**
+	 * @brief Draw a curved lane line by type
+	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
+	 * @param[in] position1 Position of one end of the line
+	 * @param[in] position2 Control point of the line
+	 * @param[in] position3 Position of the other end of the line
+	 * @param[in] parent Parent object to which the line will join
+	 */
+	private static void draw_curved_lane_line (char lane_type, Vector3 position1, Vector3 position2, Vector3 position3, GameObject parent) {
+		
+		switch (lane_type) {
+		case Constants.Char_Public_Lane:
+			draw_continuous_curved_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Public_Transport_Lane, parent);
+			break;
+		case Constants.Char_Normal_Lane:
+			draw_discontinuous_curved_line (Constants.line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Normal_Lane, parent);
+			break;
+		case 'A':
+			Debug.Log("Parking not designed yet");
+			break;
+		case 'V':
+			Debug.Log("Bus/HOV not designed yet");
+			break;
+		default:
+			Debug.Log("Trying to draw invalid type of lane");
+			break;
+		}
+	}
 
 	/**
 	 * @brief Draw a continuous white line aligned with the Z axis
@@ -1266,6 +1295,8 @@ public static class RoadMap {
 		
 		float top_y = Constants.road_thickness/2;
 		float half_width = edge_width/2;
+		float half_line_thickness = Constants.line_thickness / 2;
+		float y_position_lines = top_y + half_line_thickness;
 		
 		// Hard shoulders
 		Vector2 LP = new Vector2 (start_point.x - (half_width - Constants.hard_shoulder_width), start_point.z);
@@ -1286,13 +1317,12 @@ public static class RoadMap {
 		Vector2 LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
 		Vector2 RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
 		
-		float half_line_thickness = Constants.line_thickness / 2;
-		Vector3 LP_3D  = new Vector3(LP.x,     top_y + half_line_thickness, LP.y);
-		Vector3 RP_3D  = new Vector3(RP.x,     top_y + half_line_thickness, RP.y);
-		Vector3 LPR_3D = new Vector3(LPR.x,    top_y + half_line_thickness, LPR.y);
-		Vector3 RPR_3D = new Vector3(RPR.x,    top_y + half_line_thickness, RPR.y);
-		Vector3 LCB_3D = new Vector3(LCB_2D.x, top_y + half_line_thickness, LCB_2D.y);
-		Vector3 RCB_3D = new Vector3(RCB_2D.x, top_y + half_line_thickness, RCB_2D.y);
+		Vector3 LP_3D  = new Vector3(LP.x,     y_position_lines, LP.y);
+		Vector3 RP_3D  = new Vector3(RP.x,     y_position_lines, RP.y);
+		Vector3 LPR_3D = new Vector3(LPR.x,    y_position_lines, LPR.y);
+		Vector3 RPR_3D = new Vector3(RPR.x,    y_position_lines, RPR.y);
+		Vector3 LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
+		Vector3 RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 		
 		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,node);
 		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,node);
@@ -1331,22 +1361,71 @@ public static class RoadMap {
 			LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
 			RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
 			
-			LP_3D  = new Vector3(LP.x,     top_y + half_line_thickness, LP.y);
-			RP_3D  = new Vector3(RP.x,     top_y + half_line_thickness, RP.y);
-			LPR_3D = new Vector3(LPR.x,    top_y + half_line_thickness, LPR.y);
-			RPR_3D = new Vector3(RPR.x,    top_y + half_line_thickness, RPR.y);
-			LCB_3D = new Vector3(LCB_2D.x, top_y + half_line_thickness, LCB_2D.y);
-			RCB_3D = new Vector3(RCB_2D.x, top_y + half_line_thickness, RCB_2D.y);
+			LP_3D  = new Vector3(LP.x,     y_position_lines, LP.y);
+			RP_3D  = new Vector3(RP.x,     y_position_lines, RP.y);
+			LPR_3D = new Vector3(LPR.x,    y_position_lines, LPR.y);
+			RPR_3D = new Vector3(RPR.x,    y_position_lines, RPR.y);
+			LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
+			RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 			
 			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,node);
 			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,node);
 		}
 		
 		// Lane lines
+		// Paint as many lines as lanes are in each direction except one 
+		// and put as many start lane as lanes have
+		Vector2 P, PR, PCB;
+		Vector3 P_3D, PR_3D, PCB_3D;
 		
+		if (e.src_des != Constants.String_No_Lane) {
+			
+			for (int i=0; i<e.src_des.Length-1; i++) {
+				char lane_type = e.src_des[i];
+				
+				if (edges[ref_edge_id].source_id == node_id) {
+					P = new Vector2(-((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
+				}
+				else {
+					P = new Vector2(((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
+				}
+				aux_vector = MyMathClass.orientationVector(road_center_point,P);
+				aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
+				PR = road_center_point_rotated - aux_vector_rotated;
+				PCB = MyMathClass.intersectionPoint(P,ref_edge_direction,PR,oth_edge_direction);
+				
+				P_3D = new Vector3(P.x,y_position_lines,P.y);
+				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
+				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
+				
+				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, node);
+			}
+		}
 		
+		if (e.des_src != Constants.String_No_Lane) {
+			
+			for (int i=0; i<e.des_src.Length-1; i++) {
+				char lane_type = e.des_src[i];
+				
+				if (edges[ref_edge_id].source_id == node_id) {
+					P = new Vector2(((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
+				}
+				else {
+					P = new Vector2(-((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
+				}
+				aux_vector = MyMathClass.orientationVector(road_center_point,P);
+				aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
+				PR = road_center_point_rotated - aux_vector_rotated;
+				PCB = MyMathClass.intersectionPoint(P,ref_edge_direction,PR,oth_edge_direction);
+				
+				P_3D = new Vector3(P.x,y_position_lines,P.y);
+				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
+				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
+				
+				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, node);
+			}
+		}
 		// End road markings
-		
 	} // CreateContinuationNode
 	
 	/**
