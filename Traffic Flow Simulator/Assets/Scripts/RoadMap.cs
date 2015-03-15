@@ -664,9 +664,7 @@ public static class RoadMap {
 			aux_road.renderer.material = black_material;
 			pos.y += (Constants.limit_height/2);
 			aux_road.transform.localScale = new Vector3(width,Constants.limit_height,Constants.limit_depth);
-			// Limit node vector
-			Vector2 dir = new Vector2 (0,1);
-			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir,e.direction),Vector3.up);
+			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down); // Vector (0,1) is the orientation of the limit node
 			aux_road.transform.position = pos;
 			// Place the node in the roads layer
 			MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
@@ -677,21 +675,34 @@ public static class RoadMap {
 			aux_road.tag = Constants.Tag_Node_Continuation;
 			float edge_width = nodeWidth(n.id);
 			
-			// Get the identifiers of the edges involved with the continuatino node
+			// Get the identifiers of the edges involved with the continuation node
 			string edgeID1, edgeID2;
 			RoadMap.getContinuationEdges (n.id, out edgeID1, out edgeID2);
+			
 			// Choose the edge whose x coordinate is less
 			string selected_edge = edgeID1;
+			string non_selected_edge = edgeID2;
 			
 			if (edges[edgeID2].fixed_position.x < edges[edgeID1].fixed_position.x) {
 				selected_edge = edgeID2;
+				non_selected_edge = edgeID1;
 			}
-			// Create the continuation node
-			CreateContinuationNode(node_id, aux_road, edge_width, edge_width, nodeAngle(n.id), selected_edge);
 			
-			Vector2 edge_direction = edges[selected_edge].direction;
-			float rotation_degrees = MyMathClass.RotationAngle(new Vector2(0,-1),edge_direction);
-			aux_road.transform.rotation = Quaternion.AngleAxis (rotation_degrees, new Vector3(0,1,0));
+			// Calculate angle and side of the turn
+			TurnSide side;
+			float angle_between_edges = nodeAngle(n.id, selected_edge, non_selected_edge, out side);
+			// Create the continuation node
+			CreateContinuationNode(node_id, aux_road, edge_width, edge_width, angle_between_edges, side, selected_edge);
+			
+			Vector2 edge_direction = new Vector2(nodes[node_id].x - edges[selected_edge].fixed_position.x, nodes[node_id].y - edges[selected_edge].fixed_position.z);
+			edge_direction.Normalize();
+			float rotation_degrees = Vector2.Angle(new Vector2(0,1),edge_direction); // Vector (0,1) is the orientation of the continuation node
+			
+			if (side == TurnSide.Left) {
+				rotation_degrees = -rotation_degrees;
+			}
+			
+			aux_road.transform.rotation = Quaternion.AngleAxis (rotation_degrees, Vector3.up);
 			aux_road.transform.position = pos;
 			// Place the node in the roads layer
 			MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
@@ -744,48 +755,73 @@ public static class RoadMap {
 
 	/**
 	 * @brief Calculate the angle that occurs between the edges reaching the continuation node passed as an argument.
+	 * Also calculates the turn side of the turn.
 	 * @param[in] node_id Continuation node ID
-	 * @return The angle calculated in degrees [0,360)
+	 * @param[in] ref_edge_id Edge identifier of the referency edge
+	 * @param[in] edge2_id Identifier of other edge
+	 * @param[out] side Indicates if the turn is to the left or to the right
+	 * @return The angle calculated in degrees [0,180]
+	 * @post After the execution of this method, the value of side will haven been set
 	 */
-	private static float nodeAngle (string node_id) {
-		Vector2 edge_1 = new Vector2();
-		Vector2 edge_2 = new Vector2();
-		bool first_found = false;
-		bool second_found = false;
-
-		// Find the two edges that reach the continuation node and save their positions
-
-		foreach (KeyValuePair<string, Edge> edge in edges) {
-			
-			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
-
-				if (!first_found && !second_found) {
-					first_found = true;
-					edge_1.x = edge.Value.fixed_position.x;
-					edge_1.y = edge.Value.fixed_position.z;
-				}
-				else if (first_found && !second_found) {
-					second_found = true;
-					edge_2.x = edge.Value.fixed_position.x;
-					edge_2.y = edge.Value.fixed_position.z;
-				}
-			}
-
-			if (second_found) {
-				break;
-			}
-		}
-
+	private static float nodeAngle (string node_id, string ref_edge_id, string edge2_id, out TurnSide side) {
+	
+		// Position of the node in 2D and 3D
+		Vector2 node_pos_2D = new Vector2(nodes[node_id].x,    nodes[node_id].y);
+		Vector3 node_pos_3D = new Vector3(nodes[node_id].x, 0, nodes[node_id].y);
+		
+		// Position of the reference edge in 2D and 3D
+		Vector2 ref_edge_pos_2D = new Vector2(edges[ref_edge_id].fixed_position.x,                                      edges[ref_edge_id].fixed_position.z);
+		Vector3 ref_edge_pos_3D = new Vector3(edges[ref_edge_id].fixed_position.x, edges[ref_edge_id].fixed_position.y, edges[ref_edge_id].fixed_position.z);
+		
+		// Position of the other edge in 2D and 3D
+		Vector2 oth_edge_pos_2D = new Vector2(edges[edge2_id].fixed_position.x,                                   edges[edge2_id].fixed_position.z);
+		Vector3 oth_edge_pos_3D = new Vector3(edges[edge2_id].fixed_position.x, edges[edge2_id].fixed_position.y, edges[edge2_id].fixed_position.z);
+		
 		// Calculate two vectors originating from the position of the node and vertex in the position of the edges
-		Vector2 vector_1 = new Vector2 (edge_1.x - nodes[node_id].x, edge_1.y - nodes[node_id].y);
-		Vector2 vector_2 = new Vector2 (edge_2.x - nodes[node_id].x, edge_2.y - nodes[node_id].y);
-
+		Vector2 vector_1 = MyMathClass.orientationVector(node_pos_2D, ref_edge_pos_2D);
+		Vector2 vector_2 = MyMathClass.orientationVector(node_pos_2D, oth_edge_pos_2D);
+		
+		//DEBUG
+		Debug.DrawLine(node_pos_3D, ref_edge_pos_3D + Vector3.up, Color.blue, 1000000f);
+		Debug.DrawLine(node_pos_3D, oth_edge_pos_3D + Vector3.up, Color32.Lerp(Color.blue,Color.white,0.5f), 1000000f);
+		//DEBUG
+		
+		// Normalize that vectors
+		vector_1.Normalize();
+		vector_2.Normalize();
+		
 		// Calculate the smallest angle between the two vectors
-		float angle_deg = MyMathClass.RotationAngle (vector_1, vector_2); //(-360,360)
-
-		if (angle_deg < 0) {
-			angle_deg += 360f;
+		float angle_deg = Vector2.Angle(vector_1, vector_2); //[0,180]
+		
+		/* Calculate side:
+			Get normalized vector with orientation node position -> reference edge position (vector_1)
+			Get perpendicular vectors of it at left and right (left_perp, right_perp)
+			Get coordinates of the ends of both vectors
+			Get middle point of the positions of the edges (MP)
+			If the end of left_perp is closer to MP than the end of right_perp
+				The turn is to the right
+			Otherwise
+				The turn is to the left
+		*/
+		
+		Vector2 left_perp = MyMathClass.getLeftPerpendicular(vector_1);
+		Vector2 right_perp = MyMathClass.getRightPerpendicular(vector_1);
+		
+		Vector2 left_point = node_pos_2D + left_perp;
+		Vector2 right_point = node_pos_2D + right_perp;
+		
+		Vector2 MP = MyMathClass.middlePoint(ref_edge_pos_2D, oth_edge_pos_2D);
+		
+		float distance_left_MP = MyMathClass.Distance(left_point, MP);
+		float distance_right_MP = MyMathClass.Distance(right_point, MP);
+		
+		if (distance_left_MP < distance_right_MP) {
+			side = TurnSide.Right;
 		}
+		else {
+			side = TurnSide.Left;
+		}
+		
 		return angle_deg;
 	}
 
@@ -894,10 +930,7 @@ public static class RoadMap {
 
 		// End road markings
 
-		// Vector of the newly drawn edge
-		Vector2 dir_pref = new Vector2 (0,1);
-
-		platform.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(dir_pref,e.direction),Vector3.up);
+		platform.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
 		platform.transform.position = e.fixed_position;
 		// Place the edge in the roads layer
 		MyUtilitiesClass.MoveToLayer(platform.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
@@ -1031,6 +1064,41 @@ public static class RoadMap {
 		line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
 		line.transform.parent = parent.transform;
 	}
+	
+	/**
+	 * @brief Draw a continuous curved white line between the positions position1 and position3, passing throught position2
+	 * @param[in] width Width of the line
+	 * @param[in] height Thickness of the line
+	 * @param[in] position1 Position of one end of the line
+	 * @param[in] position2 Control point of the line
+	 * @param[in] position3 Position of the other end of the line
+	 * @param[in] name Name for the object
+	 * @param[in] parent Parent object to which the line will join
+	 */
+	private static void draw_continuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
+		GameObject continuous_curved_line = new GameObject();
+		continuous_curved_line.name = Constants.Line_Name_Continuous_Curved;
+		continuous_curved_line.transform.parent = parent.transform;
+		
+		Vector3 start = position1;
+		Vector3 end;
+		
+		for (int i=1; i<=10; i++) {
+			end = MyMathClass.CalculateBezierPoint((float)i/10,position1,position2,position2,position3);
+		
+			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			line.name = name;
+			line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(start,end));
+			line.transform.position = MyMathClass.middlePoint(start,end);
+			line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(start,end));
+			line.renderer.material.color = Color.white;
+			line.renderer.material = white_asphalt_material;
+			line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
+			line.transform.parent = continuous_curved_line.transform;
+			
+			start = end;
+		}
+	}
 
 	/**
 	 * @brief Draw a discontinuous white line aligned with the Z axis
@@ -1097,6 +1165,43 @@ public static class RoadMap {
 		discontinuous_line.AddComponent<BoxCollider>();
 		discontinuous_line.GetComponent<BoxCollider>().size = new Vector3(width, height, length);
 	}
+	
+	/**
+	 * @brief Draw a discontinuous curved white line between the positions position1 and position3, passing throught position2
+	 * @param[in] width Width of the line
+	 * @param[in] height Thickness of the line
+	 * @param[in] position1 Position of one end of the line
+	 * @param[in] position2 Control point of the line
+	 * @param[in] position3 Position of the other end of the line
+	 * @param[in] name Name for the object
+	 * @param[in] parent Parent object to which the line will join
+	 */
+	private static void draw_discontinuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
+		GameObject continuous_curved_line = new GameObject();
+		continuous_curved_line.name = Constants.Line_Name_Continuous_Curved;
+		continuous_curved_line.transform.parent = parent.transform;
+		
+		Vector3 start = position1;
+		Vector3 end;
+		
+		for (int i=1; i<=10; i++) {
+			end = MyMathClass.CalculateBezierPoint((float)i/10,position1,position2,position2,position3);
+			
+			if (i%2 == 0) {
+				GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				line.name = name;
+				line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(start,end));
+				line.transform.position = MyMathClass.middlePoint(start,end);
+				line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(start,end));
+				line.renderer.material.color = Color.white;
+				line.renderer.material = white_asphalt_material;
+				line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
+				line.transform.parent = continuous_curved_line.transform;
+			}
+			
+			start = end;
+		}
+	}
 
 	/**
 	 * @brief Calculate the total number of lanes of the edge whose identifier is passed as an argument
@@ -1126,211 +1231,36 @@ public static class RoadMap {
 	 * @param[in] node The GameObject that is being created
 	 * @param[in] radius Radius of the circle circumscribed by the edges
 	 * @param[in] width Width of the edges
-	 * @param[in] angle Lower angle formed by edges [0,360)
+	 * @param[in] angle Lower angle formed by edges [0,180]
+	 * @param[in] side Left if the turn is to the left, Right if the turn is to the right
 	 * @param[in] ref_edge_id Edge identifier of the referency edge used to draw road markings
 	 */
-	private static void CreateContinuationNode (string node_id, GameObject node, float radius, float edge_width, float angle, string ref_edge_id) {
+	private static void CreateContinuationNode (string node_id, GameObject node, float radius, 
+												float edge_width, float angle, TurnSide side, 
+												string ref_edge_id) {
 		
-		node.AddComponent< BoxCollider >();
-		node.AddComponent< MeshRenderer >();
-		node.renderer.material = asphalt_material;
+		Vector2 road_center_point = new Vector2(0, -((radius * 0.5f) + 0.1f));
+		Vector2 road_center_point_rotated;
 		
-		float half_road_thickness = Constants.road_thickness * 0.5f;
-		float half_negative_radius = -radius * 0.5f;
-		float half_edge_width = edge_width * 0.5f;
-		
-		Vector2 left_point  = new Vector2 (-half_edge_width, half_negative_radius);
-		Vector2 right_point = new Vector2 ( half_edge_width, half_negative_radius);
-
-		// Rotate angle degrees the points left and right
-		Vector2 left_point_rotated  = MyMathClass.rotatePoint(left_point , angle);
-		Vector2 right_point_rotated = MyMathClass.rotatePoint(right_point, angle);
-		 
-		Vector3 p0 = new Vector3(  right_point_rotated.x,	-half_road_thickness,	right_point_rotated.y );
-		Vector3 p1 = new Vector3(  left_point_rotated.x, 	-half_road_thickness,	left_point_rotated.y  );
-		Vector3 p2 = new Vector3(  half_edge_width, 		-half_road_thickness,	half_negative_radius  );
-		Vector3 p3 = new Vector3( -half_edge_width,			-half_road_thickness,	half_negative_radius  );
-		Vector3 p4 = new Vector3(  right_point_rotated.x,	 half_road_thickness,	right_point_rotated.y );
-		Vector3 p5 = new Vector3(  left_point_rotated.x, 	 half_road_thickness,	left_point_rotated.y  );
-		Vector3 p6 = new Vector3(  half_edge_width, 		 half_road_thickness,	half_negative_radius  );
-		Vector3 p7 = new Vector3( -half_edge_width,	 		 half_road_thickness,	half_negative_radius  );
-		
-		Vector3[] vertex_array = new Vector3[8];
-		vertex_array[0] = p0;
-		vertex_array[1] = p1;
-		vertex_array[2] = p2;
-		vertex_array[3] = p3;
-		vertex_array[4] = p4;
-		vertex_array[5] = p5;
-		vertex_array[6] = p6;
-		vertex_array[7] = p7;
-		
-		eightMesh(node,vertex_array);
-		
-		Edge e = edges[ref_edge_id];
-		
-		// Common calculations
-		float pos_y_lines = (Constants.road_thickness/2)+(Constants.line_thickness/2);
-		float pos_z_lines = -((radius * 0.5f) + 0.1f);
-		Vector2 road_center_point = new Vector2(0, pos_z_lines);
-		Vector2 road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, angle);
-		float right_hard_shoulder_pos_x = (e.width / 2) - Constants.hard_shoulder_width;
-		float left_hard_shoulder_pos_x = -((e.width / 2) - Constants.hard_shoulder_width);
-		float lane_w_plus_line_w = Constants.lane_width + Constants.line_width;
-		
-		// Check if the node is source or destionation of the referency edge
-		bool is_source = true;
-		
-		if (node_id == e.destination_id) {
-			is_source = false;
+		if (side == TurnSide.Right) {
+			road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, angle);
+		}
+		else {
+			road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, -angle);
 		}
 		
-		// Hard shoulder lines
+		Vector3 start_point = new Vector3(road_center_point.x,0,road_center_point.y);
+		Vector3 control_point = new Vector3(0,0,0);
+		Vector3 end_point = new Vector3(road_center_point_rotated.x,0,road_center_point_rotated.y);
 		
-		Vector2 hard_shoulder_right_point = new Vector2 (right_hard_shoulder_pos_x, half_negative_radius);
-		Vector2 hard_shoulder_left_point  = new Vector2 (left_hard_shoulder_pos_x , half_negative_radius);
+		BezierMesh (node, Constants.road_thickness, edge_width, start_point, control_point, end_point, angle, side);
 		
-		Vector2 hard_shoulder_right_rotated = MyMathClass.rotatePoint(hard_shoulder_right_point, angle);
-		Vector2 hard_shoulder_left_rotated  = MyMathClass.rotatePoint(hard_shoulder_left_point, angle);
+		// Road markings
 		
-		draw_continuous_line(Constants.line_width,
-		                     Constants.line_thickness,
-		                     new Vector3( hard_shoulder_left_point.x,    pos_y_lines, hard_shoulder_left_point.y ),
-		                     new Vector3( hard_shoulder_right_rotated.x, pos_y_lines, hard_shoulder_right_rotated.y ),
-		                     Constants.Line_Name_Hard_Shoulder,
-		                     node);
 		
-		draw_continuous_line(Constants.line_width,
-		                     Constants.line_thickness,
-		                     new Vector3( hard_shoulder_right_point.x,  pos_y_lines, hard_shoulder_right_point.y ),
-		                     new Vector3( hard_shoulder_left_rotated.x, pos_y_lines, hard_shoulder_left_rotated.y ),
-		                     Constants.Line_Name_Hard_Shoulder,
-		                     node);
 		
-		// Center lines
-		
-		if (nodes[node_id].two_ways) {
-		
-			int lane_diff = 0; // Same number of lanes in each direction
-			
-			if (edges[ref_edge_id].src_des.Length != edges[ref_edge_id].des_src.Length) { // Different number of lanes in each direction
-				lane_diff = edges[ref_edge_id].src_des.Length - edges[ref_edge_id].des_src.Length;
-			}
-			
-			// Calculate the center point of the center lines and its corresponding rotated
-			Vector2 center_point;
-			
-			if (is_source) {
-				center_point = new Vector2 (+ (lane_diff * (Constants.lane_width/2)), pos_z_lines);
-			}
-			else {
-				center_point = new Vector2 (- (lane_diff * (Constants.lane_width/2)), pos_z_lines);
-			}
-			Vector2 center_point_rotated = MyMathClass.rotatePoint(center_point, angle);
-			
-			// Subtract twice the vector with origin in the point road_center_point_rotated and end in the point center_point_rotated
-			// To bring the point symmetrically across the center point of the road
-			Vector2 cp_cpr = new Vector2(center_point_rotated.x - road_center_point_rotated.x, center_point_rotated.y - road_center_point_rotated.y);
-			center_point_rotated -= 2*cp_cpr;
-			
-			// Left line
-			
-			// Calculate the starting point of the line
-			Vector2 line_begin_point = new Vector2(center_point.x - (Constants.center_lines_separation/2), center_point.y);
-				
-			// Calculate the same point rotated
-			Vector2 line_begin_point_rotated = MyMathClass.rotatePoint(line_begin_point, angle);
-			
-			// Subtract twice the vector with origin in the point road_center_point_rotated and end in the point line_begin_point_rotated
-			// To bring the point symmetrically across the center point of the road
-			Vector2 rcpr_lbpr = new Vector2(line_begin_point_rotated.x - road_center_point_rotated.x, line_begin_point_rotated.y - road_center_point_rotated.y);
-			line_begin_point_rotated -= 2*rcpr_lbpr;
-			
-			// Prepare the positions and draw the lines
-			Vector3 pos1 = new Vector3(line_begin_point.x,			pos_y_lines, line_begin_point.y);
-			Vector3 pos2 = new Vector3(line_begin_point_rotated.x,	pos_y_lines, line_begin_point_rotated.y);
-			
-			draw_continuous_line(Constants.line_width,Constants.line_thickness,pos1,pos2,Constants.Line_Name_Center,node);
-			
-			// Repeat for the right line setting "line_begin_point"
-			
-			line_begin_point = new Vector2(center_point.x + (Constants.center_lines_separation/2), center_point.y);
-			line_begin_point_rotated = MyMathClass.rotatePoint(line_begin_point, angle);
-			rcpr_lbpr = new Vector2(line_begin_point_rotated.x - road_center_point_rotated.x, line_begin_point_rotated.y - road_center_point_rotated.y);
-			line_begin_point_rotated -= 2*rcpr_lbpr;
-			pos1 = new Vector3(line_begin_point.x,			pos_y_lines, line_begin_point.y);
-			pos2 = new Vector3(line_begin_point_rotated.x,	pos_y_lines, line_begin_point_rotated.y);
-			draw_continuous_line(Constants.line_width,Constants.line_thickness,pos1,pos2,Constants.Line_Name_Center,node);
-		}
-		
-		// Lane lines
-		
-		// If the direction source -> destination has lanes
-		if (e.src_des != Constants.String_No_Lane) {
-			
-			// Paint a line for each of the lanes except the most central
-			for (int i=0; i < e.src_des.Length-1; i++) {
-				
-				// Calculate the starting point of the line
-				Vector2 line_begin_point;
-				
-				if (is_source) {
-					line_begin_point = new Vector2(left_hard_shoulder_pos_x + (lane_w_plus_line_w * (i+1)), pos_z_lines);
-				}
-				else {
-					line_begin_point = new Vector2(right_hard_shoulder_pos_x - (lane_w_plus_line_w * (i+1)), pos_z_lines);
-				}
-				
-				// Calculate the same point rotated
-				Vector2 line_begin_point_rotated = MyMathClass.rotatePoint(line_begin_point, angle);
-				
-				// Subtract twice the vector with origin in the point road_center_point_rotated and end in the point line_begin_point_rotated
-				// To bring the point symmetrically across the center point of the road
-				Vector2 rcpr_lbpr = new Vector2(line_begin_point_rotated.x - road_center_point_rotated.x, line_begin_point_rotated.y - road_center_point_rotated.y);
-				line_begin_point_rotated -= 2*rcpr_lbpr;
-				
-				// Prepare the positions and draw the lines
-				Vector3 pos1 = new Vector3(line_begin_point.x,			pos_y_lines, line_begin_point.y);
-				Vector3 pos2 = new Vector3(line_begin_point_rotated.x,	pos_y_lines, line_begin_point_rotated.y);
-				
-				char lane_type = e.src_des[i];
-				draw_lane_line (lane_type, pos1, pos2, node);
-			}
-		}
-		
-		// If the direction direccion destination -> source has lanes
-		if (e.des_src != Constants.String_No_Lane) {
-		
-			// Paint a line for each of the lanes except the most central
-			for (int i=0; i < e.des_src.Length-1; i++) {
-				
-				// Calculate the starting point of the line
-				Vector2 line_begin_point;
-				
-				if (is_source) {
-					line_begin_point = new Vector2(right_hard_shoulder_pos_x - (lane_w_plus_line_w * (i+1)), pos_z_lines);
-				}
-				else {
-					line_begin_point = new Vector2(left_hard_shoulder_pos_x + (lane_w_plus_line_w * (i+1)), pos_z_lines);
-				}
-				
-				// Calculate the same point rotated
-				Vector2 line_begin_point_rotated = MyMathClass.rotatePoint(line_begin_point, angle);
-				
-				// Subtract twice the vector with origin in the point road_center_point_rotated and end in the point line_begin_point_rotated
-				// To bring the point symmetrically across the center point of the road
-				Vector2 rcpr_lbpr = new Vector2(line_begin_point_rotated.x - road_center_point_rotated.x, line_begin_point_rotated.y - road_center_point_rotated.y);
-				line_begin_point_rotated -= 2*rcpr_lbpr;
-				
-				// Prepare the positions and draw the lines
-				Vector3 pos1 = new Vector3(line_begin_point.x,			pos_y_lines, line_begin_point.y);
-				Vector3 pos2 = new Vector3(line_begin_point_rotated.x,	pos_y_lines, line_begin_point_rotated.y);
-				
-				char lane_type = e.des_src[i];
-				draw_lane_line (lane_type, pos1, pos2, node);
-			}
-		}
 		// End road markings
+		
 	} // CreateContinuationNode
 	
 	/**
@@ -1338,12 +1268,95 @@ public static class RoadMap {
 	 * @param[in] obj The gameobject
 	 * @param[in] thick The thick of the mesh sections
 	 * @param[in] width The width of the mesh sections
-	 * @param[in] p0 The initial point for the Bezier curve
-	 * @param[in] p1 One control point of the curve
-	 * @param[in] p2 Other control point of the curve
-	 * @param[in] p3 The last point for the Bezier curve
+	 * @param[in] start_point The initial point for the Bezier curve
+	 * @param[in] control_point Control point of the curve
+	 * @param[in] end_point The last point for the Bezier curve
+	 * @param[in] angle The angle in degrees [0,180] of the edges involved in this turn
+	 * @param[in] side Left if the turn is to the left, Right if the turn is to the right
 	 */
-	private static void BezierMesh (GameObject obj, float thick, float width, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+	private static void BezierMesh (GameObject obj, float thick, float width, Vector3 start_point, 
+									Vector3 control_point, Vector3 end_point, float angle, TurnSide side) {
+		/*
+			The object will be created following this steps:
+				- Starting from a imaginary line parallel to the X axis, the mesh will turn left or right.
+				  The Bezier curve who leads the turn starts at <start_point>, and ends at <end_point>.
+				  <control_point> is the control point of the Bezier curve.
+				- To do the turn we need 4 points for each section of the turn. Each section will be a deformed cube 
+				  with its vertex in the 4 points with thickness of Constants.road_thickness.
+				- To obtain these points we draw 2 imaginary Bezier curves wich will define the profile of the turn.
+				  These curves starts in start_point.x - half_width <LP> and start_point.x + half_width <RP> and ends 
+				  in their equivalents points at the end imaginary line of the turn (<LPR> and <RPR>).
+				- The control point for these Bezier curves will be calculated as follow:
+					* We take the start and end points (left point <LP> and its corresponding rotated <LPR>, for 
+					  example), and we calculate their middle point <LMP>.
+					* Then calculate a vector <LVP> with origin in <control_point> and end in <LMP>. Now we have to 
+					  normalize it which give us the perpendicular direction to the turn's Bezier curve at its center
+					  point.
+					* Finally we have to add (left Bezier curve) and substract (right Bezier curve) half_width to the 
+					  <control_point> in the previously calculated direction to get the control points (<LCB> and <RCB>) 
+					  for the main Bezier curves.
+				- Exception:
+					If the angle is 90, the control point for the Bezier curve in the side of the turn is the middle
+					point between its ends.
+		*/
+		float top_y = Constants.road_thickness/2;
+		float bottom_y = -top_y;
+		float half_width = width/2;
+		
+		Vector2 LP = new Vector2 (start_point.x - half_width, start_point.z); // Left point
+		Vector2 RP = new Vector2 (start_point.x + half_width, start_point.z); // Right point
+		
+		/*	Rotate angle degrees the points left and right.
+			Due to the equal distance to the center of the imaginary lines start and end, rotate the left point give us
+			the corresponding rotated point for the right point and the same applies to the right point. */
+		
+		float rotation_angle = angle;
+		
+		if (side == TurnSide.Left) {
+			rotation_angle = -angle;
+		}
+		
+		Vector2 LPR = MyMathClass.rotatePoint(RP, rotation_angle);
+		Vector2 RPR = MyMathClass.rotatePoint(LP, rotation_angle);
+		
+		// Calculate control points for the Bezier curves
+		Vector2 LMP = MyMathClass.middlePoint(LP, LPR);
+		Vector3 LVP = Vector3.Normalize(MyMathClass.orientationVector(control_point, new Vector3(LMP.x,control_point.y,LMP.y)));
+		
+		Vector2 start_point_2D = new Vector2(start_point.x,start_point.z);
+		Vector2 end_point_2D = new Vector2(end_point.x,end_point.z);
+		Vector2 ref_edge_direction = MyMathClass.orientationVector(new Vector2(0,0), start_point_2D);
+		Vector2 oth_edge_direction = MyMathClass.orientationVector(new Vector2(0,0), end_point_2D);
+		
+		Vector2 LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
+		Vector2 RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
+		
+		Vector3 LCB = new Vector3(LCB_2D.x, control_point.y, LCB_2D.y);
+		Vector3 RCB = new Vector3(RCB_2D.x, control_point.y, RCB_2D.y);
+		
+		Vector3 LP_3D  = new Vector3(LP.x ,control_point.y, LP.y );
+		Vector3 RP_3D  = new Vector3(RP.x ,control_point.y, RP.y );
+		Vector3 LPR_3D = new Vector3(LPR.x,control_point.y, LPR.y);
+		Vector3 RPR_3D = new Vector3(RPR.x,control_point.y, RPR.y);
+		
+		// Create the turn sections
+		for (int i=0; i<10; i++) {
+			Vector2 point0 = MyMathClass.CalculateBezierPoint((float)i/10    ,LP,LCB_2D,LCB_2D,LPR);
+			Vector2 point1 = MyMathClass.CalculateBezierPoint((float)i/10    ,RP,RCB_2D,RCB_2D,RPR);
+			Vector2 point2 = MyMathClass.CalculateBezierPoint((float)(i+1)/10,RP,RCB_2D,RCB_2D,RPR);
+			Vector2 point3 = MyMathClass.CalculateBezierPoint((float)(i+1)/10,LP,LCB_2D,LCB_2D,LPR);
+			
+			Vector3[] vertex_array = new Vector3[8];
+			vertex_array[0] = new Vector3(point3.x, bottom_y, point3.y);
+			vertex_array[1] = new Vector3(point2.x, bottom_y, point2.y);
+			vertex_array[2] = new Vector3(point1.x, bottom_y, point1.y);
+			vertex_array[3] = new Vector3(point0.x, bottom_y, point0.y);
+			vertex_array[4] = new Vector3(point3.x, top_y   , point3.y);
+			vertex_array[5] = new Vector3(point2.x, top_y   , point2.y);
+			vertex_array[6] = new Vector3(point1.x, top_y   , point1.y);
+			vertex_array[7] = new Vector3(point0.x, top_y   , point0.y);
+			eightMesh(obj,vertex_array);
+		}
 		
 	} // End BezierMesh
 	
@@ -1351,10 +1364,17 @@ public static class RoadMap {
 	 * @brief Create a mesh with 8 vertex which seems a deformed box. The algorithm has been obtained from
 	 * http://wiki.unity3d.com/index.php/ProceduralPrimitives and has been adapted to the needs of this application
 	 * @param[in] obj The gameobject
-	 * @param[in] vertex_array The array with 8 Vector3 with the positions of all vertex
+	 * @param[in] vertex_array The array with 8 Vector3 with the positions of all vertex. The vertex of the bottom face
+	 * are p0,p1,p2,p3 and the vertex of the top face are p7,p6,p5,p4
 	 */
 	private static void eightMesh (GameObject obj, Vector3[] vertex_array) {
-		MeshFilter filter = obj.AddComponent< MeshFilter >();
+		GameObject go = new GameObject();
+		go.name = Constants.Name_Turn_Section;
+		go.transform.SetParent(obj.transform);
+		go.AddComponent< BoxCollider >();
+		go.AddComponent< MeshRenderer >();
+		go.renderer.material = asphalt_material;
+		MeshFilter filter = go.AddComponent< MeshFilter >();
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
 		
