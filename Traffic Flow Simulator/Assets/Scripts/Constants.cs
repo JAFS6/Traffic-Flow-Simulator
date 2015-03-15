@@ -20,6 +20,7 @@ public enum NodeType : byte {Intersection, Limit, Continuation, Unknown};
 public enum IntersectionType : byte {Normal, Roundabout, Unknown};
 public enum TransportType: byte {Public, Private, PublicAndPrivate, Unknown};
 public enum DirectionType: byte {Source_Destination, Destination_Source};
+public enum TurnSide : byte {Left, Right};
 
 public struct Node
 {
@@ -57,6 +58,8 @@ public static class Constants : object {
 	public const string Line_Name_Center = "Center line";
 	public const string Line_Name_Detention = "Detention line";
 	public const string Line_Name_Continuous = "Continuous line";
+	public const string Line_Name_Continuous_Curved = "Continuous curved line";
+	public const string Line_Name_Discontinuous_Curved = "Discontinuous curved line";
 	public const string Line_Name_Discontinuous = "Discontinuous line";
 	
 	public const string Lane_Name_Public = "Public Lane";
@@ -66,6 +69,8 @@ public static class Constants : object {
 	
 	public const string Name_Source_Start_Points = "Source Start Points";
 	public const string Name_Destination_Start_Points = "Destination Start Points";
+	
+	public const string Name_Turn_Section = "Turn Section";
 	
 	// Tags
 	public const string Tag_Node_Limit = "Limit_node";

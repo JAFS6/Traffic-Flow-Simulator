@@ -87,7 +87,7 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 			<data key="src_des">PN</data>
 		</edge>
 		<edge id="a5" source="n4" target="n5">
-			<data key="des_src">PNN</data>
+			<data key="des_src">PN</data>
 		</edge>
 		<edge id="a6" source="n5" target="n6">
 			<data key="des_src">PNN</data>
@@ -102,6 +102,7 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 			<data key="src_des">PN</data>
 		</edge>
 		<edge id="a10" source="n4" target="n10">
+			<data key="src_des">PN</data>
 			<data key="des_src">PNN</data>
 		</edge>
 	</graph>

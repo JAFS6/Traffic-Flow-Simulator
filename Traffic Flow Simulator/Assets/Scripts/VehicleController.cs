@@ -19,7 +19,6 @@ using System.Collections.Generic;
 
 public class VehicleController : MonoBehaviour {
 
-	public enum TurnSide : byte {Left, Right};
 	public enum VehicleType : byte {Car, Bus, Truck, Taxi};
 	
 	// Dependent variables of each car
