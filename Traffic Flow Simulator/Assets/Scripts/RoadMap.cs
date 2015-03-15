@@ -1287,17 +1287,12 @@ public static class RoadMap {
 				  These curves starts in start_point.x - half_width <LP> and start_point.x + half_width <RP> and ends 
 				  in their equivalents points at the end imaginary line of the turn (<LPR> and <RPR>).
 				- The control point for these Bezier curves will be calculated as follow:
-					* We take the start and end points (left point <LP> and its corresponding rotated <LPR>, for 
-					  example), and we calculate their middle point <LMP>.
-					* Then calculate a vector <LVP> with origin in <control_point> and end in <LMP>. Now we have to 
-					  normalize it which give us the perpendicular direction to the turn's Bezier curve at its center
-					  point.
-					* Finally we have to add (left Bezier curve) and substract (right Bezier curve) half_width to the 
-					  <control_point> in the previously calculated direction to get the control points (<LCB> and <RCB>) 
-					  for the main Bezier curves.
-				- Exception:
-					If the angle is 90, the control point for the Bezier curve in the side of the turn is the middle
-					point between its ends.
+					* We take the start and end points of the turn and calculate two orientation vectors wich 
+					corresponds to the edges (origin: (0,0), destination: central position of the edge).
+					* Now, we calculate the intersection point of the straights who pass throught the points LP and
+					LPR (for the left Bezier curve) and follow the direction of the previous calculated vectors. That 
+					point will be the control point for that Bezier curve. The right Bezier curve it's calculated
+					the same way.
 		*/
 		float top_y = Constants.road_thickness/2;
 		float bottom_y = -top_y;
@@ -1320,9 +1315,6 @@ public static class RoadMap {
 		Vector2 RPR = MyMathClass.rotatePoint(LP, rotation_angle);
 		
 		// Calculate control points for the Bezier curves
-		Vector2 LMP = MyMathClass.middlePoint(LP, LPR);
-		Vector3 LVP = Vector3.Normalize(MyMathClass.orientationVector(control_point, new Vector3(LMP.x,control_point.y,LMP.y)));
-		
 		Vector2 start_point_2D = new Vector2(start_point.x,start_point.z);
 		Vector2 end_point_2D = new Vector2(end_point.x,end_point.z);
 		Vector2 ref_edge_direction = MyMathClass.orientationVector(new Vector2(0,0), start_point_2D);
@@ -1330,14 +1322,6 @@ public static class RoadMap {
 		
 		Vector2 LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
 		Vector2 RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
-		
-		Vector3 LCB = new Vector3(LCB_2D.x, control_point.y, LCB_2D.y);
-		Vector3 RCB = new Vector3(RCB_2D.x, control_point.y, RCB_2D.y);
-		
-		Vector3 LP_3D  = new Vector3(LP.x ,control_point.y, LP.y );
-		Vector3 RP_3D  = new Vector3(RP.x ,control_point.y, RP.y );
-		Vector3 LPR_3D = new Vector3(LPR.x,control_point.y, LPR.y);
-		Vector3 RPR_3D = new Vector3(RPR.x,control_point.y, RPR.y);
 		
 		// Create the turn sections
 		for (int i=0; i<10; i++) {
