@@ -298,18 +298,18 @@ public static class MyMathClass : object {
 	 */
 	public static float CalculateBezierLength (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
 		float length = 0f;
-		
 		Vector3 prev = p0;
 		Vector3 next;
-		float t = 0.01;
+		float t_inc = 1 / Constants.bezier_precision;
+		float t = t_inc;
 		
-		for (int i=0; i<100; i++) {
+		for (int i=0; i<Constants.bezier_precision; i++) {
 			next = CalculateBezierPoint(t, p0, p1, p2, p3);
 			
 			length += Distance(prev, next);
 			
 			prev = next;
-			t += 0.01f;
+			t += t_inc;
 		}
 		
 		return length;
@@ -325,18 +325,18 @@ public static class MyMathClass : object {
 	 */
 	public static float CalculateBezierLength (Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3) {
 		float length = 0f;
+		Vector3 prev = p0;
+		Vector3 next;
+		float t_inc = 1 / Constants.bezier_precision;
+		float t = t_inc;
 		
-		Vector2 prev = p0;
-		Vector2 next;
-		float t = 0.01;
-		
-		for (int i=0; i<100; i++) {
+		for (int i=0; i<Constants.bezier_precision; i++) {
 			next = CalculateBezierPoint(t, p0, p1, p2, p3);
 			
 			length += Distance(prev, next);
 			
 			prev = next;
-			t += 0.01f;
+			t += t_inc;
 		}
 		
 		return length;
