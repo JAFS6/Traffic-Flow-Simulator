@@ -343,6 +343,76 @@ public static class MyMathClass : object {
 	}
 	
 	/**
+	 * @brief Calculates a point on the Bezier curve, defined by p0 (start), p3 (end) and p1 and p2 (control), who is
+	 * at a given distance from the start point.
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @param[in] dist The distance of the searched point over the curve
+	 * @return The calculated point
+	 */
+	public static Vector3 CalculateBezierPointWithDistance (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float dist) {
+		float t_inc = 1 / Constants.bezier_precision;
+		float t = t_inc;
+		Vector3 prev_candidate = p0;
+		Vector3 next_candidate;
+		float prev_candidate_distance = 0f;
+		float next_candidate_distance;
+		
+		for (int i=0; i<Constants.bezier_precision; i++) {
+			next_candidate = CalculateBezierPoint(t, p0, p1, p2, p3);
+			next_candidate_distance = Distance(next_candidate, p0);
+			
+			if (Mathf.Abs(dist - prev_candidate_distance) < Mathf.Abs(dist - next_candidate_distance)) {
+				return prev_candidate;
+			}
+			
+			prev_candidate = next_candidate;
+			prev_candidate_distance = next_candidate_distance;
+			t += t_inc;
+		}
+		
+		// This return could not be reached anytime
+		return next_candidate;
+	}
+	
+	/**
+	 * @brief Calculates a point on the Bezier curve, defined by p0 (start), p3 (end) and p1 and p2 (control), who is
+	 * at a given distance from the start point.
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @param[in] dist The distance of the searched point over the curve
+	 * @return The calculated point
+	 */
+	public static Vector2 CalculateBezierPointWithDistance (Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float dist) {
+		float t_inc = 1 / Constants.bezier_precision;
+		float t = t_inc;
+		Vector2 prev_candidate = p0;
+		Vector2 next_candidate;
+		float prev_candidate_distance = 0f;
+		float next_candidate_distance;
+		
+		for (int i=0; i<Constants.bezier_precision; i++) {
+			next_candidate = CalculateBezierPoint(t, p0, p1, p2, p3);
+			next_candidate_distance = Distance(next_candidate, p0);
+			
+			if (Mathf.Abs(dist - prev_candidate_distance) < Mathf.Abs(dist - next_candidate_distance)) {
+				return prev_candidate;
+			}
+			
+			prev_candidate = next_candidate;
+			prev_candidate_distance = next_candidate_distance;
+			t += t_inc;
+		}
+		
+		// This return could not be reached anytime
+		return next_candidate;
+	}
+	
+	/**
 	 * @brief Gets the perpendicular vector to the right of the vector passed as an argument
 	 * @param[in] v The original vector
 	 * @return The calculated vector
