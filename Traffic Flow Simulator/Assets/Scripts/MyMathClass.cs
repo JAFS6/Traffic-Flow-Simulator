@@ -57,6 +57,42 @@ public static class MyMathClass : object {
 	}
 	
 	/**
+	 * @brief Calculates the distance between two points over a Bezier curve in three-dimensional space
+	 * @param[in] a A vector (x,y,z) with the coordinates of the first point
+	 * @param[in] b A vector (x,y,z) with the coordinates of the second point 
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @return The calculated distance
+	 */
+	public static float DistanceOverBezier (Vector3 a, Vector3 b, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+		float d = 0f;
+		
+		
+		
+		return d;
+	}
+	
+	/**
+	 * @brief Calculates the distance between two points over a Bezier curve in two-dimensional space
+	 * @param[in] a A vector (x,y) with the coordinates of the first point
+	 * @param[in] b A vector (x,y) with the coordinates of the second point 
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @return The calculated distance
+	 */
+	public static float DistanceOverBezier (Vector2 a, Vector2 b, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3) {
+		float d = 0f;
+		
+		
+		
+		return d;
+	}
+	
+	/**
 	 * @brief Gets the modulus of a vector of three dimensions
 	 * @param[in] v A vector of three dimensions
 	 * @return The modulus of v
