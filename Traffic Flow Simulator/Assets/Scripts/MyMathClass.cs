@@ -235,7 +235,7 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calculate the 3D point on the t section of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
+	 * @brief Calculates the 3D point on the t section of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
 	 * The algorythm has been obtained from http://devmag.org.za/2011/04/05/bzier-curves-a-tutorial/
 	 * @param[in] t The value t can range from 0 to 1. The value 0 corresponds to the start point of the curve; 
 	 * the value 1 corresponds to the endpoint of the curve. Values in between correspond to other points on the curve.
@@ -246,7 +246,7 @@ public static class MyMathClass : object {
 	 * @return The value of the function is a point on the curve; it depends on the parameter t, and on a set of points,
 	 * called the control points (p0,p1,p2,p3)
 	 */
-	public static Vector3 CalculateBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+	public static Vector3 CalculateBezierPoint (float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
 		float u = 1f - t;
 		float tt = t*t;
 		float uu = u*u;
@@ -262,7 +262,7 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calculate the 2D point on the t section of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
+	 * @brief Calculates the 2D point on the t section of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
 	 * The algorythm has been obtained from http://devmag.org.za/2011/04/05/bzier-curves-a-tutorial/
 	 * @param[in] t The value t can range from 0 to 1. The value 0 corresponds to the start point of the curve; 
 	 * the value 1 corresponds to the endpoint of the curve. Values in between correspond to other points on the curve.
@@ -273,7 +273,7 @@ public static class MyMathClass : object {
 	 * @return The value of the function is a point on the curve; it depends on the parameter t, and on a set of points,
 	 * called the control points (p0,p1,p2,p3)
 	 */
-	public static Vector2 CalculateBezierPoint(float t, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3) {
+	public static Vector2 CalculateBezierPoint (float t, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3) {
 		float u = 1f - t;
 		float tt = t*t;
 		float uu = u*u;
@@ -286,6 +286,60 @@ public static class MyMathClass : object {
 		p += ttt * p3;		  //fourth term
 		
 		return p;
+	}
+	
+	/**
+	 * @brief Calculates the length of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @return The length of the Bezier curve
+	 */
+	public static float CalculateBezierLength (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+		float length = 0f;
+		
+		Vector3 prev = p0;
+		Vector3 next;
+		float t = 0.01;
+		
+		for (int i=0; i<100; i++) {
+			next = CalculateBezierPoint(t, p0, p1, p2, p3);
+			
+			length += Distance(prev, next);
+			
+			prev = next;
+			t += 0.01f;
+		}
+		
+		return length;
+	}
+	
+	/**
+	 * @brief Calculates the length of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @return The length of the Bezier curve
+	 */
+	public static float CalculateBezierLength (Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3) {
+		float length = 0f;
+		
+		Vector2 prev = p0;
+		Vector2 next;
+		float t = 0.01;
+		
+		for (int i=0; i<100; i++) {
+			next = CalculateBezierPoint(t, p0, p1, p2, p3);
+			
+			length += Distance(prev, next);
+			
+			prev = next;
+			t += 0.01f;
+		}
+		
+		return length;
 	}
 	
 	/**
@@ -309,7 +363,7 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calculate the intersection of two straights, which are defined by a point and a vector each.
+	 * @brief Calculates the intersection of two straights, which are defined by a point and a vector each.
 	 * @param[in] point_a Point by passing the first straight.
 	 * @param[in] vector_a Vector director of the first straight.
 	 * @param[in] point_b Point by passing the second straight.
@@ -317,7 +371,7 @@ public static class MyMathClass : object {
 	 * @return The intersection point calculated. If the vectors are parallel, the returned point
 	 * will be the middle point between point_a and point_b.
 	 */
-	public static Vector2 intersectionPoint(Vector2 point_a, Vector2 vector_a, Vector2 point_b, Vector2 vector_b) {
+	public static Vector2 intersectionPoint (Vector2 point_a, Vector2 vector_a, Vector2 point_b, Vector2 vector_b) {
 		
 		vector_a.Normalize();
 		vector_b.Normalize();
