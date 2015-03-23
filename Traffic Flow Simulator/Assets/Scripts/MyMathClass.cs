@@ -373,8 +373,8 @@ public static class MyMathClass : object {
 			t += t_inc;
 		}
 		
-		// This return could not be reached anytime
-		return next_candidate;
+		// This return must not be reached anytime
+		return prev_candidate;
 	}
 	
 	/**
@@ -408,8 +408,8 @@ public static class MyMathClass : object {
 			t += t_inc;
 		}
 		
-		// This return could not be reached anytime
-		return next_candidate;
+		// This return must not be reached anytime
+		return prev_candidate;
 	}
 	
 	/**
