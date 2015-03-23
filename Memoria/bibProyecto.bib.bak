@@ -17,7 +17,7 @@
   Address                  = {New York}
 }
 
-@Electronic{GraphML_man,
+@Manual{GraphML_man,
   Title                    = {The GraphML File Format},
 
   Address                  = {graphml.graphdrawing.org},
@@ -72,5 +72,16 @@
   Year                     = {2010},
   Series                   = {International Series in Operations Research \& Management Science},
   Volume                   = {145}
+}
+
+@Misc{Blender_web,
+  Title                    = {Blender web page},
+  Note                     = {\texttt{www.blender.org}}
+}
+
+@Misc{Unity_web,
+  Title                    = {Unity web page},
+
+  Url                      = {\texttt{unity3d.com/es}}
 }
 
