@@ -781,11 +781,6 @@ public static class RoadMap {
 		Vector2 vector_1 = MyMathClass.orientationVector(node_pos_2D, ref_edge_pos_2D);
 		Vector2 vector_2 = MyMathClass.orientationVector(node_pos_2D, oth_edge_pos_2D);
 		
-		//DEBUG
-		Debug.DrawLine(node_pos_3D, ref_edge_pos_3D + Vector3.up, Color.blue, 1000000f);
-		Debug.DrawLine(node_pos_3D, oth_edge_pos_3D + Vector3.up, Color32.Lerp(Color.blue,Color.white,0.5f), 1000000f);
-		//DEBUG
-		
 		// Normalize that vectors
 		vector_1.Normalize();
 		vector_2.Normalize();
