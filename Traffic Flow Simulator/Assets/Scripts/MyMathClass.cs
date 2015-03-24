@@ -57,6 +57,39 @@ public static class MyMathClass : object {
 	}
 	
 	/**
+	 * @brief Calculates the distance between two points over a Bezier curve
+	 * @param[in] a A vector with the coordinates of the first point
+	 * @param[in] b A vector with the coordinates of the second point 
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @return The calculated distance
+	 */
+	public static float DistanceOverBezier (Vector3 a, Vector3 b, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+		float t_inc = 1 / Constants.bezier_precision;
+		float a_t = MyMathClass.getBezierTNearPoint(a,p0,p1,p2,p3);
+		float b_t = MyMathClass.getBezierTNearPoint(b,p0,p1,p2,p3);
+		float d = 0f;
+		
+		float t =     (a_t < b_t) ? a_t : b_t;
+		float max_t = (a_t > b_t) ? a_t : b_t;
+		
+		Vector3 prev = MyMathClass.CalculateBezierPoint(t,p0,p1,p2,p3);
+		Vector3 next;
+		t += t_inc;
+		
+		while(t <= max_t) {
+			next = MyMathClass.CalculateBezierPoint(t,p0,p1,p2,p3);
+			d += MyMathClass.Distance(prev, next);
+			t += t_inc;
+			prev = next;
+		}
+		
+		return d;
+	}
+	
+	/**
 	 * @brief Gets the modulus of a vector of three dimensions
 	 * @param[in] v A vector of three dimensions
 	 * @return The modulus of v
@@ -235,7 +268,7 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calculate the 3D point on the t section of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
+	 * @brief Calculates the 3D point on the t section of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
 	 * The algorythm has been obtained from http://devmag.org.za/2011/04/05/bzier-curves-a-tutorial/
 	 * @param[in] t The value t can range from 0 to 1. The value 0 corresponds to the start point of the curve; 
 	 * the value 1 corresponds to the endpoint of the curve. Values in between correspond to other points on the curve.
@@ -246,7 +279,7 @@ public static class MyMathClass : object {
 	 * @return The value of the function is a point on the curve; it depends on the parameter t, and on a set of points,
 	 * called the control points (p0,p1,p2,p3)
 	 */
-	public static Vector3 CalculateBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+	public static Vector3 CalculateBezierPoint (float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
 		float u = 1f - t;
 		float tt = t*t;
 		float uu = u*u;
@@ -262,30 +295,99 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calculate the 2D point on the t section of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
-	 * The algorythm has been obtained from http://devmag.org.za/2011/04/05/bzier-curves-a-tutorial/
-	 * @param[in] t The value t can range from 0 to 1. The value 0 corresponds to the start point of the curve; 
-	 * the value 1 corresponds to the endpoint of the curve. Values in between correspond to other points on the curve.
+	 * @brief Calculates the length of the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control).
 	 * @param[in] p0 The start point of the curve
 	 * @param[in] p1 One control point of the curve
 	 * @param[in] p2 Other control point of the curve
 	 * @param[in] p3 The end point of the curve
-	 * @return The value of the function is a point on the curve; it depends on the parameter t, and on a set of points,
-	 * called the control points (p0,p1,p2,p3)
+	 * @return The length of the Bezier curve
 	 */
-	public static Vector2 CalculateBezierPoint(float t, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3) {
-		float u = 1f - t;
-		float tt = t*t;
-		float uu = u*u;
-		float uuu = uu * u;
-		float ttt = tt * t;
+	public static float CalculateBezierLength (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+		float length = 0f;
+		Vector3 prev = p0;
+		Vector3 next;
+		float t_inc = 1 / Constants.bezier_precision;
+		float t = t_inc;
 		
-		Vector2 p = uuu * p0; //first term
-		p += 3 * uu * t * p1; //second term
-		p += 3 * u * tt * p2; //third term
-		p += ttt * p3;		  //fourth term
+		for (int i=0; i<Constants.bezier_precision; i++) {
+			next = CalculateBezierPoint(t, p0, p1, p2, p3);
+			
+			length += Distance(prev, next);
+			
+			prev = next;
+			t += t_inc;
+		}
 		
-		return p;
+		return length;
+	}
+	
+	/**
+	 * @brief Calculates a point on the Bezier curve, defined by p0 (start), p3 (end) and p1 and p2 (control), who is
+	 * at a given distance from the start point.
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @param[in] dist The distance of the searched point over the curve
+	 * @return The calculated point
+	 */
+	public static Vector3 CalculateBezierPointWithDistance (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float dist) {
+		float t_inc = 1 / Constants.bezier_precision;
+		float t = t_inc;
+		Vector3 prev_candidate = p0;
+		Vector3 next_candidate;
+		float prev_candidate_distance = 0f; // Distance from the start point of the Bezier curve
+		float next_candidate_distance;
+		
+		for (int i=0; i<Constants.bezier_precision; i++) {
+			next_candidate = CalculateBezierPoint(t, p0, p1, p2, p3);
+			next_candidate_distance = MyMathClass.DistanceOverBezier(next_candidate, p0, p0, p1, p2, p3);
+			
+			if (Mathf.Abs(dist - prev_candidate_distance) < Mathf.Abs(dist - next_candidate_distance)) {
+				break;
+			}
+			
+			prev_candidate = next_candidate;
+			prev_candidate_distance = next_candidate_distance;
+			t += t_inc;
+		}
+		
+		return prev_candidate;
+	}
+	
+	/**
+	 * @brief Gets the parameter t over the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control), 
+	 * who can get the nearest point to the point passed as argument
+	 * @param[in] point The point to search the nearest t
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @return The value of the t parameter
+	 */
+	public static float getBezierTNearPoint (Vector3 point, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+		float t_inc = 1 / Constants.bezier_precision;
+		float t = 0;
+		
+		// First iteration
+		Vector3 aux = CalculateBezierPoint(t,p0,p1,p2,p3);
+		float best_d = Distance(aux,point);
+		t += t_inc;
+		
+		for (int i=1; i<Constants.bezier_precision; i++) {
+			aux = CalculateBezierPoint(t,p0,p1,p2,p3);
+			float d = Distance(aux,point);
+			
+			if (d > best_d) {
+				break;
+			}
+			else {
+				t += t_inc;
+				best_d = d;
+			}
+		}
+		
+		return t;
 	}
 	
 	/**
@@ -309,7 +411,7 @@ public static class MyMathClass : object {
 	}
 	
 	/**
-	 * @brief Calculate the intersection of two straights, which are defined by a point and a vector each.
+	 * @brief Calculates the intersection of two straights, which are defined by a point and a vector each.
 	 * @param[in] point_a Point by passing the first straight.
 	 * @param[in] vector_a Vector director of the first straight.
 	 * @param[in] point_b Point by passing the second straight.
@@ -317,7 +419,7 @@ public static class MyMathClass : object {
 	 * @return The intersection point calculated. If the vectors are parallel, the returned point
 	 * will be the middle point between point_a and point_b.
 	 */
-	public static Vector2 intersectionPoint(Vector2 point_a, Vector2 vector_a, Vector2 point_b, Vector2 vector_b) {
+	public static Vector2 intersectionPoint (Vector2 point_a, Vector2 vector_a, Vector2 point_b, Vector2 vector_b) {
 		
 		vector_a.Normalize();
 		vector_b.Normalize();

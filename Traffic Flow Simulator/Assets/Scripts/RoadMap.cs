@@ -974,7 +974,7 @@ public static class RoadMap {
 	/**
 	 * @brief Draw a lane line by type
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
-	 * @param[in] length Line lenght
+	 * @param[in] length Line length
 	 * @param[in] position Center line position
 	 * @param[in] parent Parent object to which the line will join
 	 */
@@ -1060,7 +1060,7 @@ public static class RoadMap {
 	 * @brief Draw a continuous white line aligned with the Z axis
 	 * @param[in] width Width of the line
 	 * @param[in] height Thickness of the line
-	 * @param[in] length Lenght of the line
+	 * @param[in] length Length of the line
 	 * @param[in] position Center position of the line
 	 * @param[in] name Name for the object
 	 * @param[in] parent Parent object to which the line will join
@@ -1133,7 +1133,7 @@ public static class RoadMap {
 	 * @brief Draw a discontinuous white line aligned with the Z axis
 	 * @param[in] width Width of the line
 	 * @param[in] height Thickness of the line
-	 * @param[in] length Lenght of the line
+	 * @param[in] length Length of the line
 	 * @param[in] position Center position of the line
 	 * @param[in] name Name for the object
 	 * @param[in] parent Parent object to which the line will join
@@ -1210,26 +1210,33 @@ public static class RoadMap {
 		continuous_curved_line.name = Constants.Line_Name_Continuous_Curved;
 		continuous_curved_line.transform.parent = parent.transform;
 		
-		Vector3 start = position1;
-		Vector3 end;
-		int total = 9;
+		float curve_length = MyMathClass.CalculateBezierLength(position1,position2,position2,position3);
+		int num_segments_posible = (int)(curve_length / Constants.discontinuous_line_length);
 		
-		for (int i=1; i<=total; i++) {
-			end = MyMathClass.CalculateBezierPoint((float)i/total,position1,position2,position2,position3);
+		if (num_segments_posible % 2 == 0) {
+			num_segments_posible--;
+		}
+		
+		float margin_length = (curve_length - (num_segments_posible * Constants.discontinuous_line_length) ) / 2;
+		
+		float prev_dist = margin_length;
+		float next_dist = prev_dist + Constants.discontinuous_line_length;
+		
+		while (next_dist < curve_length) {
+			Vector3 prev = MyMathClass.CalculateBezierPointWithDistance(position1,position2,position2,position3,prev_dist);
+			Vector3 next = MyMathClass.CalculateBezierPointWithDistance(position1,position2,position2,position3,next_dist);
+			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			line.name = name;
+			line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(prev,next));
+			line.transform.position = MyMathClass.middlePoint(prev,next);
+			line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(prev,next));
+			line.renderer.material.color = Color.white;
+			line.renderer.material = white_asphalt_material;
+			line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
+			line.transform.parent = continuous_curved_line.transform;
 			
-			if (i%2 == 0) {
-				GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-				line.name = name;
-				line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(start,end));
-				line.transform.position = MyMathClass.middlePoint(start,end);
-				line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(start,end));
-				line.renderer.material.color = Color.white;
-				line.renderer.material = white_asphalt_material;
-				line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
-				line.transform.parent = continuous_curved_line.transform;
-			}
-			
-			start = end;
+			prev_dist = next_dist + Constants.discontinuous_line_length;
+			next_dist = prev_dist + Constants.discontinuous_line_length;
 		}
 	}
 

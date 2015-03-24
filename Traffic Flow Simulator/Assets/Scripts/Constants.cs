@@ -123,5 +123,7 @@ public static class Constants : object {
 	public const float grass_ground_padding = 100f;
 	
 	public const float urban_speed_limit = 13.8f; // Meters per second (50 Km/h)
+	
+	// Other measures
+	public const float bezier_precision = 400f;
 }
- 
