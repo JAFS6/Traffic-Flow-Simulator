@@ -67,9 +67,24 @@ public static class MyMathClass : object {
 	 * @return The calculated distance
 	 */
 	public static float DistanceOverBezier (Vector3 a, Vector3 b, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+		float t_inc = 1 / Constants.bezier_precision;
+		float a_t = MyMathClass.getBezierTNearPoint(p0,p1,p2,p3,a);
+		float b_t = MyMathClass.getBezierTNearPoint(p0,p1,p2,p3,b);
 		float d = 0f;
 		
+		float t =     (a_t < b_t) ? a_t : b_t;
+		float max_t = (a_t > b_t) ? a_t : b_t;
 		
+		Vector3 prev = MyMathClass.CalculateBezierPoint(t,p0,p1,p2,p3);
+		Vector3 next;
+		t += t_inc;
+		
+		while(t <= max_t) {
+			next = MyMathClass.CalculateBezierPoint(t,p0,p1,p2,p3);
+			d += MyMathClass.Distance(prev, next);
+			t += t_inc;
+			prev = next;
+		}
 		
 		return d;
 	}
@@ -85,9 +100,24 @@ public static class MyMathClass : object {
 	 * @return The calculated distance
 	 */
 	public static float DistanceOverBezier (Vector2 a, Vector2 b, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3) {
+		float t_inc = 1 / Constants.bezier_precision;
+		float a_t = MyMathClass.getBezierTNearPoint(p0,p1,p2,p3,a);
+		float b_t = MyMathClass.getBezierTNearPoint(p0,p1,p2,p3,b);
 		float d = 0f;
 		
+		float t =     (a_t < b_t) ? a_t : b_t;
+		float max_t = (a_t > b_t) ? a_t : b_t;
 		
+		Vector2 prev = MyMathClass.CalculateBezierPoint(t,p0,p1,p2,p3);
+		Vector2 next;
+		t += t_inc;
+		
+		while(t <= max_t) {
+			next = MyMathClass.CalculateBezierPoint(t,p0,p1,p2,p3);
+			d += MyMathClass.Distance(prev, next);
+			t += t_inc;
+			prev = next;
+		}
 		
 		return d;
 	}
@@ -446,6 +476,74 @@ public static class MyMathClass : object {
 		
 		// This return must not be reached anytime
 		return prev_candidate;
+	}
+	
+	/**
+	 * @brief Gets the parameter t over the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control), 
+	 * who can get the nearest point to the point passed as argument
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @param[in] point The point to search the nearest t
+	 * @return The value of the t parameter
+	 */
+	public static float getBezierTNearPoint (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, Vector3 point) {
+		float t_inc = 1 / Constants.bezier_precision;
+		float t = 0;
+		
+		// First iteration
+		Vector3 aux = CalculateBezierPoint(t,p0,p1,p2,p3);
+		float best_d = Distance(aux,point);
+		t += t_inc;
+		
+		for (int i=1; i<Constants.bezier_precision; i++) {
+			aux = CalculateBezierPoint(t,p0,p1,p2,p3);
+			float d = Distance(aux,point);
+			
+			if (d > best_d) {
+				break;
+			}
+			else {
+				t += t_inc;
+			}
+		}
+		
+		return t;
+	}
+	
+	/**
+	 * @brief Gets the parameter t over the Bezier curve defined by p0 (start), p3 (end) and p1 and p2 (control), 
+	 * who can get the nearest point to the point passed as argument
+	 * @param[in] p0 The start point of the curve
+	 * @param[in] p1 One control point of the curve
+	 * @param[in] p2 Other control point of the curve
+	 * @param[in] p3 The end point of the curve
+	 * @param[in] point The point to search the nearest t
+	 * @return The value of the t parameter
+	 */
+	public static float getBezierTNearPoint (Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, Vector2 point) {
+		float t_inc = 1 / Constants.bezier_precision;
+		float t = 0;
+		
+		// First iteration
+		Vector2 aux = CalculateBezierPoint(t,p0,p1,p2,p3);
+		float best_d = Distance(aux,point);
+		t += t_inc;
+		
+		for (int i=1; i<Constants.bezier_precision; i++) {
+			aux = CalculateBezierPoint(t,p0,p1,p2,p3);
+			float d = Distance(aux,point);
+			
+			if (d > best_d) {
+				break;
+			}
+			else {
+				t += t_inc;
+			}
+		}
+		
+		return t;
 	}
 	
 	/**
