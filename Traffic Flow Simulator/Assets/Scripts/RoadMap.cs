@@ -870,6 +870,7 @@ public static class RoadMap {
 
 		Vector3 save_position = new Vector3 (position.x, position.y, position.z);
 		GameObject straight_arrow_prefab = Resources.Load("Prefabs/straight_arrow", typeof(GameObject)) as GameObject;
+		//GameObject bus_taxi_markings_prefab = Resources.Load("Prefabs/bus_taxi_markings", typeof(GameObject)) as GameObject;
 
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
@@ -889,10 +890,15 @@ public static class RoadMap {
 				}
 				setLaneStartPoint (lane_type, new Vector3 (position.x + (Constants.lane_width/2), position.y, position.z - (e.length/2)), source_start_points);
 				
+				Vector3 marking_pos = new Vector3(position.x + (Constants.lane_width/2), position.y, position.z - ((e.length / 2) - 4f));
+				
 				if (lane_type == Constants.Char_Normal_Lane) {
-					Vector3 arrow_pos = new Vector3(position.x + (Constants.lane_width/2), position.y, position.z - ((e.length / 2) - 4f));
-					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, arrow_pos, Quaternion.identity) as GameObject;
+					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, marking_pos, Quaternion.identity) as GameObject;
 					arrow.transform.SetParent(platform.transform);
+				}
+				else if (lane_type == Constants.Char_Public_Lane) {
+					//GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.identity) as GameObject;
+					//bus_taxi_markings.transform.SetParent(platform.transform);
 				}
 			}
 
@@ -921,10 +927,15 @@ public static class RoadMap {
 				}
 				setLaneStartPoint (lane_type, new Vector3 (position.x - (Constants.lane_width/2), position.y, position.z + (e.length/2)), destination_start_points);
 				
+				Vector3 marking_pos = new Vector3(position.x - (Constants.lane_width/2), position.y, position.z + ((e.length / 2) - 4f));
+				
 				if (lane_type == Constants.Char_Normal_Lane) {
-					Vector3 arrow_pos = new Vector3(position.x - (Constants.lane_width/2), position.y, position.z + ((e.length / 2) - 4f));
-					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, arrow_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
+					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
 					arrow.transform.SetParent(platform.transform);
+				}
+				else if (lane_type == Constants.Char_Public_Lane) {
+					//GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
+					//bus_taxi_markings.transform.SetParent(platform.transform);
 				}
 			}
 
