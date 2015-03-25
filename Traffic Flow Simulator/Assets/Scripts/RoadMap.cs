@@ -661,7 +661,7 @@ public static class RoadMap {
 			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
 			aux_road.name = node_id;
 			aux_road.tag = Constants.Tag_Node_Limit;
-			aux_road.renderer.material = black_material;
+			aux_road.GetComponent<Renderer>().material = black_material;
 			pos.y += (Constants.limit_height/2);
 			aux_road.transform.localScale = new Vector3(width,Constants.limit_height,Constants.limit_depth);
 			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down); // Vector (0,1) is the orientation of the limit node
@@ -833,9 +833,9 @@ public static class RoadMap {
 		platform.name = edge_id;
 		platform.tag = Constants.Tag_Edge;
 		platform.transform.localScale = new Vector3(e.width, Constants.road_thickness, e.length);
-		platform.renderer.material.color = Color.gray;
-		platform.renderer.material = asphalt_material;
-		platform.renderer.material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
+		platform.GetComponent<Renderer>().material.color = Color.gray;
+		platform.GetComponent<Renderer>().material = asphalt_material;
+		platform.GetComponent<Renderer>().material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
 		
 		Vector3 position;
 
@@ -869,6 +869,8 @@ public static class RoadMap {
 		// Lane lines
 
 		Vector3 save_position = new Vector3 (position.x, position.y, position.z);
+		GameObject straight_arrow_prefab = Resources.Load("Prefabs/straight_arrow", typeof(GameObject)) as GameObject;
+		//GameObject bus_taxi_markings_prefab = Resources.Load("Prefabs/bus_taxi_markings", typeof(GameObject)) as GameObject;
 
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
@@ -887,6 +889,17 @@ public static class RoadMap {
 					draw_lane_line (lane_type, e.length, position, platform);
 				}
 				setLaneStartPoint (lane_type, new Vector3 (position.x + (Constants.lane_width/2), position.y, position.z - (e.length/2)), source_start_points);
+				
+				Vector3 marking_pos = new Vector3(position.x + (Constants.lane_width/2), position.y, position.z - ((e.length / 2) - 4f));
+				
+				if (lane_type == Constants.Char_Normal_Lane) {
+					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, marking_pos, Quaternion.identity) as GameObject;
+					arrow.transform.SetParent(platform.transform);
+				}
+				else if (lane_type == Constants.Char_Public_Lane) {
+					//GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.identity) as GameObject;
+					//bus_taxi_markings.transform.SetParent(platform.transform);
+				}
 			}
 
 			// Stop lines before intersection
@@ -913,6 +926,17 @@ public static class RoadMap {
 					draw_lane_line (lane_type, e.length, position, platform);
 				}
 				setLaneStartPoint (lane_type, new Vector3 (position.x - (Constants.lane_width/2), position.y, position.z + (e.length/2)), destination_start_points);
+				
+				Vector3 marking_pos = new Vector3(position.x - (Constants.lane_width/2), position.y, position.z + ((e.length / 2) - 4f));
+				
+				if (lane_type == Constants.Char_Normal_Lane) {
+					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
+					arrow.transform.SetParent(platform.transform);
+				}
+				else if (lane_type == Constants.Char_Public_Lane) {
+					//GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
+					//bus_taxi_markings.transform.SetParent(platform.transform);
+				}
 			}
 
 			// Stop lines before intersection
@@ -1083,9 +1107,9 @@ public static class RoadMap {
 		line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(position1,position2));
 		line.transform.position = MyMathClass.middlePoint(position1,position2);
 		line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
-		line.renderer.material.color = Color.white;
-		line.renderer.material = white_asphalt_material;
-		line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
+		line.GetComponent<Renderer>().material.color = Color.white;
+		line.GetComponent<Renderer>().material = white_asphalt_material;
+		line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
 		line.transform.parent = parent.transform;
 	}
 	
@@ -1115,9 +1139,9 @@ public static class RoadMap {
 			line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(start,end));
 			line.transform.position = MyMathClass.middlePoint(start,end);
 			line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(start,end));
-			line.renderer.material.color = Color.white;
-			line.renderer.material = white_asphalt_material;
-			line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
+			line.GetComponent<Renderer>().material.color = Color.white;
+			line.GetComponent<Renderer>().material = white_asphalt_material;
+			line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
 			line.transform.parent = continuous_curved_line.transform;
 			
 			start = end;
@@ -1178,9 +1202,9 @@ public static class RoadMap {
 			line.name = name;
 			line.transform.localScale = new Vector3(width, height, Constants.discontinuous_line_length);
 			line.transform.position = pos_aux;
-			line.renderer.material.color = Color.white;
-			line.renderer.material = white_asphalt_material;
-			line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
+			line.GetComponent<Renderer>().material.color = Color.white;
+			line.GetComponent<Renderer>().material = white_asphalt_material;
+			line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
 			line.transform.parent = discontinuous_line.transform;
 			
 			pos_aux.z += Constants.discontinuous_line_length * 2;
@@ -1225,9 +1249,9 @@ public static class RoadMap {
 			line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(prev,next));
 			line.transform.position = MyMathClass.middlePoint(prev,next);
 			line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(prev,next));
-			line.renderer.material.color = Color.white;
-			line.renderer.material = white_asphalt_material;
-			line.renderer.material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
+			line.GetComponent<Renderer>().material.color = Color.white;
+			line.GetComponent<Renderer>().material = white_asphalt_material;
+			line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
 			line.transform.parent = continuous_curved_line.transform;
 			
 			prev_dist = next_dist + Constants.discontinuous_line_length;
@@ -1517,7 +1541,7 @@ public static class RoadMap {
 		go.transform.SetParent(obj.transform);
 		go.AddComponent< BoxCollider >();
 		go.AddComponent< MeshRenderer >();
-		go.renderer.material = asphalt_material;
+		go.GetComponent<Renderer>().material = asphalt_material;
 		MeshFilter filter = go.AddComponent< MeshFilter >();
 		Mesh mesh = filter.mesh;
 		mesh.Clear();
@@ -1693,8 +1717,8 @@ public static class RoadMap {
 		ground.name = Constants.Name_Ground;
 		ground.tag = Constants.Tag_Ground;
 		ground.transform.localScale = new Vector3((max_x-min_x)/10, 1, (max_z-min_z)/10); // It is divided by 10 because measurements of the plane are 10x10 in Unity
-		ground.renderer.material = grass_material;
-		ground.renderer.material.mainTextureScale = new Vector2(ground.transform.localScale.x, ground.transform.localScale.z);
+		ground.GetComponent<Renderer>().material = grass_material;
+		ground.GetComponent<Renderer>().material.mainTextureScale = new Vector2(ground.transform.localScale.x, ground.transform.localScale.z);
 		
 		Vector3 ground_position = new Vector3((max_x+min_x)/2,0,(max_z+min_z)/2);
 		ground.transform.position = ground_position;

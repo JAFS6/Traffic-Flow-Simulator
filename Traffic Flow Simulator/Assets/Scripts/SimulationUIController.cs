@@ -43,7 +43,7 @@ public class SimulationUIController : MonoBehaviour {
 		hidePausePanel();
 		showPauseHint();
 		is_paused = false;
-		Screen.showCursor = true;
+		Cursor.visible = true;
 	}
 	
 	public void backToMainMenu () {

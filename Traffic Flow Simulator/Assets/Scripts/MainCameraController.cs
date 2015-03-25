@@ -26,7 +26,7 @@ public class MainCameraController : MonoBehaviour {
 	float min_y = 0.5f;
 	
 	void Start () {
-		Screen.showCursor = true;
+		Cursor.visible = true;
 		speed = movement_velocity;
 	}
 
@@ -34,11 +34,11 @@ public class MainCameraController : MonoBehaviour {
 		if (!SimulationUIController.is_paused) {
 		
 			if (Input.GetMouseButtonDown(1)) {
-				Screen.showCursor = false;
+				Cursor.visible = false;
 			}
 			
 			if (Input.GetMouseButtonUp(1)) {
-				Screen.showCursor = true;
+				Cursor.visible = true;
 			}
 		
 			if (Input.GetKeyDown(KeyCode.LeftShift)) {
