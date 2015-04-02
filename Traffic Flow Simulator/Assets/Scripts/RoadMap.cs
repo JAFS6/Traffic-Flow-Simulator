@@ -869,8 +869,8 @@ public static class RoadMap {
 		// Lane lines
 
 		Vector3 save_position = new Vector3 (position.x, position.y, position.z);
-		GameObject straight_arrow_prefab = Resources.Load("Prefabs/straight_arrow", typeof(GameObject)) as GameObject;
-		//GameObject bus_taxi_markings_prefab = Resources.Load("Prefabs/bus_taxi_markings", typeof(GameObject)) as GameObject;
+		GameObject straight_arrow_prefab = Resources.Load("Prefabs/RoadMarkings/straight_arrow", typeof(GameObject)) as GameObject;
+		GameObject bus_taxi_markings_prefab = Resources.Load("Prefabs/RoadMarkings/taxi_bus_markings", typeof(GameObject)) as GameObject;
 
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
@@ -897,8 +897,8 @@ public static class RoadMap {
 					arrow.transform.SetParent(platform.transform);
 				}
 				else if (lane_type == Constants.Char_Public_Lane) {
-					//GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.identity) as GameObject;
-					//bus_taxi_markings.transform.SetParent(platform.transform);
+					GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.identity) as GameObject;
+					bus_taxi_markings.transform.SetParent(platform.transform);
 				}
 			}
 
@@ -934,8 +934,8 @@ public static class RoadMap {
 					arrow.transform.SetParent(platform.transform);
 				}
 				else if (lane_type == Constants.Char_Public_Lane) {
-					//GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
-					//bus_taxi_markings.transform.SetParent(platform.transform);
+					GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
+					bus_taxi_markings.transform.SetParent(platform.transform);
 				}
 			}
 

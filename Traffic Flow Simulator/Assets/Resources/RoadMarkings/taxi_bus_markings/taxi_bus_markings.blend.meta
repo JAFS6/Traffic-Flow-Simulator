@@ -1,0 +1,139 @@
+fileFormatVersion: 2
+guid: 91e93a95c2fcd9d45873c42383c3d705
+timeCreated: 1427962302
+licenseType: Free
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: Bus_Taxi_Chars
+    100002: //RootNode
+    100004: Text
+    100006: Text_001
+    100008: Bus_Text
+    100010: Taxi_Text
+    100012: B
+    100014: Bus_Text_Template
+    100016: Taxi_Text_Template
+    100018: U
+    100020: A
+    100022: I
+    100024: S
+    100026: T
+    100028: X
+    400000: Bus_Taxi_Chars
+    400002: //RootNode
+    400004: Text
+    400006: Text_001
+    400008: Bus_Text
+    400010: Taxi_Text
+    400012: B
+    400014: Bus_Text_Template
+    400016: Taxi_Text_Template
+    400018: U
+    400020: A
+    400022: I
+    400024: S
+    400026: T
+    400028: X
+    2300000: Bus_Taxi_Chars
+    2300002: Text
+    2300004: Text_001
+    2300006: Bus_Text
+    2300008: Taxi_Text
+    2300010: B
+    2300012: Bus_Text_Template
+    2300014: Taxi_Text_Template
+    2300016: U
+    2300018: A
+    2300020: I
+    2300022: S
+    2300024: T
+    2300026: X
+    3300000: Bus_Taxi_Chars
+    3300002: Text
+    3300004: Text_001
+    3300006: Bus_Text
+    3300008: Taxi_Text
+    3300010: B
+    3300012: Bus_Text_Template
+    3300014: Taxi_Text_Template
+    3300016: U
+    3300018: A
+    3300020: I
+    3300022: S
+    3300024: T
+    3300026: X
+    4300000: Bus_Taxi_Chars
+    4300002: Text_001
+    4300004: Text
+    4300006: Taxi_Text
+    4300008: Bus_Text
+    4300010: U
+    4300012: B
+    4300014: Taxi_Text_Template
+    4300016: Bus_Text_Template
+    4300018: S
+    4300020: I
+    4300022: X
+    4300024: A
+    4300026: T
+    7400000: Default Take
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
