@@ -51,6 +51,9 @@ public struct Edge
 
 public static class Constants : object {
 
+	// Paths
+	public const string maps_path = "/StreamingAssets/Maps/";
+	
 	// Names
 	public const string Line_Name_Hard_Shoulder = "Hard shoulder line";
 	public const string Line_Name_Public_Transport_Lane = "Public transport lane line";

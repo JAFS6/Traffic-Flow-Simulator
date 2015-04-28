@@ -27,7 +27,7 @@ public class MapLoader {
 	public void LoadMap (string mapFilename) {
 		
 		// Prepare filename of the map to load
-		string full_path = Application.dataPath + "/Resources/Maps/" + mapFilename + ".topology.graphml";
+		string full_path = Application.dataPath + Constants.maps_path + mapFilename + ".topology.graphml";
 		MapLoaderRoutine (full_path);
 	}
 	
