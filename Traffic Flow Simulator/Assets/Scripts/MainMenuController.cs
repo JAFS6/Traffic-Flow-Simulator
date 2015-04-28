@@ -40,7 +40,7 @@ public class MainMenuController : MonoBehaviour {
 		showStartPanel();
 		
 		// Search maps available and add a load map button for each one
-		DirectoryInfo info = new DirectoryInfo(Application.dataPath + "/Resources/Maps/");
+		DirectoryInfo info = new DirectoryInfo(Application.dataPath + Constants.maps_path);
 		FileInfo [] fileInfo = info.GetFiles();
 		float i = 0;
 		GameObject start_panel = GameObject.Find("Start Panel");
