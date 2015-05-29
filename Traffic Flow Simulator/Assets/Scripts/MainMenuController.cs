@@ -20,6 +20,15 @@ using UnityEngine.UI;
 
 public class MainMenuController : MonoBehaviour {
 	
+	[SerializeField]
+	private GameObject start_panel;
+	[SerializeField]
+	private GameObject options_panel;
+	[SerializeField]
+	private GameObject credits_panel;
+	[SerializeField]
+	private GameObject MapLoadButtons;
+	
 	public void loadMap (string filename) {
 		ApplicationController.map_filename = filename;
 		Application.LoadLevel("Simulation");
@@ -43,7 +52,6 @@ public class MainMenuController : MonoBehaviour {
 		DirectoryInfo info = new DirectoryInfo(Application.dataPath + Constants.maps_path);
 		FileInfo [] fileInfo = info.GetFiles();
 		float i = 0;
-		GameObject start_panel = GameObject.Find("Start Panel");
 		GameObject button_prefab = Resources.Load("Prefabs/LoadMapButton", typeof(GameObject)) as GameObject;
 		
 		foreach (FileInfo file in fileInfo) {
@@ -55,7 +63,7 @@ public class MainMenuController : MonoBehaviour {
 			if (split.Length == 3 && split[2] == Constants.String_graphml_ext && split[1] == Constants.String_topology_ext) {
 			
 				GameObject button = (GameObject)GameObject.Instantiate(button_prefab,new Vector3(0,0,0),Quaternion.identity);
-				button.transform.SetParent(start_panel.transform.FindChild("MapLoadButtons").transform,false);
+				button.transform.SetParent(MapLoadButtons.transform,false);
 				button.name = "LoadMapButton"+"_"+i;
 				button.tag = "LoadMapButton";
 				button.GetComponentInChildren<Text>().text = filename;
@@ -92,40 +100,34 @@ public class MainMenuController : MonoBehaviour {
 	}
 	
 	private void showStartPanel () {
-		GameObject start_panel = GameObject.Find("Start Panel");
 		start_panel.GetComponent<CanvasGroup>().alpha = 1;
 		start_panel.GetComponent<CanvasGroup>().interactable = true;
 		start_panel.GetComponent<CanvasGroup>().blocksRaycasts = true;
 	}
 	
 	private void showOptionsPanel () {
-		GameObject options_panel = GameObject.Find("Options Panel");
 		options_panel.GetComponent<CanvasGroup>().alpha = 1;
 		options_panel.GetComponent<CanvasGroup>().interactable = true;
 		options_panel.GetComponent<CanvasGroup>().blocksRaycasts = true;
 	}
 	
 	private void showCreditsPanel () {
-		GameObject credits_panel = GameObject.Find("Credits Panel");
 		credits_panel.GetComponent<CanvasGroup>().alpha = 1;
 	}
 	
 	private void hideStartPanel () {
-		GameObject start_panel = GameObject.Find("Start Panel");
 		start_panel.GetComponent<CanvasGroup>().alpha = 0;
 		start_panel.GetComponent<CanvasGroup>().interactable = false;
 		start_panel.GetComponent<CanvasGroup>().blocksRaycasts = false;
 	}
 	
 	private void hideOptionsPanel () {
-		GameObject options_panel = GameObject.Find("Options Panel");
 		options_panel.GetComponent<CanvasGroup>().alpha = 0;
 		options_panel.GetComponent<CanvasGroup>().interactable = false;
 		options_panel.GetComponent<CanvasGroup>().blocksRaycasts = false;
 	}
 	
 	private void hideCreditsPanel () {
-		GameObject credits_panel = GameObject.Find("Credits Panel");
 		credits_panel.GetComponent<CanvasGroup>().alpha = 0;
 	}
 }
