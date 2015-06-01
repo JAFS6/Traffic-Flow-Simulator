@@ -18,35 +18,24 @@ using System.Collections;
 using System.IO;
 using UnityEngine.UI;
 
-public class MainMenuController : MonoBehaviour {
-	
-	[SerializeField]
-	private GameObject start_panel;
-	[SerializeField]
-	private GameObject options_panel;
-	[SerializeField]
-	private GameObject credits_panel;
+public class MainMenuController : MonoBehaviour
+{
 	[SerializeField]
 	private GameObject MapLoadButtons;
 	
-	public void loadMap (string filename) {
+	public void loadMap (string filename)
+	{
 		ApplicationController.map_filename = filename;
 		Application.LoadLevel("Simulation");
 	}
 	
-	public void showStart () {
+	public void loadMapButtons ()
+	{
 		// Delete possible previous load map buttons
 		GameObject [] buttons = GameObject.FindGameObjectsWithTag ("LoadMapButton");
 		
-		foreach (GameObject item in buttons) {
+		foreach (GameObject item in buttons)
 			Destroy(item);
-		}
-	
-		// Hide other panels
-		hideOptionsPanel();
-		hideCreditsPanel();
-		// Show the start panel
-		showStartPanel();
 		
 		// Search maps available and add a load map button for each one
 		DirectoryInfo info = new DirectoryInfo(Application.dataPath + Constants.maps_path);
@@ -54,14 +43,14 @@ public class MainMenuController : MonoBehaviour {
 		float i = 0;
 		GameObject button_prefab = Resources.Load("Prefabs/LoadMapButton", typeof(GameObject)) as GameObject;
 		
-		foreach (FileInfo file in fileInfo) {
-		
+		foreach (FileInfo file in fileInfo)
+		{
 			string filename_w_extension = file.Name;
 			string [] split = filename_w_extension.Split(new char[] {'.'});
 			string filename = split[0];
 			
-			if (split.Length == 3 && split[2] == Constants.String_graphml_ext && split[1] == Constants.String_topology_ext) {
-			
+			if (split.Length == 3 && split[2] == Constants.String_graphml_ext && split[1] == Constants.String_topology_ext)
+			{
 				GameObject button = (GameObject)GameObject.Instantiate(button_prefab,new Vector3(0,0,0),Quaternion.identity);
 				button.transform.SetParent(MapLoadButtons.transform,false);
 				button.name = "LoadMapButton"+"_"+i;
@@ -76,58 +65,8 @@ public class MainMenuController : MonoBehaviour {
 		}
 	}
 	
-	public void showOptions () {
-		// Hide other panels
-		hideStartPanel();
-		hideCreditsPanel();
-		// Show the options panel
-		showOptionsPanel();
-	}
-	
-	public void showCredits () {
-		// Hide other panels
-		hideStartPanel();
-		hideOptionsPanel();
-		// Show the credits panel
-		showCreditsPanel();
-	}
-	
-	public void exitApplication () {
-		hideStartPanel();
-		hideOptionsPanel();
-		hideCreditsPanel();
+	public void exitApplication ()
+	{
 		Application.Quit();
-	}
-	
-	private void showStartPanel () {
-		start_panel.GetComponent<CanvasGroup>().alpha = 1;
-		start_panel.GetComponent<CanvasGroup>().interactable = true;
-		start_panel.GetComponent<CanvasGroup>().blocksRaycasts = true;
-	}
-	
-	private void showOptionsPanel () {
-		options_panel.GetComponent<CanvasGroup>().alpha = 1;
-		options_panel.GetComponent<CanvasGroup>().interactable = true;
-		options_panel.GetComponent<CanvasGroup>().blocksRaycasts = true;
-	}
-	
-	private void showCreditsPanel () {
-		credits_panel.GetComponent<CanvasGroup>().alpha = 1;
-	}
-	
-	private void hideStartPanel () {
-		start_panel.GetComponent<CanvasGroup>().alpha = 0;
-		start_panel.GetComponent<CanvasGroup>().interactable = false;
-		start_panel.GetComponent<CanvasGroup>().blocksRaycasts = false;
-	}
-	
-	private void hideOptionsPanel () {
-		options_panel.GetComponent<CanvasGroup>().alpha = 0;
-		options_panel.GetComponent<CanvasGroup>().interactable = false;
-		options_panel.GetComponent<CanvasGroup>().blocksRaycasts = false;
-	}
-	
-	private void hideCreditsPanel () {
-		credits_panel.GetComponent<CanvasGroup>().alpha = 0;
 	}
 }
