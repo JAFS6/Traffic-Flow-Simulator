@@ -24,29 +24,29 @@ public enum TurnSide : byte {Left, Right};
 
 public struct Node
 {
-	public string id;
-	public NodeType node_type;
-	public float x;
-	public float y;
-	public IntersectionType intersection_type;
-	public string widest_edge_id;
-	public bool two_ways; // Indicates whether two directions (true) or one (false).
+	public string 			id;					// Identifier of the node.
+	public NodeType 		node_type;			// Type of the node (Intersection, Limit, Continuation).
+	public float 			x;					// Position of the node on the X axis.
+	public float 			y;					// Position of the node on the Z axis.
+	public IntersectionType intersection_type;	// Only for Intersection Nodes: Type of intersection (Normal, Roundabout).
+	public string 			widest_edge_id;		// Identifier of the widest edge which touches the node.
+	public bool 			two_ways;			// Indicates whether two directions (true) or one (false).
 }
 
 public struct Edge
 {
-	public string id;
-	public string source_id;
-	public string destination_id;
-	public string name;
-	public string src_des;
-	public string des_src;
-	public float length;
-	public float width;
-	public int lane_num;
-	public Vector2 direction;
-	public Vector2 fixed_position_vector; // Position adjustment vector
-	public Vector3 fixed_position; // Position already set
+	public string 	id;							// Identifier of the edge.
+	public string 	source_id;					// Identifier of the source node.
+	public string 	destination_id;				// Identifier of the destination node.
+	public string 	name;						// Name of the street represented by the edge.
+	public string 	src_des;					// Lane codes of the edge on source-destination direction.
+	public string 	des_src;					// Lane codes of the edge on destination-source direction.
+	public float 	length;						// Lenght of the edge.
+	public float 	width;						// Total width of the edge.
+	public int 		lane_num;					// Total number of lanes on the edge.
+	public Vector2 	direction;					// Vector paralel to source-destination direction.
+	public Vector2 	fixed_position_vector;		// Position adjustment vector.
+	public Vector3 	fixed_position;				// Position already set.
 }
 
 public static class Constants : object {
