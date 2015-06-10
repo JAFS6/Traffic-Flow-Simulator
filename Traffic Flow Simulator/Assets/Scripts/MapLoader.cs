@@ -203,7 +203,8 @@ public class MapLoader {
 			return NodeType.Continuation;
 		}
 		else {
-			return NodeType.Unknown;
+			Debug.LogError ("Error on stringToNodeType, invalid string. Returning default.");
+			return NodeType.Limit; // Default return
 		}
 	}
 	
@@ -215,7 +216,8 @@ public class MapLoader {
 			return IntersectionType.Roundabout;
 		}
 		else {
-			return IntersectionType.Unknown;
+			Debug.LogError ("Error on stringToIntersectionType, invalid string. Returning default.");
+			return IntersectionType.Normal; // Default return
 		}
 	}
 }

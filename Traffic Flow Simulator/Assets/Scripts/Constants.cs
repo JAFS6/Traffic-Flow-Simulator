@@ -16,9 +16,9 @@
 using UnityEngine;
 using System.Collections;
 
-public enum NodeType : byte {Intersection, Limit, Continuation, Unknown};
-public enum IntersectionType : byte {Normal, Roundabout, Unknown};
-public enum TransportType: byte {Public, Private, PublicAndPrivate, Unknown};
+public enum NodeType : byte {Intersection, Limit, Continuation};
+public enum IntersectionType : byte {Normal, Roundabout};
+public enum TransportType: byte {Public, Private, PublicAndPrivate};
 public enum DirectionType: byte {Source_Destination, Destination_Source};
 public enum TurnSide : byte {Left, Right};
 

@@ -180,7 +180,8 @@ public static class RoadMap {
 			return nodes[node_id].node_type;
 		}
 		else {
-			return NodeType.Unknown;
+			Debug.LogError ("Error on getNodeType, node " + node_id + " doesn't exists. Returning default.");
+			return NodeType.Limit;
 		}
 	}
 
@@ -350,7 +351,7 @@ public static class RoadMap {
 	 */
 	public static bool isEntryNode (string node_id, out TransportType tt) {
 		
-		tt = TransportType.Unknown;
+		tt = TransportType.PublicAndPrivate; // Default initialization
 		
 		if (nodes[node_id].node_type == NodeType.Limit) {
 			string edge_id = getLimitEdge(node_id);
