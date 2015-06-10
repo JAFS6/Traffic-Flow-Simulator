@@ -133,6 +133,11 @@ public static class Constants : object {
 	public const float discontinuous_line_min_margin = 0.3f;
 	public const float cont_nodes_lines_extra_length = 0.05f;
 	public const float grass_ground_padding = 100f;
+	
+	public const float ground_Y_position 	= -0.007f;
+	public const float platform_Y_position 	= -0.004f;
+	public const float markings_Y_position 	= -0.001f;
+	public const float vehicles_Y_position 	= 0f;
 	#endregion
 	
 	#region Speed measures

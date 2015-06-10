@@ -513,22 +513,57 @@ public static class RoadMap {
 	/**
 	 * @brief Draw the map in 3D environment
 	 */
-	public static void draw () {
-		
-		prepareEdges ();
-		
+	public static void draw ()
+	{
+		calculateMapLimits ();
 		// Draw the ground
-		drawGround ();
-		
+		DrawEnviroment.Ground ();
+		// Calculate info before draw
+		prepareEdges ();
 		// Draw the edges
-		foreach (KeyValuePair<string, Edge> edge in edges){
+		foreach (KeyValuePair<string, Edge> edge in edges)
 			drawEdge (edge.Key);
-		}
-		
 		// Draw the nodes
-		foreach (KeyValuePair<string, Node> node in nodes){
+		foreach (KeyValuePair<string, Node> node in nodes)
 			drawNode (node.Key);
+	}
+	
+	/// <summary>
+	/// Calculates the map limits.
+	/// </summary>
+	private static void calculateMapLimits ()
+	{
+		List<string> node_IDs = RoadMap.getNodeIDs ();
+		
+		Vector2 first_pos = RoadMap.getNodePosition (node_IDs [0]);
+		
+		min_x = first_pos.x;
+		max_x = first_pos.x;
+		min_z = first_pos.y;
+		max_z = first_pos.y;
+		
+		foreach (string ID in node_IDs)
+		{
+			Vector2 pos = RoadMap.getNodePosition (ID);
+			
+			if (pos.x < min_x) {
+				min_x = pos.x;
+			}
+			else if (pos.x > max_x) {
+				max_x = pos.x;
+			}
+			
+			if (pos.y < min_z) {
+				min_z = pos.y;
+			}
+			else if (pos.y > max_z) {
+				max_z = pos.y;
+			}
 		}
+		max_x += Constants.grass_ground_padding;
+		max_z += Constants.grass_ground_padding;
+		min_x -= Constants.grass_ground_padding;
+		min_z -= Constants.grass_ground_padding;
 	}
 	
 	/**
@@ -1675,53 +1710,4 @@ public static class RoadMap {
 		mesh.RecalculateBounds();
 		mesh.Optimize();
 	} // End eightMesh
-	
-	/**
-	 * @brief Draw the grass floor
-	 */
-	private static void drawGround () {
-		List<string> node_IDs = RoadMap.getNodeIDs ();
-		
-		Vector2 first_pos = RoadMap.getNodePosition (node_IDs [0]);
-		
-		min_x = first_pos.x;
-		max_x = first_pos.x;
-		min_z = first_pos.y;
-		max_z = first_pos.y;
-		
-		foreach (string ID in node_IDs) {
-			Vector2 pos = RoadMap.getNodePosition (ID);
-			
-			if (pos.x < min_x) {
-				min_x = pos.x;
-			}
-			else if (pos.x > max_x) {
-				max_x = pos.x;
-			}
-			
-			if (pos.y < min_z) {
-				min_z = pos.y;
-			}
-			else if (pos.y > max_z) {
-				max_z = pos.y;
-			}
-		}
-		
-		max_x += Constants.grass_ground_padding;
-		max_z += Constants.grass_ground_padding;
-		min_x -= Constants.grass_ground_padding;
-		min_z -= Constants.grass_ground_padding;
-		
-		Material grass_material = Resources.Load ("Materials/Grass", typeof(Material)) as Material;
-		
-		GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-		ground.name = Constants.Name_Ground;
-		ground.tag = Constants.Tag_Ground;
-		ground.transform.localScale = new Vector3((max_x-min_x)/10, 1, (max_z-min_z)/10); // It is divided by 10 because measurements of the plane are 10x10 in Unity
-		ground.GetComponent<Renderer>().material = grass_material;
-		ground.GetComponent<Renderer>().material.mainTextureScale = new Vector2(ground.transform.localScale.x, ground.transform.localScale.z);
-		
-		Vector3 ground_position = new Vector3((max_x+min_x)/2,0,(max_z+min_z)/2);
-		ground.transform.position = ground_position;
-	} // End drawGround
 }
