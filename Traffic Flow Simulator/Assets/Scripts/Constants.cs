@@ -16,11 +16,11 @@
 using UnityEngine;
 using System.Collections;
 
-public enum NodeType : byte {Intersection, Limit, Continuation};
-public enum IntersectionType : byte {Normal, Roundabout};
-public enum TransportType: byte {Public, Private, PublicAndPrivate};
-public enum DirectionType: byte {Source_Destination, Destination_Source};
-public enum TurnSide : byte {Left, Right};
+public enum NodeType		: byte {Intersection, Limit, Continuation};
+public enum IntersectionType: byte {Normal, Roundabout};
+public enum TransportType	: byte {Public, Private, PublicAndPrivate};
+public enum DirectionType	: byte {Source_Destination, Destination_Source};
+public enum TurnSide		: byte {Left, Right};
 
 public struct Node
 {
@@ -51,10 +51,11 @@ public struct Edge
 
 public static class Constants : object {
 
-	// Paths
+	#region Paths
 	public const string maps_path = "/StreamingAssets/Maps/";
+	#endregion
 	
-	// Names
+	#region Names
 	public const string Line_Name_Hard_Shoulder = "Hard shoulder line";
 	public const string Line_Name_Public_Transport_Lane = "Public transport lane line";
 	public const string Line_Name_Normal_Lane = "Normal lane line";
@@ -69,13 +70,18 @@ public static class Constants : object {
 	public const string Lane_Name_Normal = "Normal Lane";
 	
 	public const string Name_Ground = "Ground";
+	public const string Name_Platform = "Platform";
 	
 	public const string Name_Source_Start_Points = "Source Start Points";
 	public const string Name_Destination_Start_Points = "Destination Start Points";
 	
-	public const string Name_Turn_Section = "Turn Section";
+	public const string Name_Turn_Section  = "Turn Section";
+	public const string Name_Turn_Platform = "Turn Platform";
 	
-	// Tags
+	public const string Name_Topologic_Objects = "Topologic objects";
+	#endregion
+	
+	#region Tags
 	public const string Tag_Node_Limit = "Limit_node";
 	public const string Tag_Node_Continuation = "Continuation_node";
 	public const string Tag_Node_Intersection = "Intersection_node";
@@ -85,12 +91,14 @@ public static class Constants : object {
 	public const string Tag_Lane_Start_Point_Group = "LaneStartPointGroup";
 	public const string Tag_Vehicle = "Vehicle";
 	public const string Tag_Ground = "Ground";
+	#endregion
 	
-	// Layers
+	#region Layers
 	public const string Layer_Roads = "Roads";
 	public const string Layer_Vehicles = "Vehicles";
+	#endregion
 	
-	// Data strings
+	#region Data strings
 	public const string String_No_Lane = "0";
 	public const string String_Normal_Lane = "N";
 	public const string String_Public_Lane = "P";
@@ -109,8 +117,9 @@ public static class Constants : object {
 	public const string xml_graphml_key_road_name = "road_name";
 	public const string xml_graphml_key_src_des = "src_des";
 	public const string xml_graphml_key_des_src = "des_src";
+	#endregion
 	
-	// Measures
+	#region Road measures
 	public const float lane_width = 3f;
 	public const float line_width = 0.1f;
 	public const float public_transport_line_width = 0.3f;
@@ -124,9 +133,13 @@ public static class Constants : object {
 	public const float discontinuous_line_min_margin = 0.3f;
 	public const float cont_nodes_lines_extra_length = 0.05f;
 	public const float grass_ground_padding = 100f;
+	#endregion
 	
+	#region Speed measures
 	public const float urban_speed_limit = 13.8f; // Meters per second (50 Km/h)
+	#endregion
 	
-	// Other measures
+	#region Precision measures
 	public const float bezier_precision = 400f;
+	#endregion
 }
