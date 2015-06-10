@@ -803,15 +803,12 @@ public static class RoadMap {
 	
 		// Position of the node in 2D and 3D
 		Vector2 node_pos_2D = new Vector2(nodes[node_id].x,    nodes[node_id].y);
-		Vector3 node_pos_3D = new Vector3(nodes[node_id].x, 0, nodes[node_id].y);
 		
 		// Position of the reference edge in 2D and 3D
-		Vector2 ref_edge_pos_2D = new Vector2(edges[ref_edge_id].fixed_position.x,                                      edges[ref_edge_id].fixed_position.z);
-		Vector3 ref_edge_pos_3D = new Vector3(edges[ref_edge_id].fixed_position.x, edges[ref_edge_id].fixed_position.y, edges[ref_edge_id].fixed_position.z);
+		Vector2 ref_edge_pos_2D = new Vector2(edges[ref_edge_id].fixed_position.x, edges[ref_edge_id].fixed_position.z);
 		
 		// Position of the other edge in 2D and 3D
-		Vector2 oth_edge_pos_2D = new Vector2(edges[edge2_id].fixed_position.x,                                   edges[edge2_id].fixed_position.z);
-		Vector3 oth_edge_pos_3D = new Vector3(edges[edge2_id].fixed_position.x, edges[edge2_id].fixed_position.y, edges[edge2_id].fixed_position.z);
+		Vector2 oth_edge_pos_2D = new Vector2(edges[edge2_id].fixed_position.x, edges[edge2_id].fixed_position.z);
 		
 		// Calculate two vectors originating from the position of the node and vertex in the position of the edges
 		Vector2 vector_1 = MyMathClass.orientationVector(node_pos_2D, ref_edge_pos_2D);
@@ -874,7 +871,7 @@ public static class RoadMap {
 		platform.GetComponent<Renderer>().material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
 		
 		Vector3 position;
-
+		
 		// Road markings
 
 		// Hard shoulder lines
