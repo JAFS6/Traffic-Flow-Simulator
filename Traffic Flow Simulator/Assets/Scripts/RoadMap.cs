@@ -751,6 +751,7 @@ public static class RoadMap {
 				Debug.Log ("road_prefab is null");
 			}
 			else {
+				pos.y = -0.05f + Constants.platform_Y_position;
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
 				aux_road.transform.localScale = new Vector3(edges[n.widest_edge_id].width,Constants.road_thickness,edges[n.widest_edge_id].width);
 				
