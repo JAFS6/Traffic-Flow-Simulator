@@ -26,7 +26,7 @@ public struct EntryNodeInfo
 	public float tbs; 		 // Time Between Spawns
 }
 
-public class ApplicationController : MonoBehaviour {
+public class SimulationController : MonoBehaviour {
 	
 	public static string map_filename = "";
 	
