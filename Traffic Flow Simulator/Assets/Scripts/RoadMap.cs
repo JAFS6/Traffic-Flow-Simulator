@@ -528,9 +528,9 @@ public static class RoadMap {
 			drawNode (node.Key);
 	}
 	
-	/// <summary>
-	/// Calculates the map limits.
-	/// </summary>
+	/**
+	 * @brief Calculates the map limits.
+	 */
 	private static void calculateMapLimits ()
 	{
 		List<string> node_IDs = RoadMap.getNodeIDs ();

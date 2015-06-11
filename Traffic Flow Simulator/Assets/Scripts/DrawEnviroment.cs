@@ -18,9 +18,9 @@ using System.Collections;
 
 public static class DrawEnviroment
 {
-	/// <summary>
-	/// Draw the grass floor.
-	/// </summary>
+	/**
+	 * @brief Draw the grass floor.
+	 */
 	public static void Ground ()
 	{
 		Material grass_material = Resources.Load ("Materials/Grass", typeof(Material)) as Material;
