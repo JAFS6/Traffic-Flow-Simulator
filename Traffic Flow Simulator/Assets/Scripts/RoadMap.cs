@@ -859,7 +859,8 @@ public static class RoadMap {
 	 * @param[in] edge_id Edge ID to draw
 	 * @pre Before running this method should be run once prepareEdges method
 	 */
-	private static void drawEdge (string edge_id) {
+	private static void drawEdge (string edge_id)
+	{
 		Edge e = edges[edge_id];
 		
 		GameObject edge_root = new GameObject();
@@ -870,7 +871,7 @@ public static class RoadMap {
 		topology.name = Constants.Name_Topological_Objects;
 		topology.transform.SetParent(edge_root.transform);
 		
-		// Platform
+		#region Platform
 		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		platform.name = Constants.Name_Platform;
 		platform.transform.SetParent(topology.transform);
@@ -880,112 +881,120 @@ public static class RoadMap {
 		platform.GetComponent<Renderer>().material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
 		Vector3 platform_position = new Vector3(0,(-Constants.road_thickness/2) + Constants.platform_Y_position,0);
 		platform.transform.position = platform_position;
+		#endregion
 		
 		// Road markings
 		float lines_Y_pos = (-Constants.line_thickness/2) + Constants.markings_Y_position;
 
-		// Hard shoulder lines
+		#region Hard shoulder lines
 		float hard_shoulder_d = (e.width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
 		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(-hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
 		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3( hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
-
-		Vector3 position = new Vector3(0,lines_Y_pos,0);
-
-		// Center lines
-		if (e.src_des != Constants.String_No_Lane && e.des_src != Constants.String_No_Lane) { // If both directions have lanes
-
+		#endregion
+		
+		// Lane number on source-destination direction
+		int lane_num_src_des = (e.src_des == Constants.String_No_Lane) ? 0 : e.src_des.Length;
+		// Lane number on destination-source direction
+		int lane_num_des_src = (e.des_src == Constants.String_No_Lane) ? 0 : e.des_src.Length;
+		
+		float half_lane_width = Constants.lane_width/2;
+		float half_length = e.length/2;
+		
+		#region Center lines
+		if (lane_num_src_des > 0 && lane_num_des_src > 0)
+		{
+			// If both directions have lanes
 			int lane_diff = 0; // Same number of lanes in each direction
 			
-			if (e.src_des.Length != e.des_src.Length) { // Different number of lanes in each direction
-				lane_diff = e.src_des.Length - e.des_src.Length;
+			if (lane_num_src_des != lane_num_des_src) // Different number of lanes in each direction
+			{
+				lane_diff = lane_num_src_des - lane_num_des_src;
 			}
-			
-			position.x = - (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
-			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, topology);
-			position.x = + (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
-			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, topology);
+			float half_center_lines_separation = Constants.center_lines_separation/2;
+			float center_line_common_calc = - (lane_diff * half_lane_width);
+			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc - half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
+			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc + half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
 		}
+		#endregion
 
-		// Lane lines
-
-		Vector3 save_position = new Vector3 (position.x, position.y, position.z);
-		GameObject straight_arrow_prefab = Resources.Load("Prefabs/RoadMarkings/straight_arrow", typeof(GameObject)) as GameObject;
-		GameObject bus_taxi_markings_prefab = Resources.Load("Prefabs/RoadMarkings/taxi_bus_markings", typeof(GameObject)) as GameObject;
-
+		#region Lane lines
+		float markings_d = (e.length / 2) - 4f;
+		GameObject source_start_points = new GameObject();
+		source_start_points.transform.SetParent(edge_root.transform);
+		source_start_points.name = Constants.Name_Source_Start_Points;
+		source_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
+		
+		GameObject destination_start_points = new GameObject();
+		destination_start_points.transform.SetParent(edge_root.transform);
+		destination_start_points.name = Constants.Name_Destination_Start_Points;
+		destination_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
+		
 		// Paint as many lines as lanes are in each direction except one 
-		// and put as many start lane as lanes have
-		if (e.src_des != Constants.String_No_Lane) {
+		// and put as many start lane as lanes are.
 		
-			GameObject source_start_points = new GameObject();
-			source_start_points.transform.parent = edge_root.transform;
-			source_start_points.name = Constants.Name_Source_Start_Points;
-			source_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
-		
-			for (int i=0; i<e.src_des.Length; i++) {
-				char lane_type = e.src_des[i];
-				position.x = platform.transform.position.x + ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
-				
-				if (i < e.src_des.Length-1) {
-					draw_lane_line (lane_type, e.length, position, topology);
-				}
-				setLaneStartPoint (lane_type, new Vector3 (position.x + (Constants.lane_width/2), position.y, position.z - (e.length/2)), source_start_points);
-				
-				Vector3 marking_pos = new Vector3(position.x + (Constants.lane_width/2), position.y, position.z - ((e.length / 2) - 4f));
-				
-				if (lane_type == Constants.Char_Normal_Lane) {
-					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, marking_pos, Quaternion.identity) as GameObject;
-					arrow.transform.SetParent(topology.transform);
-				}
-				else if (lane_type == Constants.Char_Public_Lane) {
-					GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.identity) as GameObject;
-					bus_taxi_markings.transform.SetParent(topology.transform);
-				}
-			}
-
-			// Stop lines before intersection
-			if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit) {
-				position.x = platform.transform.position.x + ((e.width / 2) - Constants.hard_shoulder_width) - (e.src_des.Length * (Constants.lane_width + Constants.line_width))/2;
-				position.z = platform.transform.position.z + (e.length/2 - Constants.public_transport_line_width/2);
-				draw_continuous_line (e.src_des.Length * (Constants.lane_width + Constants.line_width),Constants.line_thickness,Constants.public_transport_line_width,position,Constants.Line_Name_Detention,topology); // Exchanged width by length to make perpendicular line
-			}
-		}
-
-		if (e.des_src != Constants.String_No_Lane) {
-			position = save_position;
+		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
+		{
+			float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
 			
-			GameObject destination_start_points = new GameObject();
-			destination_start_points.transform.parent = edge_root.transform;
-			destination_start_points.name = Constants.Name_Destination_Start_Points;
-			destination_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
-
-			for (int i=0; i<e.des_src.Length; i++) {
-				char lane_type = e.des_src[i];
-				position.x = platform.transform.position.x - ((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1));
+			if (i < lane_num_src_des)
+			{
+				char  src_des_lane_type = e.src_des[i];
+				float src_des_posX = + hard_shoulder_d - lane_d;
 				
-				if (i < e.des_src.Length-1) {
-					draw_lane_line (lane_type, e.length, position, topology);
+				if (i < lane_num_src_des-1)
+				{
+					draw_lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
 				}
-				setLaneStartPoint (lane_type, new Vector3 (position.x - (Constants.lane_width/2), position.y, position.z + (e.length/2)), destination_start_points);
+					
+				setLaneStartPoint (src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
 				
-				Vector3 marking_pos = new Vector3(position.x - (Constants.lane_width/2), position.y, position.z + ((e.length / 2) - 4f));
-				
-				if (lane_type == Constants.Char_Normal_Lane) {
-					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
-					arrow.transform.SetParent(topology.transform);
-				}
-				else if (lane_type == Constants.Char_Public_Lane) {
-					GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
-					bus_taxi_markings.transform.SetParent(topology.transform);
-				}
+				Vector2 src_des_marking_pos = new Vector2(src_des_posX + half_lane_width, - markings_d);
+				DrawRoad.lane_markings (src_des_lane_type, src_des_marking_pos, true, topology);
 			}
-
-			// Stop lines before intersection
-			if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit) {
-				position.x = platform.transform.position.x - ((e.width / 2) - Constants.hard_shoulder_width) + (e.des_src.Length * (Constants.lane_width + Constants.line_width))/2;
-				position.z = platform.transform.position.z - (e.length/2 - Constants.public_transport_line_width/2);
-				draw_continuous_line (e.des_src.Length * (Constants.lane_width + Constants.line_width),Constants.line_thickness,Constants.public_transport_line_width,position,Constants.Line_Name_Detention,topology); // Intercambiado ancho por largo para hacer linea perpendicular
+			
+			if (i < lane_num_des_src)
+			{
+				char  des_src_lane_type = e.des_src[i];
+				float des_src_posX = - hard_shoulder_d + lane_d;
+				
+				if (i < lane_num_des_src-1)
+				{
+					draw_lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
+				}
+				
+				setLaneStartPoint (des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
+				
+				Vector2 des_src_marking_pos = new Vector2(des_src_posX - half_lane_width, + markings_d);
+				DrawRoad.lane_markings (des_src_lane_type, des_src_marking_pos, false, topology);
 			}
 		}
+		#endregion
+		
+		#region Detention lines
+		float detention_line_dZ = half_length - (Constants.public_transport_line_width/2);
+		
+		if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit && lane_num_src_des > 0)
+		{
+			float detention_line_posX = (+hard_shoulder_d) - ((lane_num_src_des * (Constants.lane_width + Constants.line_width))/2);
+			draw_continuous_line (MyUtilitiesClass.detentionLineWidth(e.src_des), 
+									Constants.line_thickness, 
+									Constants.public_transport_line_width, 
+									new Vector3(detention_line_posX, lines_Y_pos, + detention_line_dZ), 
+									Constants.Line_Name_Detention, 
+									topology);
+		}
+		
+		if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit && lane_num_des_src > 0)
+		{
+			float detention_line_posX = (-hard_shoulder_d) + ((lane_num_des_src * (Constants.lane_width + Constants.line_width))/2);
+			draw_continuous_line (MyUtilitiesClass.detentionLineWidth(e.des_src), 
+									Constants.line_thickness, 
+									Constants.public_transport_line_width, 
+									new Vector3(detention_line_posX, lines_Y_pos, - detention_line_dZ), 
+									Constants.Line_Name_Detention, 
+									topology);
+		}
+		#endregion
 
 		// End road markings
 
