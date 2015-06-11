@@ -78,7 +78,7 @@ public static class Constants : object {
 	public const string Name_Turn_Section  = "Turn Section";
 	public const string Name_Turn_Platform = "Turn Platform";
 	
-	public const string Name_Topologic_Objects = "Topologic objects";
+	public const string Name_Topological_Objects = "Topological objects";
 	#endregion
 	
 	#region Tags
