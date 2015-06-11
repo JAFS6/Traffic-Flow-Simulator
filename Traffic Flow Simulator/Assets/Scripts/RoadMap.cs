@@ -528,9 +528,9 @@ public static class RoadMap {
 			drawNode (node.Key);
 	}
 	
-	/// <summary>
-	/// Calculates the map limits.
-	/// </summary>
+	/**
+	 * @brief Calculates the map limits.
+	 */
 	private static void calculateMapLimits ()
 	{
 		List<string> node_IDs = RoadMap.getNodeIDs ();
@@ -751,6 +751,7 @@ public static class RoadMap {
 				Debug.Log ("road_prefab is null");
 			}
 			else {
+				pos.y = -0.05f + Constants.platform_Y_position;
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
 				aux_road.transform.localScale = new Vector3(edges[n.widest_edge_id].width,Constants.road_thickness,edges[n.widest_edge_id].width);
 				
@@ -858,134 +859,149 @@ public static class RoadMap {
 	 * @param[in] edge_id Edge ID to draw
 	 * @pre Before running this method should be run once prepareEdges method
 	 */
-	private static void drawEdge (string edge_id) {
+	private static void drawEdge (string edge_id)
+	{
 		Edge e = edges[edge_id];
 		
-		// Platform
+		GameObject edge_root = new GameObject();
+		edge_root.name = edge_id;
+		edge_root.tag = Constants.Tag_Edge;
+		
+		GameObject topology = new GameObject();
+		topology.name = Constants.Name_Topological_Objects;
+		topology.transform.SetParent(edge_root.transform);
+		
+		#region Platform
 		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		platform.name = edge_id;
-		platform.tag = Constants.Tag_Edge;
+		platform.name = Constants.Name_Platform;
+		platform.transform.SetParent(topology.transform);
 		platform.transform.localScale = new Vector3(e.width, Constants.road_thickness, e.length);
 		platform.GetComponent<Renderer>().material.color = Color.gray;
 		platform.GetComponent<Renderer>().material = asphalt_material;
 		platform.GetComponent<Renderer>().material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
-		
-		Vector3 position;
+		Vector3 platform_position = new Vector3(0,(-Constants.road_thickness/2) + Constants.platform_Y_position,0);
+		platform.transform.position = platform_position;
+		#endregion
 		
 		// Road markings
+		float lines_Y_pos = (-Constants.line_thickness/2) + Constants.markings_Y_position;
 
-		// Hard shoulder lines
-		position = new Vector3();
-		position.x = platform.transform.position.x - ((e.width / 2) - Constants.hard_shoulder_width);
-		position.y = platform.transform.position.y + (Constants.road_thickness/2)+(Constants.line_thickness/2);
-		position.z = 0;
-		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Hard_Shoulder, platform);
-
-		position.x = platform.transform.position.x + ((e.width / 2) - Constants.hard_shoulder_width);
-		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Hard_Shoulder, platform);
-
-		// Center lines
-		if (e.src_des != Constants.String_No_Lane && e.des_src != Constants.String_No_Lane) { // If both directions have lanes
-
+		#region Hard shoulder lines
+		float hard_shoulder_d = (e.width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
+		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(-hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
+		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3( hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
+		#endregion
+		
+		// Lane number on source-destination direction
+		int lane_num_src_des = (e.src_des == Constants.String_No_Lane) ? 0 : e.src_des.Length;
+		// Lane number on destination-source direction
+		int lane_num_des_src = (e.des_src == Constants.String_No_Lane) ? 0 : e.des_src.Length;
+		
+		float half_lane_width = Constants.lane_width/2;
+		float half_length = e.length/2;
+		
+		#region Center lines
+		if (lane_num_src_des > 0 && lane_num_des_src > 0)
+		{
+			// If both directions have lanes
 			int lane_diff = 0; // Same number of lanes in each direction
 			
-			if (e.src_des.Length != e.des_src.Length) { // Different number of lanes in each direction
-				lane_diff = e.src_des.Length - e.des_src.Length;
+			if (lane_num_src_des != lane_num_des_src) // Different number of lanes in each direction
+			{
+				lane_diff = lane_num_src_des - lane_num_des_src;
 			}
-			
-			position.x = platform.transform.position.x - (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
-			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
-			position.x = platform.transform.position.x + (Constants.center_lines_separation/2) - (lane_diff * (Constants.lane_width/2));
-			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, position, Constants.Line_Name_Center, platform);
+			float half_center_lines_separation = Constants.center_lines_separation/2;
+			float center_line_common_calc = - (lane_diff * half_lane_width);
+			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc - half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
+			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc + half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
 		}
+		#endregion
 
-		// Lane lines
-
-		Vector3 save_position = new Vector3 (position.x, position.y, position.z);
-		GameObject straight_arrow_prefab = Resources.Load("Prefabs/RoadMarkings/straight_arrow", typeof(GameObject)) as GameObject;
-		GameObject bus_taxi_markings_prefab = Resources.Load("Prefabs/RoadMarkings/taxi_bus_markings", typeof(GameObject)) as GameObject;
-
+		#region Lane lines
+		float markings_d = (e.length / 2) - 4f;
+		GameObject source_start_points = new GameObject();
+		source_start_points.transform.SetParent(edge_root.transform);
+		source_start_points.name = Constants.Name_Source_Start_Points;
+		source_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
+		
+		GameObject destination_start_points = new GameObject();
+		destination_start_points.transform.SetParent(edge_root.transform);
+		destination_start_points.name = Constants.Name_Destination_Start_Points;
+		destination_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
+		
 		// Paint as many lines as lanes are in each direction except one 
-		// and put as many start lane as lanes have
-		if (e.src_des != Constants.String_No_Lane) {
+		// and put as many start lane as lanes are.
 		
-			GameObject source_start_points = new GameObject();
-			source_start_points.transform.parent = platform.transform;
-			source_start_points.name = Constants.Name_Source_Start_Points;
-			source_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
-		
-			for (int i=0; i<e.src_des.Length; i++) {
-				char lane_type = e.src_des[i];
-				position.x = platform.transform.position.x + ((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1));
-				
-				if (i < e.src_des.Length-1) {
-					draw_lane_line (lane_type, e.length, position, platform);
-				}
-				setLaneStartPoint (lane_type, new Vector3 (position.x + (Constants.lane_width/2), position.y, position.z - (e.length/2)), source_start_points);
-				
-				Vector3 marking_pos = new Vector3(position.x + (Constants.lane_width/2), position.y, position.z - ((e.length / 2) - 4f));
-				
-				if (lane_type == Constants.Char_Normal_Lane) {
-					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, marking_pos, Quaternion.identity) as GameObject;
-					arrow.transform.SetParent(platform.transform);
-				}
-				else if (lane_type == Constants.Char_Public_Lane) {
-					GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.identity) as GameObject;
-					bus_taxi_markings.transform.SetParent(platform.transform);
-				}
-			}
-
-			// Stop lines before intersection
-			if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit) {
-				position.x = platform.transform.position.x + ((e.width / 2) - Constants.hard_shoulder_width) - (e.src_des.Length * (Constants.lane_width + Constants.line_width))/2;
-				position.z = platform.transform.position.z + (e.length/2 - Constants.public_transport_line_width/2);
-				draw_continuous_line (e.src_des.Length * (Constants.lane_width + Constants.line_width),Constants.line_thickness,Constants.public_transport_line_width,position,Constants.Line_Name_Detention,platform); // Exchanged width by length to make perpendicular line
-			}
-		}
-
-		if (e.des_src != Constants.String_No_Lane) {
-			position = save_position;
+		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
+		{
+			float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
 			
-			GameObject destination_start_points = new GameObject();
-			destination_start_points.transform.parent = platform.transform;
-			destination_start_points.name = Constants.Name_Destination_Start_Points;
-			destination_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
-
-			for (int i=0; i<e.des_src.Length; i++) {
-				char lane_type = e.des_src[i];
-				position.x = platform.transform.position.x - ((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1));
+			if (i < lane_num_src_des)
+			{
+				char  src_des_lane_type = e.src_des[i];
+				float src_des_posX = + hard_shoulder_d - lane_d;
 				
-				if (i < e.des_src.Length-1) {
-					draw_lane_line (lane_type, e.length, position, platform);
+				if (i < lane_num_src_des-1)
+				{
+					draw_lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
 				}
-				setLaneStartPoint (lane_type, new Vector3 (position.x - (Constants.lane_width/2), position.y, position.z + (e.length/2)), destination_start_points);
+					
+				setLaneStartPoint (src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
 				
-				Vector3 marking_pos = new Vector3(position.x - (Constants.lane_width/2), position.y, position.z + ((e.length / 2) - 4f));
-				
-				if (lane_type == Constants.Char_Normal_Lane) {
-					GameObject arrow = GameObject.Instantiate (straight_arrow_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
-					arrow.transform.SetParent(platform.transform);
-				}
-				else if (lane_type == Constants.Char_Public_Lane) {
-					GameObject bus_taxi_markings = GameObject.Instantiate (bus_taxi_markings_prefab, marking_pos, Quaternion.AngleAxis(180, Vector3.up)) as GameObject;
-					bus_taxi_markings.transform.SetParent(platform.transform);
-				}
+				Vector2 src_des_marking_pos = new Vector2(src_des_posX + half_lane_width, - markings_d);
+				DrawRoad.lane_markings (src_des_lane_type, src_des_marking_pos, true, topology);
 			}
-
-			// Stop lines before intersection
-			if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit) {
-				position.x = platform.transform.position.x - ((e.width / 2) - Constants.hard_shoulder_width) + (e.des_src.Length * (Constants.lane_width + Constants.line_width))/2;
-				position.z = platform.transform.position.z - (e.length/2 - Constants.public_transport_line_width/2);
-				draw_continuous_line (e.des_src.Length * (Constants.lane_width + Constants.line_width),Constants.line_thickness,Constants.public_transport_line_width,position,Constants.Line_Name_Detention,platform); // Intercambiado ancho por largo para hacer linea perpendicular
+			
+			if (i < lane_num_des_src)
+			{
+				char  des_src_lane_type = e.des_src[i];
+				float des_src_posX = - hard_shoulder_d + lane_d;
+				
+				if (i < lane_num_des_src-1)
+				{
+					draw_lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
+				}
+				
+				setLaneStartPoint (des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
+				
+				Vector2 des_src_marking_pos = new Vector2(des_src_posX - half_lane_width, + markings_d);
+				DrawRoad.lane_markings (des_src_lane_type, des_src_marking_pos, false, topology);
 			}
 		}
+		#endregion
+		
+		#region Detention lines
+		float detention_line_dZ = half_length - (Constants.public_transport_line_width/2);
+		
+		if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit && lane_num_src_des > 0)
+		{
+			float detention_line_posX = (+hard_shoulder_d) - ((lane_num_src_des * (Constants.lane_width + Constants.line_width))/2);
+			draw_continuous_line (MyUtilitiesClass.detentionLineWidth(e.src_des), 
+									Constants.line_thickness, 
+									Constants.public_transport_line_width, 
+									new Vector3(detention_line_posX, lines_Y_pos, + detention_line_dZ), 
+									Constants.Line_Name_Detention, 
+									topology);
+		}
+		
+		if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit && lane_num_des_src > 0)
+		{
+			float detention_line_posX = (-hard_shoulder_d) + ((lane_num_des_src * (Constants.lane_width + Constants.line_width))/2);
+			draw_continuous_line (MyUtilitiesClass.detentionLineWidth(e.des_src), 
+									Constants.line_thickness, 
+									Constants.public_transport_line_width, 
+									new Vector3(detention_line_posX, lines_Y_pos, - detention_line_dZ), 
+									Constants.Line_Name_Detention, 
+									topology);
+		}
+		#endregion
 
 		// End road markings
 
-		platform.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
-		platform.transform.position = e.fixed_position;
+		edge_root.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
+		edge_root.transform.position = e.fixed_position;
 		// Place the edge in the roads layer
-		MyUtilitiesClass.MoveToLayer(platform.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+		MyUtilitiesClass.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 	} // End drawEdge
 	
 	/**
@@ -1024,7 +1040,7 @@ public static class RoadMap {
 	}
 
 	/**
-	 * @brief Draw a lane line by type
+	 * @brief Draw a lane line by type aligned with the Z axis
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
 	 * @param[in] length Line length
 	 * @param[in] position Center line position
@@ -1032,27 +1048,14 @@ public static class RoadMap {
 	 */
 	private static void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
 
-		switch (lane_type) {
-			case Constants.Char_Public_Lane:
-				draw_continuous_line (Constants.public_transport_line_width, Constants.line_thickness, length, position, Constants.Line_Name_Public_Transport_Lane, parent);
-				break;
-			case Constants.Char_Normal_Lane:
-				draw_discontinuous_line (Constants.line_width, Constants.line_thickness, length, position, Constants.Line_Name_Normal_Lane, parent);
-				break;
-			case 'A':
-				Debug.Log("Parking not designed yet");
-				break;
-			case 'V':
-				Debug.Log("Bus/HOV not designed yet");
-				break;
-			default:
-				Debug.Log("Trying to draw invalid type of lane");
-				break;
-		}
+		Vector3 position1 = new Vector3(position.x, position.y, position.z - (length/2));
+		Vector3 position2 = new Vector3(position.x, position.y, position.z + (length/2));
+		
+		draw_lane_line (lane_type, position1, position2, parent);
 	}
 	
 	/**
-	 * @brief Draw a lane line by type
+	 * @brief Draw a lane line by type aligned with the Z axis
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
 	 * @param[in] position1 Position of one end of the line
 	 * @param[in] position2 Position of the other end of the line
@@ -1158,7 +1161,7 @@ public static class RoadMap {
 	 */
 	private static void draw_continuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
 		GameObject continuous_curved_line = new GameObject();
-		continuous_curved_line.name = Constants.Line_Name_Continuous_Curved;
+		continuous_curved_line.name = name;
 		continuous_curved_line.transform.parent = parent.transform;
 		
 		Vector3 start = position1;
@@ -1210,7 +1213,7 @@ public static class RoadMap {
 	private static void draw_discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent) {
 	
 		GameObject discontinuous_line = new GameObject ();
-		discontinuous_line.name = Constants.Line_Name_Discontinuous;
+		discontinuous_line.name = name;
 		discontinuous_line.transform.parent = new_parent.transform;
 		discontinuous_line.transform.position = MyMathClass.middlePoint(position1,position2);
 		float length = MyMathClass.Distance(position1,position2);
@@ -1259,7 +1262,7 @@ public static class RoadMap {
 	 */
 	private static void draw_discontinuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
 		GameObject continuous_curved_line = new GameObject();
-		continuous_curved_line.name = Constants.Line_Name_Continuous_Curved;
+		continuous_curved_line.name = name;
 		continuous_curved_line.transform.parent = parent.transform;
 		
 		float curve_length = MyMathClass.CalculateBezierLength(position1,position2,position2,position3);
@@ -1328,6 +1331,10 @@ public static class RoadMap {
 												float edge_width, float angle, TurnSide side, 
 												string ref_edge_id) {
 		
+		GameObject topology = new GameObject();
+		topology.name = Constants.Name_Topological_Objects;
+		topology.transform.SetParent(node.transform);
+		
 		Vector2 road_center_point = new Vector2(0, -((radius * 0.5f) + 0.1f));
 		Vector2 road_center_point_rotated;
 		
@@ -1348,19 +1355,19 @@ public static class RoadMap {
 			rotation_angle = -angle;
 		}
 		
-		BezierMesh (node, Constants.road_thickness, edge_width, start_point, control_point, end_point, rotation_angle);
+		BezierMesh (topology, Constants.road_thickness, edge_width, start_point, control_point, end_point, rotation_angle);
 		
 		// Attention: Following similar procedure of BezierMesh
 		// Road markings
 		
-		float top_y = Constants.road_thickness/2;
 		float half_width = edge_width/2;
-		float half_line_thickness = Constants.line_thickness / 2;
-		float y_position_lines = top_y + half_line_thickness;
+		float half_line_thickness = Constants.line_thickness/2;
+		float half_line_width = Constants.line_width/2;
+		float y_position_lines = -half_line_thickness + Constants.markings_Y_position;
 		
 		// Hard shoulders
-		Vector2 LP = new Vector2 (start_point.x - (half_width - Constants.hard_shoulder_width), start_point.z);
-		Vector2 RP = new Vector2 (start_point.x + (half_width - Constants.hard_shoulder_width), start_point.z);
+		Vector2 LP = new Vector2 (start_point.x - (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
+		Vector2 RP = new Vector2 (start_point.x + (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
 		
 		/*	Rotate angle degrees the points left and right.
 			Due to the equal distance to the center of the imaginary lines start and end, rotate the left point give us
@@ -1384,8 +1391,8 @@ public static class RoadMap {
 		Vector3 LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
 		Vector3 RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 		
-		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,node);
-		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,node);
+		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
+		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
 		
 		// Center lines
 		Vector2 aux_vector,aux_vector_rotated;
@@ -1428,8 +1435,8 @@ public static class RoadMap {
 			LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
 			RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 			
-			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,node);
-			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,node);
+			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,topology);
+			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,topology);
 		}
 		
 		// Lane lines
@@ -1458,7 +1465,7 @@ public static class RoadMap {
 				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
 				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
 				
-				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, node);
+				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
 		
@@ -1482,7 +1489,7 @@ public static class RoadMap {
 				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
 				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
 				
-				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, node);
+				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
 		// End road markings
@@ -1518,8 +1525,12 @@ public static class RoadMap {
 					point will be the control point for that Bezier curve. The right Bezier curve it's calculated
 					the same way.
 		*/
-		float top_y = Constants.road_thickness/2;
-		float bottom_y = -top_y;
+		GameObject platform = new GameObject();
+		platform.name = Constants.Name_Platform;
+		platform.transform.SetParent(obj.transform);
+		
+		float top_y = Constants.platform_Y_position;
+		float bottom_y = top_y - Constants.road_thickness;
 		float half_width = width/2;
 		
 		Vector2 LP = new Vector2 (start_point.x - half_width, start_point.z); // Left point
@@ -1557,7 +1568,7 @@ public static class RoadMap {
 			vertex_array[5] = new Vector3(point2.x, top_y   , point2.y);
 			vertex_array[6] = new Vector3(point1.x, top_y   , point1.y);
 			vertex_array[7] = new Vector3(point0.x, top_y   , point0.y);
-			eightMesh(obj,vertex_array);
+			eightMesh(platform,vertex_array);
 		}
 	} // End BezierMesh
 	

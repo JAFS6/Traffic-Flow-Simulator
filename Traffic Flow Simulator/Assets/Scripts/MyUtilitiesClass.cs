@@ -16,18 +16,39 @@
 using UnityEngine;
 using System.Collections;
 
-public static class MyUtilitiesClass : object {
-
+public static class MyUtilitiesClass : object
+{
 	/**
 	 * @brief Assigns the hierarchy whose root is passed as argument to the layer passed as argument
 	 * @param[in] root Root of the hierarchy
 	 * @param[in] layer Layer index
 	 */
-	public static void MoveToLayer(Transform root, int layer) {
+	public static void MoveToLayer(Transform root, int layer)
+	{
 		root.gameObject.layer = layer;
 		
-		foreach(Transform child in root) {
+		foreach(Transform child in root)
+		{
 			MoveToLayer(child, layer);
 		}
+	}
+	
+	/**
+	 * @brief Calculate the width of a detention line for the given lane codes.
+	 * @param[in] lane_codes Lane codes of one direction of an edge.
+	 * @return The calculated width.
+	 */
+	public static float detentionLineWidth (string lane_codes)
+	{
+		int n = lane_codes.Length;
+		
+		float w = Constants.lane_width * n;
+		
+		for (int i=0; i<n-1; i++)
+		{
+			w += (lane_codes[i].ToString() == Constants.String_Public_Lane) ? Constants.public_transport_line_width : Constants.line_width;
+		}
+		
+		return w;
 	}
 }

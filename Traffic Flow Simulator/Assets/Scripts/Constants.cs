@@ -61,10 +61,6 @@ public static class Constants : object {
 	public const string Line_Name_Normal_Lane = "Normal lane line";
 	public const string Line_Name_Center = "Center line";
 	public const string Line_Name_Detention = "Detention line";
-	public const string Line_Name_Continuous = "Continuous line";
-	public const string Line_Name_Continuous_Curved = "Continuous curved line";
-	public const string Line_Name_Discontinuous_Curved = "Discontinuous curved line";
-	public const string Line_Name_Discontinuous = "Discontinuous line";
 	
 	public const string Lane_Name_Public = "Public Lane";
 	public const string Lane_Name_Normal = "Normal Lane";
@@ -78,7 +74,7 @@ public static class Constants : object {
 	public const string Name_Turn_Section  = "Turn Section";
 	public const string Name_Turn_Platform = "Turn Platform";
 	
-	public const string Name_Topologic_Objects = "Topologic objects";
+	public const string Name_Topological_Objects = "Topological objects";
 	#endregion
 	
 	#region Tags
@@ -134,7 +130,7 @@ public static class Constants : object {
 	public const float cont_nodes_lines_extra_length = 0.05f;
 	public const float grass_ground_padding = 100f;
 	
-	public const float ground_Y_position 	= -0.007f;
+	public const float ground_Y_position 	= -0.1f;
 	public const float platform_Y_position 	= -0.004f;
 	public const float markings_Y_position 	= -0.001f;
 	public const float vehicles_Y_position 	= 0f;
