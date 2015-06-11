@@ -1031,7 +1031,7 @@ public static class RoadMap {
 	}
 
 	/**
-	 * @brief Draw a lane line by type
+	 * @brief Draw a lane line by type aligned with the Z axis
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
 	 * @param[in] length Line length
 	 * @param[in] position Center line position
@@ -1039,27 +1039,14 @@ public static class RoadMap {
 	 */
 	private static void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
 
-		switch (lane_type) {
-			case Constants.Char_Public_Lane:
-				draw_continuous_line (Constants.public_transport_line_width, Constants.line_thickness, length, position, Constants.Line_Name_Public_Transport_Lane, parent);
-				break;
-			case Constants.Char_Normal_Lane:
-				draw_discontinuous_line (Constants.line_width, Constants.line_thickness, length, position, Constants.Line_Name_Normal_Lane, parent);
-				break;
-			case 'A':
-				Debug.Log("Parking not designed yet");
-				break;
-			case 'V':
-				Debug.Log("Bus/HOV not designed yet");
-				break;
-			default:
-				Debug.Log("Trying to draw invalid type of lane");
-				break;
-		}
+		Vector3 position1 = new Vector3(position.x, position.y, position.z - (length/2));
+		Vector3 position2 = new Vector3(position.x, position.y, position.z + (length/2));
+		
+		draw_lane_line (lane_type, position1, position2, parent);
 	}
 	
 	/**
-	 * @brief Draw a lane line by type
+	 * @brief Draw a lane line by type aligned with the Z axis
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
 	 * @param[in] position1 Position of one end of the line
 	 * @param[in] position2 Position of the other end of the line
@@ -1165,7 +1152,7 @@ public static class RoadMap {
 	 */
 	private static void draw_continuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
 		GameObject continuous_curved_line = new GameObject();
-		continuous_curved_line.name = Constants.Line_Name_Continuous_Curved;
+		continuous_curved_line.name = name;
 		continuous_curved_line.transform.parent = parent.transform;
 		
 		Vector3 start = position1;
@@ -1217,7 +1204,7 @@ public static class RoadMap {
 	private static void draw_discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent) {
 	
 		GameObject discontinuous_line = new GameObject ();
-		discontinuous_line.name = Constants.Line_Name_Discontinuous;
+		discontinuous_line.name = name;
 		discontinuous_line.transform.parent = new_parent.transform;
 		discontinuous_line.transform.position = MyMathClass.middlePoint(position1,position2);
 		float length = MyMathClass.Distance(position1,position2);
@@ -1266,7 +1253,7 @@ public static class RoadMap {
 	 */
 	private static void draw_discontinuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
 		GameObject continuous_curved_line = new GameObject();
-		continuous_curved_line.name = Constants.Line_Name_Continuous_Curved;
+		continuous_curved_line.name = name;
 		continuous_curved_line.transform.parent = parent.transform;
 		
 		float curve_length = MyMathClass.CalculateBezierLength(position1,position2,position2,position3);
@@ -1335,6 +1322,10 @@ public static class RoadMap {
 												float edge_width, float angle, TurnSide side, 
 												string ref_edge_id) {
 		
+		GameObject topology = new GameObject();
+		topology.name = Constants.Name_Topological_Objects;
+		topology.transform.SetParent(node.transform);
+		
 		Vector2 road_center_point = new Vector2(0, -((radius * 0.5f) + 0.1f));
 		Vector2 road_center_point_rotated;
 		
@@ -1355,19 +1346,19 @@ public static class RoadMap {
 			rotation_angle = -angle;
 		}
 		
-		BezierMesh (node, Constants.road_thickness, edge_width, start_point, control_point, end_point, rotation_angle);
+		BezierMesh (topology, Constants.road_thickness, edge_width, start_point, control_point, end_point, rotation_angle);
 		
 		// Attention: Following similar procedure of BezierMesh
 		// Road markings
 		
-		float top_y = Constants.road_thickness/2;
 		float half_width = edge_width/2;
-		float half_line_thickness = Constants.line_thickness / 2;
-		float y_position_lines = top_y + half_line_thickness;
+		float half_line_thickness = Constants.line_thickness/2;
+		float half_line_width = Constants.line_width/2;
+		float y_position_lines = -half_line_thickness + Constants.markings_Y_position;
 		
 		// Hard shoulders
-		Vector2 LP = new Vector2 (start_point.x - (half_width - Constants.hard_shoulder_width), start_point.z);
-		Vector2 RP = new Vector2 (start_point.x + (half_width - Constants.hard_shoulder_width), start_point.z);
+		Vector2 LP = new Vector2 (start_point.x - (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
+		Vector2 RP = new Vector2 (start_point.x + (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
 		
 		/*	Rotate angle degrees the points left and right.
 			Due to the equal distance to the center of the imaginary lines start and end, rotate the left point give us
@@ -1391,8 +1382,8 @@ public static class RoadMap {
 		Vector3 LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
 		Vector3 RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 		
-		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,node);
-		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,node);
+		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
+		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
 		
 		// Center lines
 		Vector2 aux_vector,aux_vector_rotated;
@@ -1435,8 +1426,8 @@ public static class RoadMap {
 			LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
 			RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 			
-			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,node);
-			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,node);
+			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,topology);
+			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,topology);
 		}
 		
 		// Lane lines
@@ -1465,7 +1456,7 @@ public static class RoadMap {
 				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
 				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
 				
-				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, node);
+				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
 		
@@ -1489,7 +1480,7 @@ public static class RoadMap {
 				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
 				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
 				
-				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, node);
+				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
 		// End road markings
@@ -1525,8 +1516,12 @@ public static class RoadMap {
 					point will be the control point for that Bezier curve. The right Bezier curve it's calculated
 					the same way.
 		*/
-		float top_y = Constants.road_thickness/2;
-		float bottom_y = -top_y;
+		GameObject platform = new GameObject();
+		platform.name = Constants.Name_Platform;
+		platform.transform.SetParent(obj.transform);
+		
+		float top_y = Constants.platform_Y_position;
+		float bottom_y = top_y - Constants.road_thickness;
 		float half_width = width/2;
 		
 		Vector2 LP = new Vector2 (start_point.x - half_width, start_point.z); // Left point
@@ -1564,7 +1559,7 @@ public static class RoadMap {
 			vertex_array[5] = new Vector3(point2.x, top_y   , point2.y);
 			vertex_array[6] = new Vector3(point1.x, top_y   , point1.y);
 			vertex_array[7] = new Vector3(point0.x, top_y   , point0.y);
-			eightMesh(obj,vertex_array);
+			eightMesh(platform,vertex_array);
 		}
 	} // End BezierMesh
 	

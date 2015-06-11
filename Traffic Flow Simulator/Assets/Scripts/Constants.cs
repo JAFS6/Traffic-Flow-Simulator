@@ -61,10 +61,6 @@ public static class Constants : object {
 	public const string Line_Name_Normal_Lane = "Normal lane line";
 	public const string Line_Name_Center = "Center line";
 	public const string Line_Name_Detention = "Detention line";
-	public const string Line_Name_Continuous = "Continuous line";
-	public const string Line_Name_Continuous_Curved = "Continuous curved line";
-	public const string Line_Name_Discontinuous_Curved = "Discontinuous curved line";
-	public const string Line_Name_Discontinuous = "Discontinuous line";
 	
 	public const string Lane_Name_Public = "Public Lane";
 	public const string Lane_Name_Normal = "Normal Lane";
