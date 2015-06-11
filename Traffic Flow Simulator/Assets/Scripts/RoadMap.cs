@@ -972,11 +972,10 @@ public static class RoadMap {
 		
 		#region Detention lines
 		float detention_line_dZ = half_length - (Constants.public_transport_line_width/2);
-		float detention_line_dX = (lane_num_src_des * (Constants.lane_width + Constants.line_width))/2;
 		
 		if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit && lane_num_src_des > 0)
 		{
-			float detention_line_posX = (+hard_shoulder_d) - detention_line_dX;
+			float detention_line_posX = (+hard_shoulder_d) - ((lane_num_src_des * (Constants.lane_width + Constants.line_width))/2);
 			draw_continuous_line (MyUtilitiesClass.detentionLineWidth(e.src_des), 
 									Constants.line_thickness, 
 									Constants.public_transport_line_width, 
@@ -987,7 +986,7 @@ public static class RoadMap {
 		
 		if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit && lane_num_des_src > 0)
 		{
-			float detention_line_posX = (-hard_shoulder_d) + detention_line_dX;
+			float detention_line_posX = (-hard_shoulder_d) + ((lane_num_des_src * (Constants.lane_width + Constants.line_width))/2);
 			draw_continuous_line (MyUtilitiesClass.detentionLineWidth(e.des_src), 
 									Constants.line_thickness, 
 									Constants.public_transport_line_width, 
