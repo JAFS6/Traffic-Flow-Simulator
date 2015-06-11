@@ -26,7 +26,7 @@ public struct EntryNodeInfo
 	public float tbs; 		 // Time Between Spawns
 }
 
-public class ApplicationController : MonoBehaviour {
+public class SimulationController : MonoBehaviour {
 	
 	public static string map_filename = "";
 	
@@ -210,7 +210,7 @@ public class ApplicationController : MonoBehaviour {
 					Vector3 start_position = candidates[0].transform.position;
 					Vector2 dir_road = RoadMap.entryOrientation(node_id);
 					Vector3 dir_road3D = new Vector3(dir_road.x,0,dir_road.y);
-					Vector3 pos = new Vector3 (start_position.x, Constants.road_thickness/2, start_position.z);
+					Vector3 pos = new Vector3 (start_position.x, 0, start_position.z);
 					GameObject vehicle = GameObject.Instantiate (prefab, pos, Quaternion.LookRotation(dir_road3D)) as GameObject;
 					vehicle.tag = Constants.Tag_Vehicle;
 					vehicle.GetComponent<VehicleController>().current_location = RoadMap.getLimitEdge(node_id);

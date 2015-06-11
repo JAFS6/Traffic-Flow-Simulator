@@ -25,7 +25,7 @@ public class MainMenuController : MonoBehaviour
 	
 	public void loadMap (string filename)
 	{
-		ApplicationController.map_filename = filename;
+		SimulationController.map_filename = filename;
 		Application.LoadLevel("Simulation");
 	}
 	
