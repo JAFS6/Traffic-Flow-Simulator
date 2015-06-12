@@ -43,6 +43,45 @@ public static class DrawRoad
 	}
 	
 	/**
+	 * @brief Draw a continuous white line aligned with the Z axis
+	 * @param[in] width Width of the line
+	 * @param[in] height Thickness of the line
+	 * @param[in] length Length of the line
+	 * @param[in] position Center position of the line
+	 * @param[in] name Name for the object
+	 * @param[in] parent Parent object to which the line will join
+	 */
+	public static void continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent)
+	{
+		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
+		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
+		
+		continuous_line (width, height, position1, position2, name, parent);
+	}
+	
+	/**
+	 * @brief Draw a continuous white line between the positions position1 and position2
+	 * @param[in] width Width of the line
+	 * @param[in] height Thickness of the line
+	 * @param[in] position1 Position of one end of the line
+	 * @param[in] position2 Position of the other end of the line
+	 * @param[in] name Name for the object
+	 * @param[in] parent Parent object to which the line will join
+	 */
+	public static void continuous_line (float width, float height, Vector3 position1, Vector3 position2,string name, GameObject parent)
+	{
+		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		line.name = name;
+		line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(position1,position2));
+		line.transform.position = MyMathClass.middlePoint(position1,position2);
+		line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
+		line.GetComponent<Renderer>().material.color = Color.white;
+		line.GetComponent<Renderer>().material = white_asphalt_material;
+		line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
+		line.transform.parent = parent.transform;
+	}
+	
+	/**
 	 * @brief Draw lane markings by the specified lane type.
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal).
 	 * @param[in] pos Position of the center of the markings on the XZ plane.
