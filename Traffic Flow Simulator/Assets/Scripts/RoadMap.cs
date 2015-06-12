@@ -960,8 +960,9 @@ public static class RoadMap
 					DrawRoad.lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
 				}
 					
-				setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
-				setLaneEndPoint   (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length), source_end_points);
+				GameObject LSP = setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length), source_end_points);
+				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 				
 				Vector2 src_des_marking_pos = new Vector2(src_des_posX + half_lane_width, - markings_d);
 				DrawRoad.lane_markings (src_des_lane_type, src_des_marking_pos, true, topology);
@@ -977,8 +978,9 @@ public static class RoadMap
 					DrawRoad.lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
 				}
 				
-				setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
-				setLaneEndPoint   (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length), destination_end_points);
+				GameObject LSP = setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length), destination_end_points);
+				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 				
 				Vector2 des_src_marking_pos = new Vector2(des_src_posX - half_lane_width, + markings_d);
 				DrawRoad.lane_markings (des_src_lane_type, des_src_marking_pos, false, topology);
