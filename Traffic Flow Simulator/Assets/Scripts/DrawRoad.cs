@@ -49,8 +49,8 @@ public static class DrawRoad
 	 * @param[in] position Center line position
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
-		
+	public static void lane_line (char lane_type, float length, Vector3 position, GameObject parent)
+	{
 		Vector3 position1 = new Vector3(position.x, position.y, position.z - (length/2));
 		Vector3 position2 = new Vector3(position.x, position.y, position.z + (length/2));
 		
@@ -64,24 +64,25 @@ public static class DrawRoad
 	 * @param[in] position2 Position of the other end of the line
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent) {
-		
-		switch (lane_type) {
-		case Constants.Char_Public_Lane:
-			continuous_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Public_Transport_Lane, parent);
-			break;
-		case Constants.Char_Normal_Lane:
-			discontinuous_line (Constants.line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Normal_Lane, parent);
-			break;
-		case 'A':
-			Debug.Log("Parking not designed yet");
-			break;
-		case 'V':
-			Debug.Log("Bus/HOV not designed yet");
-			break;
-		default:
-			Debug.Log("Trying to draw invalid type of lane");
-			break;
+	public static void lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent)
+	{
+		switch (lane_type)
+		{
+			case Constants.Char_Public_Lane:
+				continuous_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Public_Transport_Lane, parent);
+				break;
+			case Constants.Char_Normal_Lane:
+				discontinuous_line (Constants.line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Normal_Lane, parent);
+				break;
+			case 'A':
+				Debug.Log("Parking not designed yet");
+				break;
+			case 'V':
+				Debug.Log("Bus/HOV not designed yet");
+				break;
+			default:
+				Debug.Log("Trying to draw invalid type of lane");
+				break;
 		}
 	}
 	
@@ -200,24 +201,25 @@ public static class DrawRoad
 	 * @param[in] position3 Position of the other end of the line
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void curved_lane_line (char lane_type, Vector3 position1, Vector3 position2, Vector3 position3, GameObject parent) {
-		
-		switch (lane_type) {
-		case Constants.Char_Public_Lane:
-			continuous_curved_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Public_Transport_Lane, parent);
-			break;
-		case Constants.Char_Normal_Lane:
-			discontinuous_curved_line (Constants.line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Normal_Lane, parent);
-			break;
-		case 'A':
-			Debug.Log("Parking not designed yet");
-			break;
-		case 'V':
-			Debug.Log("Bus/HOV not designed yet");
-			break;
-		default:
-			Debug.Log("Trying to draw invalid type of lane");
-			break;
+	public static void curved_lane_line (char lane_type, Vector3 position1, Vector3 position2, Vector3 position3, GameObject parent)
+	{
+		switch (lane_type)
+		{
+			case Constants.Char_Public_Lane:
+				continuous_curved_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Public_Transport_Lane, parent);
+				break;
+			case Constants.Char_Normal_Lane:
+				discontinuous_curved_line (Constants.line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Normal_Lane, parent);
+				break;
+			case 'A':
+				Debug.Log("Parking not designed yet");
+				break;
+			case 'V':
+				Debug.Log("Bus/HOV not designed yet");
+				break;
+			default:
+				Debug.Log("Trying to draw invalid type of lane");
+				break;
 		}
 	}
 	
@@ -231,7 +233,8 @@ public static class DrawRoad
 	 * @param[in] name Name for the object
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void continuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
+	public static void continuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent)
+	{
 		GameObject continuous_curved_line = new GameObject();
 		continuous_curved_line.name = name;
 		continuous_curved_line.transform.parent = parent.transform;
@@ -239,7 +242,8 @@ public static class DrawRoad
 		Vector3 start = position1;
 		Vector3 end;
 		
-		for (int i=1; i<=10; i++) {
+		for (int i=1; i<=10; i++)
+		{
 			end = MyMathClass.CalculateBezierPoint((float)i/10,position1,position2,position2,position3);
 			
 			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -266,7 +270,8 @@ public static class DrawRoad
 	 * @param[in] name Name for the object
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void discontinuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
+	public static void discontinuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent)
+	{
 		GameObject continuous_curved_line = new GameObject();
 		continuous_curved_line.name = name;
 		continuous_curved_line.transform.parent = parent.transform;
@@ -274,7 +279,8 @@ public static class DrawRoad
 		float curve_length = MyMathClass.CalculateBezierLength(position1,position2,position2,position3);
 		int num_segments_posible = (int)(curve_length / Constants.discontinuous_line_length);
 		
-		if (num_segments_posible % 2 == 0) {
+		if (num_segments_posible % 2 == 0)
+		{
 			num_segments_posible--;
 		}
 		
@@ -283,7 +289,8 @@ public static class DrawRoad
 		float prev_dist = margin_length;
 		float next_dist = prev_dist + Constants.discontinuous_line_length;
 		
-		while (next_dist < curve_length) {
+		while (next_dist < curve_length)
+		{
 			Vector3 prev = MyMathClass.CalculateBezierPointWithDistance(position1,position2,position2,position3,prev_dist);
 			Vector3 next = MyMathClass.CalculateBezierPointWithDistance(position1,position2,position2,position3,next_dist);
 			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -328,5 +335,231 @@ public static class DrawRoad
 		{
 			Debug.LogError ("Error on lane_markings: lane_type invalid");
 		}
+	}
+	
+	/**
+	 * @brief Create a thin Mesh based on a Bezier curve and rectangular sections
+	 * @param[in] obj The gameobject
+	 * @param[in] thick The thick of the mesh sections
+	 * @param[in] width The width of the mesh sections
+	 * @param[in] start_point The initial point for the Bezier curve
+	 * @param[in] control_point Control point of the curve
+	 * @param[in] end_point The last point for the Bezier curve
+	 * @param[in] rotation_angle The angle in degrees [-180,180] of the edges involved in this turn
+	 */
+	public static void BezierMesh (GameObject obj, float thick, float width, Vector3 start_point, Vector3 control_point, Vector3 end_point, float rotation_angle)
+	{
+		/*
+			The object will be created following this steps:
+				- Starting from a imaginary line parallel to the X axis, the mesh will turn left or right.
+				  The Bezier curve who leads the turn starts at <start_point>, and ends at <end_point>.
+				  <control_point> is the control point of the Bezier curve.
+				- To do the turn we need 4 points for each section of the turn. Each section will be a deformed cube 
+				  with its vertex in the 4 points with thickness of Constants.road_thickness.
+				- To obtain these points we draw 2 imaginary Bezier curves wich will define the profile of the turn.
+				  These curves starts in start_point.x - half_width <LP> and start_point.x + half_width <RP> and ends 
+				  in their equivalents points at the end imaginary line of the turn (<LPR> and <RPR>).
+				- The control point for these Bezier curves will be calculated as follow:
+					* We take the start and end points of the turn and calculate two orientation vectors wich 
+					corresponds to the edges (origin: (0,0), destination: central position of the edge).
+					* Now, we calculate the intersection point of the straights who pass throught the points LP and
+					LPR (for the left Bezier curve) and follow the direction of the previous calculated vectors. That 
+					point will be the control point for that Bezier curve. The right Bezier curve it's calculated
+					the same way.
+		*/
+		GameObject platform = new GameObject();
+		platform.name = Constants.Name_Platform;
+		platform.transform.SetParent(obj.transform);
+		
+		float top_y = Constants.platform_Y_position;
+		float bottom_y = top_y - Constants.road_thickness;
+		float half_width = width/2;
+		
+		Vector2 LP = new Vector2 (start_point.x - half_width, start_point.z); // Left point
+		Vector2 RP = new Vector2 (start_point.x + half_width, start_point.z); // Right point
+		
+		/*	Rotate angle degrees the points left and right.
+			Due to the equal distance to the center of the imaginary lines start and end, rotate the left point give us
+			the corresponding rotated point for the right point and the same applies to the right point. */
+		
+		Vector2 LPR = MyMathClass.rotatePoint(RP, rotation_angle); // Left point rotated
+		Vector2 RPR = MyMathClass.rotatePoint(LP, rotation_angle); // Right point rotated
+		
+		// Calculate control points for the Bezier curves
+		Vector2 start_point_2D = new Vector2(start_point.x,start_point.z);
+		Vector2 end_point_2D = new Vector2(end_point.x,end_point.z);
+		Vector2 ref_edge_direction = MyMathClass.orientationVector(new Vector2(0,0), start_point_2D);
+		Vector2 oth_edge_direction = MyMathClass.orientationVector(new Vector2(0,0), end_point_2D);
+		
+		Vector2 LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
+		Vector2 RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
+		
+		// Create the turn sections
+		for (int i=0; i<10; i++)
+		{
+			Vector2 point0 = MyMathClass.CalculateBezierPoint((float)i/10    ,LP,LCB_2D,LCB_2D,LPR);
+			Vector2 point1 = MyMathClass.CalculateBezierPoint((float)i/10    ,RP,RCB_2D,RCB_2D,RPR);
+			Vector2 point2 = MyMathClass.CalculateBezierPoint((float)(i+1)/10,RP,RCB_2D,RCB_2D,RPR);
+			Vector2 point3 = MyMathClass.CalculateBezierPoint((float)(i+1)/10,LP,LCB_2D,LCB_2D,LPR);
+			
+			Vector3[] vertex_array = new Vector3[8];
+			vertex_array[0] = new Vector3(point3.x, bottom_y, point3.y);
+			vertex_array[1] = new Vector3(point2.x, bottom_y, point2.y);
+			vertex_array[2] = new Vector3(point1.x, bottom_y, point1.y);
+			vertex_array[3] = new Vector3(point0.x, bottom_y, point0.y);
+			vertex_array[4] = new Vector3(point3.x, top_y   , point3.y);
+			vertex_array[5] = new Vector3(point2.x, top_y   , point2.y);
+			vertex_array[6] = new Vector3(point1.x, top_y   , point1.y);
+			vertex_array[7] = new Vector3(point0.x, top_y   , point0.y);
+			eightMesh(platform,vertex_array);
+		}
+	}
+	
+	/**
+	 * @brief Create a mesh with 8 vertex which seems a deformed box. The algorithm has been obtained from
+	 * http://wiki.unity3d.com/index.php/ProceduralPrimitives and has been adapted to the needs of this application
+	 * @param[in] obj The gameobject
+	 * @param[in] vertex_array The array with 8 Vector3 with the positions of all vertex. The vertex of the bottom face
+	 * are p0,p1,p2,p3 and the vertex of the top face are p7,p6,p5,p4
+	 */
+	private static void eightMesh (GameObject obj, Vector3[] vertex_array)
+	{
+		GameObject go = new GameObject();
+		go.name = Constants.Name_Turn_Section;
+		go.transform.SetParent(obj.transform);
+		go.AddComponent< BoxCollider >();
+		go.AddComponent< MeshRenderer >();
+		go.GetComponent<Renderer>().material = asphalt_material;
+		MeshFilter filter = go.AddComponent< MeshFilter >();
+		Mesh mesh = filter.mesh;
+		mesh.Clear();
+		
+		#region Vertices
+		Vector3 p0 = new Vector3(vertex_array[0].x, vertex_array[0].y, vertex_array[0].z);
+		Vector3 p1 = new Vector3(vertex_array[1].x, vertex_array[1].y, vertex_array[1].z);
+		Vector3 p2 = new Vector3(vertex_array[2].x, vertex_array[2].y, vertex_array[2].z);
+		Vector3 p3 = new Vector3(vertex_array[3].x, vertex_array[3].y, vertex_array[3].z);	
+		Vector3 p4 = new Vector3(vertex_array[4].x, vertex_array[4].y, vertex_array[4].z);
+		Vector3 p5 = new Vector3(vertex_array[5].x, vertex_array[5].y, vertex_array[5].z);
+		Vector3 p6 = new Vector3(vertex_array[6].x, vertex_array[6].y, vertex_array[6].z);
+		Vector3 p7 = new Vector3(vertex_array[7].x, vertex_array[7].y, vertex_array[7].z);
+		
+		Vector3[] vertices = new Vector3[]
+		{
+			// Bottom
+			p0, p1, p2, p3,
+			
+			// Left
+			p7, p4, p0, p3,
+			
+			// Front
+			p4, p5, p1, p0,
+			
+			// Back
+			p6, p7, p3, p2,
+			
+			// Right
+			p5, p6, p2, p1,
+			
+			// Top
+			p7, p6, p5, p4
+		};
+		#endregion
+		
+		#region Normales
+		Vector3 up 	= Vector3.up;
+		Vector3 down 	= Vector3.down;
+		Vector3 front 	= Vector3.forward;
+		Vector3 back 	= Vector3.back;
+		Vector3 left 	= Vector3.left;
+		Vector3 right 	= Vector3.right;
+		
+		Vector3[] normales = new Vector3[]
+		{
+			// Bottom
+			down, down, down, down,
+			
+			// Left
+			left, left, left, left,
+			
+			// Front
+			front, front, front, front,
+			
+			// Back
+			back, back, back, back,
+			
+			// Right
+			right, right, right, right,
+			
+			// Top
+			up, up, up, up
+		};
+		#endregion	
+		
+		#region UVs
+		Vector2 _00 = new Vector2( 0f, 0f );
+		Vector2 _10 = new Vector2( 1f, 0f );
+		Vector2 _01 = new Vector2( 0f, 1f );
+		Vector2 _11 = new Vector2( 1f, 1f );
+		
+		Vector2[] uvs = new Vector2[]
+		{
+			// Bottom
+			_11, _01, _00, _10,
+			
+			// Left
+			_11, _01, _00, _10,
+			
+			// Front
+			_11, _01, _00, _10,
+			
+			// Back
+			_11, _01, _00, _10,
+			
+			// Right
+			_11, _01, _00, _10,
+			
+			// Top
+			_11, _01, _00, _10,
+		};
+		#endregion
+		
+		#region Triangles
+		int[] triangles = new int[]
+		{
+			// Bottom
+			3, 1, 0,
+			3, 2, 1,			
+			
+			// Left
+			3 + 4 * 1, 1 + 4 * 1, 0 + 4 * 1,
+			3 + 4 * 1, 2 + 4 * 1, 1 + 4 * 1,
+			
+			// Front
+			3 + 4 * 2, 1 + 4 * 2, 0 + 4 * 2,
+			3 + 4 * 2, 2 + 4 * 2, 1 + 4 * 2,
+			
+			// Back
+			3 + 4 * 3, 1 + 4 * 3, 0 + 4 * 3,
+			3 + 4 * 3, 2 + 4 * 3, 1 + 4 * 3,
+			
+			// Right
+			3 + 4 * 4, 1 + 4 * 4, 0 + 4 * 4,
+			3 + 4 * 4, 2 + 4 * 4, 1 + 4 * 4,
+			
+			// Top
+			3 + 4 * 5, 1 + 4 * 5, 0 + 4 * 5,
+			3 + 4 * 5, 2 + 4 * 5, 1 + 4 * 5,
+			
+		};
+		#endregion
+		
+		mesh.vertices = vertices;
+		mesh.normals = normales;
+		mesh.uv = uvs;
+		mesh.triangles = triangles;
+		
+		mesh.RecalculateBounds();
+		mesh.Optimize();
 	}
 }
