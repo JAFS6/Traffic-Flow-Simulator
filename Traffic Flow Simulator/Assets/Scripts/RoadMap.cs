@@ -1087,13 +1087,12 @@ public static class RoadMap
 		
 		// Attention: Following similar procedure of BezierMesh
 		// Road markings
-		
 		float half_width = edge_width/2;
 		float half_line_thickness = Constants.line_thickness/2;
 		float half_line_width = Constants.line_width/2;
 		float y_position_lines = -half_line_thickness + Constants.markings_Y_position;
 		
-		// Hard shoulders
+		#region Hard shoulders
 		Vector2 LP = new Vector2 (start_point.x - (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
 		Vector2 RP = new Vector2 (start_point.x + (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
 		
@@ -1121,8 +1120,9 @@ public static class RoadMap
 		
 		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
 		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
+		#endregion
 		
-		// Center lines
+		#region Center lines
 		Vector2 aux_vector,aux_vector_rotated;
 		Edge e = edges[ref_edge_id];
 		Vector2 center_point = new Vector2(start_point.x,start_point.z);
@@ -1166,8 +1166,9 @@ public static class RoadMap
 			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,topology);
 			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,topology);
 		}
+		#endregion
 		
-		// Lane lines
+		#region Lane lines
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
 		Vector2 P, PR, PCB;
@@ -1220,6 +1221,7 @@ public static class RoadMap
 				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
+		#endregion
 		// End road markings
 	}
 }
