@@ -13,14 +13,13 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-//using UnityEditor;
 using UnityEngine;
 using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 
-public static class RoadMap {
-
+public static class RoadMap
+{
 	private static string map_name;
 	private static Dictionary<string, Node> nodes;
 	private static Dictionary<string, Edge> edges;
@@ -28,18 +27,15 @@ public static class RoadMap {
 	public static float max_x,min_x,max_z,min_z; // Ground limits
 
 	// Materials
-	private static Material black_material;
 	private static Material asphalt_material;
-	private static Material white_asphalt_material;
 
-	public static void CreateNewMap (string name) {
+	public static void CreateNewMap (string name)
+	{
 		map_name = name;
 		nodes = new Dictionary<string, Node> ();
 		edges = new Dictionary<string, Edge> ();
 		
-		black_material = Resources.Load ("Materials/Simple_Black", typeof(Material)) as Material;
 		asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
-		white_asphalt_material = Resources.Load ("Materials/White_asphalt", typeof(Material)) as Material;
 	}
 	
 	/**
@@ -51,9 +47,10 @@ public static class RoadMap {
 	 * @param[in] intersection_type Intersection type: normal (0) or roundabout (1) (Only applies to intersection nodes)
 	 * @pre The id must be different from all previously inserted ids, if it matches one, the new node will not be inserted
 	 */
-	public static void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.Normal) {
-		
-		if ( !nodes.ContainsKey (id) ) {
+	public static void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.Normal)
+	{
+		if ( !nodes.ContainsKey (id) )
+		{
 			Node newnode = new Node ();
 			newnode.id = id;
 			newnode.node_type = node_type;
@@ -75,9 +72,10 @@ public static class RoadMap {
 	 * @pre The id must be different from all previously inserted ids, if it matches one, the new edge will not be inserted
 	 * @pre Ids source and destination nodes must exist, if some of them not exist the edge will not be inserted
 	 */
-	public static void addEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src) {
-		
-		if ( (!edges.ContainsKey (id)) && nodes.ContainsKey (source_id) && nodes.ContainsKey (destination_id)) {
+	public static void addEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src)
+	{
+		if ( (!edges.ContainsKey (id)) && nodes.ContainsKey (source_id) && nodes.ContainsKey (destination_id))
+		{
 			Edge newedge = new Edge ();
 			newedge.id = id;
 			newedge.source_id = source_id;
@@ -95,9 +93,10 @@ public static class RoadMap {
 	 * @param[in] new_intersection_type New type of intersection
 	 * @pre If the node does not exist, nothing is done
 	 */
-	public static void setIntersectionType (string id, IntersectionType new_intersection_type) {
-		
-		if ( nodes.ContainsKey (id) ) {
+	public static void setIntersectionType (string id, IntersectionType new_intersection_type)
+	{
+		if ( nodes.ContainsKey (id) )
+		{
 			Node aux_node = nodes[id];
 			aux_node.intersection_type = new_intersection_type;
 			nodes[id] = aux_node;
@@ -108,7 +107,8 @@ public static class RoadMap {
 	 * @brief Sets the name of the map
 	 * @param[in] name A string containing the name of the map
 	 */
-	public static void setMapName (string name) {
+	public static void setMapName (string name)
+	{
 		map_name = name;
 	}
 
@@ -116,7 +116,8 @@ public static class RoadMap {
 	 * @brief Gets the name of the map
 	 * @return A string containing the name of the map
 	 */
-	public static string getMapName () {
+	public static string getMapName ()
+	{
 		return map_name;
 	}
 
@@ -124,7 +125,8 @@ public static class RoadMap {
 	 * @brief Gets the number of nodes in the map
 	 * @return The number of nodes in the map
 	 */
-	public static int getNodeCount () {
+	public static int getNodeCount ()
+	{
 		return nodes.Count;
 	}
 	
@@ -133,19 +135,17 @@ public static class RoadMap {
 	 * @param[in] node_id The identifier to check
 	 * @return True if the node exists, false otherwise
 	 */
-	public static bool existsNode (string node_id) {
-		
-		if (nodes.ContainsKey (node_id)) {
-			return true;
-		}
-		return false;
+	public static bool existsNode (string node_id)
+	{
+		return (nodes.ContainsKey (node_id)) ? true : false;
 	}
 
 	/**
 	 * @brief Gets a list of identifiers of the nodes of the map
 	 * @return A list of strings
 	 */
-	public static List<string> getNodeIDs () {
+	public static List<string> getNodeIDs ()
+	{
 		List<string> l = new List<string>(nodes.Keys);
 		return l;
 	}
@@ -156,11 +156,12 @@ public static class RoadMap {
 	 * @return A Vector2 with the node position in the plane XZ
 	 * @post If the ID does not exist a vector (0,0) is returned
 	 */
-	public static Vector2 getNodePosition (string node_id) {
-
+	public static Vector2 getNodePosition (string node_id)
+	{
 		Vector2 pos = new Vector2 ();
 
-		if (nodes.ContainsKey (node_id)) {
+		if (nodes.ContainsKey (node_id))
+		{
 			pos.x = nodes [node_id].x;
 			pos.y = nodes [node_id].y;
 		}
@@ -174,12 +175,14 @@ public static class RoadMap {
 	 * @return The type of node
 	 * @post If the ID does not exist the return type will be UNKNOWN
 	 */
-	public static NodeType getNodeType (string node_id) {
-
-		if (nodes.ContainsKey (node_id)) {
+	public static NodeType getNodeType (string node_id)
+	{
+		if (nodes.ContainsKey (node_id))
+		{
 			return nodes[node_id].node_type;
 		}
-		else {
+		else
+		{
 			Debug.LogError ("Error on getNodeType, node " + node_id + " doesn't exists. Returning default.");
 			return NodeType.Limit;
 		}
@@ -189,7 +192,8 @@ public static class RoadMap {
 	 * @brief Gets the number of edges in the map
 	 * @return The number of edges in the map
 	 */
-	public static int getEdgeCount () {
+	public static int getEdgeCount ()
+	{
 		return edges.Count;
 	}
 
@@ -197,7 +201,8 @@ public static class RoadMap {
 	 * @brief Gets a list of identifiers of the edges of the map
 	 * @return A list of strings
 	 */
-	public static List<string> getEdgeIDs () {
+	public static List<string> getEdgeIDs ()
+	{
 		List<string> l = new List<string>(edges.Keys);
 		return l;
 	}
@@ -208,11 +213,12 @@ public static class RoadMap {
 	 * @return A Vector2 with the central position of the edge in the XZ plane
 	 * @post If the ID does not exist a vector (0,0) is returned
 	 */
-	public static Vector2 getEdgePosition (string edge_id) {
-		
+	public static Vector2 getEdgePosition (string edge_id)
+	{
 		Vector2 pos = new Vector2 ();
 		
-		if (edges.ContainsKey (edge_id)) {
+		if (edges.ContainsKey (edge_id))
+		{
 			string src_node_id = edges[edge_id].source_id;
 			string des_node_id = edges[edge_id].destination_id;
 		
@@ -233,14 +239,17 @@ public static class RoadMap {
 	 * @return A Vector2 with the direction of the edge in the XZ plane
 	 * @post If the ID does not exist a vector (0,0) is returned
 	 */
-	public static Vector2 getEdgeDirection (string edge_id, DirectionType d) {
+	public static Vector2 getEdgeDirection (string edge_id, DirectionType d)
+	{
 		Vector2 pos = new Vector2 ();
 		
-		if (edges.ContainsKey (edge_id)) {
+		if (edges.ContainsKey (edge_id))
+		{
 			pos.x = edges[edge_id].direction.x;
 			pos.y = edges[edge_id].direction.y;
 			
-			if (d == DirectionType.Destination_Source) {
+			if (d == DirectionType.Destination_Source)
+			{
 				pos.x = -pos.x;
 				pos.y = -pos.y;
 			}
@@ -257,11 +266,13 @@ public static class RoadMap {
 	 * @post After the execution of the method, the parameters src_id and dst_id will have the desired identifiers or 
 	 * Constants.String_Unknown string if the edge does not exist
 	 */
-	public static void getEdgeNodeLimits (string edge_id, out string src_id, out string dst_id) {
+	public static void getEdgeNodeLimits (string edge_id, out string src_id, out string dst_id)
+	{
 		src_id = Constants.String_Unknown;
 		dst_id = Constants.String_Unknown;
 		
-		if (edges.ContainsKey (edge_id)) {
+		if (edges.ContainsKey (edge_id))
+		{
 			src_id = edges[edge_id].source_id;
 			dst_id = edges[edge_id].destination_id;
 		}
@@ -275,11 +286,13 @@ public static class RoadMap {
 	 * @post After the execution of the method, the parameters src_pos and dst_pos will have searched positions or
 	 * (0,0) if the edge does not exist
 	 */
-	public static void getEdgeLimitsPositions (string edge_id, out Vector2 src_pos, out Vector2 dst_pos) {
+	public static void getEdgeLimitsPositions (string edge_id, out Vector2 src_pos, out Vector2 dst_pos)
+	{
 		src_pos = new Vector2(0,0);
 		dst_pos = new Vector2(0,0);
 		
-		if (edges.ContainsKey (edge_id)) {
+		if (edges.ContainsKey (edge_id))
+		{
 			Vector2 aux = new Vector2(0,0);
 			aux = edges[edge_id].direction * (edges[edge_id].length / 2);
 			src_pos = (Vector2) edges[edge_id].fixed_position - aux;
@@ -292,13 +305,14 @@ public static class RoadMap {
 	 * @param[in] node_id Limit node ID
 	 * @return A string with the edge ID searched or Constants.String_Unknown string if the node type is not limit.
 	 */
-	public static string getLimitEdge (string node_id) {
-		
-		if (nodes[node_id].node_type == NodeType.Limit) {
-		
-			foreach (KeyValuePair<string, Edge> edge in edges) {
-				
-				if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+	public static string getLimitEdge (string node_id)
+	{
+		if (nodes[node_id].node_type == NodeType.Limit)
+		{
+			foreach (KeyValuePair<string, Edge> edge in edges)
+			{
+				if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id)
+				{
 					return edge.Value.id;
 				}
 			}
@@ -314,26 +328,28 @@ public static class RoadMap {
 	 * @post After the execution of the method, the edge1 and Edge2 parameters will have the desired identifiers or 
 	 * Constants.String_Unknown string if the node type is not continuation or does not exist
 	 */
-	public static void getContinuationEdges (string node_id, out string edge1, out string edge2) {
-		
+	public static void getContinuationEdges (string node_id, out string edge1, out string edge2)
+	{
 		edge1 = Constants.String_Unknown;
 		edge2 = Constants.String_Unknown;
 		
-		if (nodes.ContainsKey (node_id)) {
-		
-			if (nodes[node_id].node_type == NodeType.Continuation) {
-			
+		if (nodes.ContainsKey (node_id))
+		{
+			if (nodes[node_id].node_type == NodeType.Continuation)
+			{
 				bool first_found = false;
 				
-				foreach (KeyValuePair<string, Edge> edge in edges) {
-					
-					if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
-					
-						if (!first_found) {
+				foreach (KeyValuePair<string, Edge> edge in edges)
+				{
+					if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id)
+					{
+						if (!first_found)
+						{
 							first_found = true;
 							edge1 = edge.Value.id;
 						}
-						else {
+						else
+						{
 							edge2 = edge.Value.id;
 							break;
 						}
@@ -349,48 +365,51 @@ public static class RoadMap {
 	 * @param[out] tt Type of transport that will enter the map through that node
 	 * @return True if there is a lane entry to the map from that node, false if not or if the node passed is not a limit node
 	 */
-	public static bool isEntryNode (string node_id, out TransportType tt) {
-		
+	public static bool isEntryNode (string node_id, out TransportType tt)
+	{
 		tt = TransportType.PublicAndPrivate; // Default initialization
 		
-		if (nodes[node_id].node_type == NodeType.Limit) {
+		if (nodes[node_id].node_type == NodeType.Limit)
+		{
 			string edge_id = getLimitEdge(node_id);
 			
-			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != Constants.String_No_Lane) {
-			
-				if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane) && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) { // Contains P and N
+			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != Constants.String_No_Lane)
+			{
+				if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane) && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) // Contains P and N
+				{
 					tt = TransportType.PublicAndPrivate;
 				}
-				else if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane)) { // Only contains P
+				else if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane)) // Only contains P
+				{
 					tt = TransportType.Public;
 				}
-				else if (edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) { // Only contains N
+				else if (edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) // Only contains N
+				{
 					tt = TransportType.Private;
 				}
 				
 				return true;
 			}
-			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != Constants.String_No_Lane) {
-			
-				if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane) && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) { // Contains P and N
+			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != Constants.String_No_Lane)
+			{
+				if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane) && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) // Contains P and N
+				{
 					tt = TransportType.PublicAndPrivate;
 				}
-				else if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane)) { // Only contains P
+				else if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane)) // Only contains P
+				{
 					tt = TransportType.Public;
 				}
-				else if (edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) { // Only contains N
+				else if (edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) // Only contains N
+				{
 					tt = TransportType.Private;
 				}
 				
 				return true;
 			}
-			else {
-				return false;
-			}
+			else { return false; }
 		}
-		else {
-			return false;
-		}
+		else { return false; }
 	}
 
 	/**
@@ -399,30 +418,32 @@ public static class RoadMap {
 	 * @return The orientation vector calculated
 	 * @post If the ID does not exist or is no limit node, (0,0) is returned
 	 */
-	public static Vector2 entryOrientation (string node_id) {
+	public static Vector2 entryOrientation (string node_id)
+	{
 		Vector3 v = new Vector3 (0,0,0);
 
-		if (nodes.ContainsKey (node_id)) {
-			if (nodes[node_id].node_type == NodeType.Limit) {
+		if (nodes.ContainsKey (node_id))
+		{
+			if (nodes[node_id].node_type == NodeType.Limit)
+			{
 				string edge_id = getLimitEdge(node_id);
 
-				if (edges[edge_id].source_id == node_id) {
+				if (edges[edge_id].source_id == node_id)
+				{
 					// Destination - source
 					v.x = nodes[ edges[edge_id].destination_id ].x - nodes[ edges[edge_id].source_id ].x;
 					v.z = nodes[ edges[edge_id].destination_id ].y - nodes[ edges[edge_id].source_id ].y;
 				}
-				else {
+				else
+				{
 					// Source - destination
 					v.x = nodes[ edges[edge_id].source_id ].x - nodes[ edges[edge_id].destination_id ].x;
 					v.z = nodes[ edges[edge_id].source_id ].y - nodes[ edges[edge_id].destination_id ].y;
 				}
 			}
 		}
-
 		v.Normalize ();
-
 		Vector2 orientation = new Vector2 (v.x,v.z);
-
 		return orientation;
 	}
 	
@@ -431,32 +452,35 @@ public static class RoadMap {
 	 * @param[in] node_id Limit node ID
 	 * @return A list of objects or an empty list if the specified node was not a limit node
 	 */
-	public static List<GameObject> getLaneStartPoints (string node_id) {
-		
+	public static List<GameObject> getLaneStartPoints (string node_id)
+	{
 		List<GameObject> list = new List<GameObject>();
 		
-		if (nodes[node_id].node_type == NodeType.Limit) {
+		if (nodes[node_id].node_type == NodeType.Limit)
+		{
 			string edge_id = RoadMap.getLimitEdge(node_id);
 			
 			GameObject object_edge = GameObject.Find(edge_id);
 			
 			GameObject StartPointsObject = null;
 			
-			if (edges[edge_id].source_id == node_id) {
+			if (edges[edge_id].source_id == node_id)
+			{
 				StartPointsObject = object_edge.transform.FindChild(Constants.Name_Source_Start_Points).gameObject;
 			}
-			else if (edges[edge_id].destination_id == node_id) {
+			else if (edges[edge_id].destination_id == node_id)
+			{
 				StartPointsObject = object_edge.transform.FindChild(Constants.Name_Destination_Start_Points).gameObject;
 			}
 			
-			if (StartPointsObject != null) {
-				
-				foreach (Transform child in StartPointsObject.transform) {
+			if (StartPointsObject != null)
+			{
+				foreach (Transform child in StartPointsObject.transform)
+				{
 					list.Add(child.gameObject);
 				}
 			}
 		}
-		
 		return list;
 	}
 	
@@ -691,15 +715,11 @@ public static class RoadMap {
 
 		if (n.node_type == NodeType.Limit) {  // DRAW LIMIT NODE
 			Edge e = edges[getLimitEdge(n.id)];
-
-			float width = (e.lane_num*Constants.lane_width) + 2*Constants.lane_width; // To protrude from both sides
-
-			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			
+			GameObject aux_road = new GameObject();
 			aux_road.name = node_id;
 			aux_road.tag = Constants.Tag_Node_Limit;
-			aux_road.GetComponent<Renderer>().material = black_material;
-			pos.y += (Constants.limit_height/2);
-			aux_road.transform.localScale = new Vector3(width,Constants.limit_height,Constants.limit_depth);
+			DrawRoad.nodeLimit(node_id, e.lane_num, aux_road);
 			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down); // Vector (0,1) is the orientation of the limit node
 			aux_road.transform.position = pos;
 			// Place the node in the roads layer
@@ -728,7 +748,7 @@ public static class RoadMap {
 			TurnSide side;
 			float angle_between_edges = nodeAngle(n.id, selected_edge, non_selected_edge, out side);
 			// Create the continuation node
-			CreateContinuationNode(node_id, aux_road, edge_width, edge_width, angle_between_edges, side, selected_edge);
+			drawContinuationNode (node_id, aux_road, edge_width, edge_width, angle_between_edges, side, selected_edge);
 			
 			Vector2 edge_direction = new Vector2(nodes[node_id].x - edges[selected_edge].fixed_position.x, nodes[node_id].y - edges[selected_edge].fixed_position.z);
 			edge_direction.Normalize();
@@ -754,13 +774,12 @@ public static class RoadMap {
 				pos.y = -0.05f + Constants.platform_Y_position;
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
 				aux_road.transform.localScale = new Vector3(edges[n.widest_edge_id].width,Constants.road_thickness,edges[n.widest_edge_id].width);
+				aux_road.name = node_id;
 				
 				if (n.node_type == NodeType.Intersection) {
-					aux_road.name = node_id;
 					aux_road.tag = Constants.Tag_Node_Intersection;
 				}
 				else {
-					aux_road.name = node_id;
 					aux_road.tag = Constants.Tag_Unknown;
 				}
 				// Place the node in the roads layer
@@ -888,8 +907,8 @@ public static class RoadMap {
 
 		#region Hard shoulder lines
 		float hard_shoulder_d = (e.width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
-		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(-hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
-		draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3( hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
+		DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(-hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
+		DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3( hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
 		#endregion
 		
 		// Lane number on source-destination direction
@@ -912,8 +931,8 @@ public static class RoadMap {
 			}
 			float half_center_lines_separation = Constants.center_lines_separation/2;
 			float center_line_common_calc = - (lane_diff * half_lane_width);
-			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc - half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
-			draw_continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc + half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
+			DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc - half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
+			DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc + half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
 		}
 		#endregion
 
@@ -943,7 +962,7 @@ public static class RoadMap {
 				
 				if (i < lane_num_src_des-1)
 				{
-					draw_lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
+					DrawRoad.lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
 				}
 					
 				setLaneStartPoint (src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
@@ -959,7 +978,7 @@ public static class RoadMap {
 				
 				if (i < lane_num_des_src-1)
 				{
-					draw_lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
+					DrawRoad.lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
 				}
 				
 				setLaneStartPoint (des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
@@ -976,7 +995,7 @@ public static class RoadMap {
 		if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit && lane_num_src_des > 0)
 		{
 			float detention_line_posX = (+hard_shoulder_d) - ((lane_num_src_des * (Constants.lane_width + Constants.line_width))/2);
-			draw_continuous_line (MyUtilitiesClass.detentionLineWidth(e.src_des), 
+			DrawRoad.continuous_line (MyUtilitiesClass.detentionLineWidth(e.src_des), 
 									Constants.line_thickness, 
 									Constants.public_transport_line_width, 
 									new Vector3(detention_line_posX, lines_Y_pos, + detention_line_dZ), 
@@ -987,7 +1006,7 @@ public static class RoadMap {
 		if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit && lane_num_des_src > 0)
 		{
 			float detention_line_posX = (-hard_shoulder_d) + ((lane_num_des_src * (Constants.lane_width + Constants.line_width))/2);
-			draw_continuous_line (MyUtilitiesClass.detentionLineWidth(e.des_src), 
+			DrawRoad.continuous_line (MyUtilitiesClass.detentionLineWidth(e.des_src), 
 									Constants.line_thickness, 
 									Constants.public_transport_line_width, 
 									new Vector3(detention_line_posX, lines_Y_pos, - detention_line_dZ), 
@@ -1002,7 +1021,7 @@ public static class RoadMap {
 		edge_root.transform.position = e.fixed_position;
 		// Place the edge in the roads layer
 		MyUtilitiesClass.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
-	} // End drawEdge
+	}
 	
 	/**
 	 * @brief Sets a LaneStart object at the specified position
@@ -1040,262 +1059,6 @@ public static class RoadMap {
 	}
 
 	/**
-	 * @brief Draw a lane line by type aligned with the Z axis
-	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
-	 * @param[in] length Line length
-	 * @param[in] position Center line position
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
-
-		Vector3 position1 = new Vector3(position.x, position.y, position.z - (length/2));
-		Vector3 position2 = new Vector3(position.x, position.y, position.z + (length/2));
-		
-		draw_lane_line (lane_type, position1, position2, parent);
-	}
-	
-	/**
-	 * @brief Draw a lane line by type aligned with the Z axis
-	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Position of the other end of the line
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent) {
-	
-		switch (lane_type) {
-			case Constants.Char_Public_Lane:
-				draw_continuous_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Public_Transport_Lane, parent);
-				break;
-			case Constants.Char_Normal_Lane:
-				draw_discontinuous_line (Constants.line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Normal_Lane, parent);
-				break;
-			case 'A':
-				Debug.Log("Parking not designed yet");
-				break;
-			case 'V':
-				Debug.Log("Bus/HOV not designed yet");
-				break;
-			default:
-				Debug.Log("Trying to draw invalid type of lane");
-				break;
-			}
-	}
-	
-	/**
-	 * @brief Draw a curved lane line by type
-	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Control point of the line
-	 * @param[in] position3 Position of the other end of the line
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_curved_lane_line (char lane_type, Vector3 position1, Vector3 position2, Vector3 position3, GameObject parent) {
-		
-		switch (lane_type) {
-		case Constants.Char_Public_Lane:
-			draw_continuous_curved_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Public_Transport_Lane, parent);
-			break;
-		case Constants.Char_Normal_Lane:
-			draw_discontinuous_curved_line (Constants.line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Normal_Lane, parent);
-			break;
-		case 'A':
-			Debug.Log("Parking not designed yet");
-			break;
-		case 'V':
-			Debug.Log("Bus/HOV not designed yet");
-			break;
-		default:
-			Debug.Log("Trying to draw invalid type of lane");
-			break;
-		}
-	}
-
-	/**
-	 * @brief Draw a continuous white line aligned with the Z axis
-	 * @param[in] width Width of the line
-	 * @param[in] height Thickness of the line
-	 * @param[in] length Length of the line
-	 * @param[in] position Center position of the line
-	 * @param[in] name Name for the object
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
-		
-		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
-		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
-		
-		draw_continuous_line (width, height, position1, position2, name, parent);
-	}
-	
-	/**
-	 * @brief Draw a continuous white line between the positions position1 and position2
-	 * @param[in] width Width of the line
-	 * @param[in] height Thickness of the line
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Position of the other end of the line
-	 * @param[in] name Name for the object
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_continuous_line (float width, float height, Vector3 position1, Vector3 position2,string name, GameObject parent) {
-		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		line.name = name;
-		line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(position1,position2));
-		line.transform.position = MyMathClass.middlePoint(position1,position2);
-		line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
-		line.GetComponent<Renderer>().material.color = Color.white;
-		line.GetComponent<Renderer>().material = white_asphalt_material;
-		line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
-		line.transform.parent = parent.transform;
-	}
-	
-	/**
-	 * @brief Draw a continuous curved white line between the positions position1 and position3, passing throught position2
-	 * @param[in] width Width of the line
-	 * @param[in] height Thickness of the line
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Control point of the line
-	 * @param[in] position3 Position of the other end of the line
-	 * @param[in] name Name for the object
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_continuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
-		GameObject continuous_curved_line = new GameObject();
-		continuous_curved_line.name = name;
-		continuous_curved_line.transform.parent = parent.transform;
-		
-		Vector3 start = position1;
-		Vector3 end;
-		
-		for (int i=1; i<=10; i++) {
-			end = MyMathClass.CalculateBezierPoint((float)i/10,position1,position2,position2,position3);
-		
-			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			line.name = name;
-			line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(start,end));
-			line.transform.position = MyMathClass.middlePoint(start,end);
-			line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(start,end));
-			line.GetComponent<Renderer>().material.color = Color.white;
-			line.GetComponent<Renderer>().material = white_asphalt_material;
-			line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
-			line.transform.parent = continuous_curved_line.transform;
-			
-			start = end;
-		}
-	}
-
-	/**
-	 * @brief Draw a discontinuous white line aligned with the Z axis
-	 * @param[in] width Width of the line
-	 * @param[in] height Thickness of the line
-	 * @param[in] length Length of the line
-	 * @param[in] position Center position of the line
-	 * @param[in] name Name for the object
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent) {
-
-		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
-		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
-		
-		draw_discontinuous_line (width, height, position1, position2, name, parent);
-	}
-	
-	/**
-	 * @brief Draw a discontinuous white line between the positions position1 and position2
-	 * @param[in] width Width of the line
-	 * @param[in] height Thickness of the line
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Position of the other end of the line
-	 * @param[in] name Name for the object
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent) {
-	
-		GameObject discontinuous_line = new GameObject ();
-		discontinuous_line.name = name;
-		discontinuous_line.transform.parent = new_parent.transform;
-		discontinuous_line.transform.position = MyMathClass.middlePoint(position1,position2);
-		float length = MyMathClass.Distance(position1,position2);
-		
-		int piece_num = 0;
-		
-		while ( (((piece_num * 2) - 1) * Constants.discontinuous_line_length) + (2 * Constants.discontinuous_line_min_margin) <= length ) {
-			piece_num++;
-		}
-		
-		if ((((piece_num * 2) - 1) * Constants.discontinuous_line_length) + (2 * Constants.discontinuous_line_min_margin) > length) {
-			piece_num--;
-		}
-		
-		Vector3 pos_aux = MyMathClass.middlePoint(position1,position2);
-		
-		pos_aux.z -= Constants.discontinuous_line_length * ((float)piece_num - 1);
-		
-		for (int i=0; i < piece_num; i++) {
-			
-			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			line.name = name;
-			line.transform.localScale = new Vector3(width, height, Constants.discontinuous_line_length);
-			line.transform.position = pos_aux;
-			line.GetComponent<Renderer>().material.color = Color.white;
-			line.GetComponent<Renderer>().material = white_asphalt_material;
-			line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
-			line.transform.parent = discontinuous_line.transform;
-			
-			pos_aux.z += Constants.discontinuous_line_length * 2;
-		}
-		discontinuous_line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
-		discontinuous_line.AddComponent<BoxCollider>();
-		discontinuous_line.GetComponent<BoxCollider>().size = new Vector3(width, height, length);
-	}
-	
-	/**
-	 * @brief Draw a discontinuous curved white line between the positions position1 and position3, passing throught position2
-	 * @param[in] width Width of the line
-	 * @param[in] height Thickness of the line
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Control point of the line
-	 * @param[in] position3 Position of the other end of the line
-	 * @param[in] name Name for the object
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_discontinuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
-		GameObject continuous_curved_line = new GameObject();
-		continuous_curved_line.name = name;
-		continuous_curved_line.transform.parent = parent.transform;
-		
-		float curve_length = MyMathClass.CalculateBezierLength(position1,position2,position2,position3);
-		int num_segments_posible = (int)(curve_length / Constants.discontinuous_line_length);
-		
-		if (num_segments_posible % 2 == 0) {
-			num_segments_posible--;
-		}
-		
-		float margin_length = (curve_length - (num_segments_posible * Constants.discontinuous_line_length) ) / 2;
-		
-		float prev_dist = margin_length;
-		float next_dist = prev_dist + Constants.discontinuous_line_length;
-		
-		while (next_dist < curve_length) {
-			Vector3 prev = MyMathClass.CalculateBezierPointWithDistance(position1,position2,position2,position3,prev_dist);
-			Vector3 next = MyMathClass.CalculateBezierPointWithDistance(position1,position2,position2,position3,next_dist);
-			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			line.name = name;
-			line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(prev,next));
-			line.transform.position = MyMathClass.middlePoint(prev,next);
-			line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(prev,next));
-			line.GetComponent<Renderer>().material.color = Color.white;
-			line.GetComponent<Renderer>().material = white_asphalt_material;
-			line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
-			line.transform.parent = continuous_curved_line.transform;
-			
-			prev_dist = next_dist + Constants.discontinuous_line_length;
-			next_dist = prev_dist + Constants.discontinuous_line_length;
-		}
-	}
-
-	/**
 	 * @brief Calculate the total number of lanes of the edge whose identifier is passed as an argument
 	 * @param[in] edge_id Edge ID
 	 * @return The total number of lanes of the edge
@@ -1318,7 +1081,7 @@ public static class RoadMap {
 	}
 
 	/**
-	 * @brief Creates a mesh for the nodes of type continuation.
+	 * @brief Draws necessary elements for nodes of type continuation.
 	 * @param[in] node_id ID of the node that is being created
 	 * @param[in] node The GameObject that is being created
 	 * @param[in] radius Radius of the circle circumscribed by the edges
@@ -1327,7 +1090,7 @@ public static class RoadMap {
 	 * @param[in] side Left if the turn is to the left, Right if the turn is to the right
 	 * @param[in] ref_edge_id Edge identifier of the referency edge used to draw road markings
 	 */
-	private static void CreateContinuationNode (string node_id, GameObject node, float radius, 
+	private static void drawContinuationNode (string node_id, GameObject node, float radius, 
 												float edge_width, float angle, TurnSide side, 
 												string ref_edge_id) {
 		
@@ -1355,7 +1118,7 @@ public static class RoadMap {
 			rotation_angle = -angle;
 		}
 		
-		BezierMesh (topology, Constants.road_thickness, edge_width, start_point, control_point, end_point, rotation_angle);
+		DrawRoad.BezierMesh (topology, Constants.road_thickness, edge_width, start_point, control_point, end_point, rotation_angle);
 		
 		// Attention: Following similar procedure of BezierMesh
 		// Road markings
@@ -1391,8 +1154,8 @@ public static class RoadMap {
 		Vector3 LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
 		Vector3 RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 		
-		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
-		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
+		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
+		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
 		
 		// Center lines
 		Vector2 aux_vector,aux_vector_rotated;
@@ -1435,8 +1198,8 @@ public static class RoadMap {
 			LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
 			RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 			
-			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,topology);
-			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,topology);
+			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,topology);
+			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,topology);
 		}
 		
 		// Lane lines
@@ -1465,7 +1228,7 @@ public static class RoadMap {
 				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
 				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
 				
-				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, topology);
+				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
 		
@@ -1489,233 +1252,9 @@ public static class RoadMap {
 				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
 				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
 				
-				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, topology);
+				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
 		// End road markings
-	} // CreateContinuationNode
-	
-	/**
-	 * @brief Create a thin Mesh based on a Bezier curve and rectangular sections
-	 * @param[in] obj The gameobject
-	 * @param[in] thick The thick of the mesh sections
-	 * @param[in] width The width of the mesh sections
-	 * @param[in] start_point The initial point for the Bezier curve
-	 * @param[in] control_point Control point of the curve
-	 * @param[in] end_point The last point for the Bezier curve
-	 * @param[in] rotation_angle The angle in degrees [-180,180] of the edges involved in this turn
-	 */
-	private static void BezierMesh (GameObject obj, float thick, float width, Vector3 start_point, 
-	                                Vector3 control_point, Vector3 end_point, float rotation_angle) {
-		/*
-			The object will be created following this steps:
-				- Starting from a imaginary line parallel to the X axis, the mesh will turn left or right.
-				  The Bezier curve who leads the turn starts at <start_point>, and ends at <end_point>.
-				  <control_point> is the control point of the Bezier curve.
-				- To do the turn we need 4 points for each section of the turn. Each section will be a deformed cube 
-				  with its vertex in the 4 points with thickness of Constants.road_thickness.
-				- To obtain these points we draw 2 imaginary Bezier curves wich will define the profile of the turn.
-				  These curves starts in start_point.x - half_width <LP> and start_point.x + half_width <RP> and ends 
-				  in their equivalents points at the end imaginary line of the turn (<LPR> and <RPR>).
-				- The control point for these Bezier curves will be calculated as follow:
-					* We take the start and end points of the turn and calculate two orientation vectors wich 
-					corresponds to the edges (origin: (0,0), destination: central position of the edge).
-					* Now, we calculate the intersection point of the straights who pass throught the points LP and
-					LPR (for the left Bezier curve) and follow the direction of the previous calculated vectors. That 
-					point will be the control point for that Bezier curve. The right Bezier curve it's calculated
-					the same way.
-		*/
-		GameObject platform = new GameObject();
-		platform.name = Constants.Name_Platform;
-		platform.transform.SetParent(obj.transform);
-		
-		float top_y = Constants.platform_Y_position;
-		float bottom_y = top_y - Constants.road_thickness;
-		float half_width = width/2;
-		
-		Vector2 LP = new Vector2 (start_point.x - half_width, start_point.z); // Left point
-		Vector2 RP = new Vector2 (start_point.x + half_width, start_point.z); // Right point
-		
-		/*	Rotate angle degrees the points left and right.
-			Due to the equal distance to the center of the imaginary lines start and end, rotate the left point give us
-			the corresponding rotated point for the right point and the same applies to the right point. */
-		
-		Vector2 LPR = MyMathClass.rotatePoint(RP, rotation_angle); // Left point rotated
-		Vector2 RPR = MyMathClass.rotatePoint(LP, rotation_angle); // Right point rotated
-		
-		// Calculate control points for the Bezier curves
-		Vector2 start_point_2D = new Vector2(start_point.x,start_point.z);
-		Vector2 end_point_2D = new Vector2(end_point.x,end_point.z);
-		Vector2 ref_edge_direction = MyMathClass.orientationVector(new Vector2(0,0), start_point_2D);
-		Vector2 oth_edge_direction = MyMathClass.orientationVector(new Vector2(0,0), end_point_2D);
-		
-		Vector2 LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
-		Vector2 RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
-		
-		// Create the turn sections
-		for (int i=0; i<10; i++) {
-			Vector2 point0 = MyMathClass.CalculateBezierPoint((float)i/10    ,LP,LCB_2D,LCB_2D,LPR);
-			Vector2 point1 = MyMathClass.CalculateBezierPoint((float)i/10    ,RP,RCB_2D,RCB_2D,RPR);
-			Vector2 point2 = MyMathClass.CalculateBezierPoint((float)(i+1)/10,RP,RCB_2D,RCB_2D,RPR);
-			Vector2 point3 = MyMathClass.CalculateBezierPoint((float)(i+1)/10,LP,LCB_2D,LCB_2D,LPR);
-			
-			Vector3[] vertex_array = new Vector3[8];
-			vertex_array[0] = new Vector3(point3.x, bottom_y, point3.y);
-			vertex_array[1] = new Vector3(point2.x, bottom_y, point2.y);
-			vertex_array[2] = new Vector3(point1.x, bottom_y, point1.y);
-			vertex_array[3] = new Vector3(point0.x, bottom_y, point0.y);
-			vertex_array[4] = new Vector3(point3.x, top_y   , point3.y);
-			vertex_array[5] = new Vector3(point2.x, top_y   , point2.y);
-			vertex_array[6] = new Vector3(point1.x, top_y   , point1.y);
-			vertex_array[7] = new Vector3(point0.x, top_y   , point0.y);
-			eightMesh(platform,vertex_array);
-		}
-	} // End BezierMesh
-	
-	/**
-	 * @brief Create a mesh with 8 vertex which seems a deformed box. The algorithm has been obtained from
-	 * http://wiki.unity3d.com/index.php/ProceduralPrimitives and has been adapted to the needs of this application
-	 * @param[in] obj The gameobject
-	 * @param[in] vertex_array The array with 8 Vector3 with the positions of all vertex. The vertex of the bottom face
-	 * are p0,p1,p2,p3 and the vertex of the top face are p7,p6,p5,p4
-	 */
-	private static void eightMesh (GameObject obj, Vector3[] vertex_array) {
-		GameObject go = new GameObject();
-		go.name = Constants.Name_Turn_Section;
-		go.transform.SetParent(obj.transform);
-		go.AddComponent< BoxCollider >();
-		go.AddComponent< MeshRenderer >();
-		go.GetComponent<Renderer>().material = asphalt_material;
-		MeshFilter filter = go.AddComponent< MeshFilter >();
-		Mesh mesh = filter.mesh;
-		mesh.Clear();
-		
-		#region Vertices
-		Vector3 p0 = new Vector3(vertex_array[0].x, vertex_array[0].y, vertex_array[0].z);
-		Vector3 p1 = new Vector3(vertex_array[1].x, vertex_array[1].y, vertex_array[1].z);
-		Vector3 p2 = new Vector3(vertex_array[2].x, vertex_array[2].y, vertex_array[2].z);
-		Vector3 p3 = new Vector3(vertex_array[3].x, vertex_array[3].y, vertex_array[3].z);	
-		Vector3 p4 = new Vector3(vertex_array[4].x, vertex_array[4].y, vertex_array[4].z);
-		Vector3 p5 = new Vector3(vertex_array[5].x, vertex_array[5].y, vertex_array[5].z);
-		Vector3 p6 = new Vector3(vertex_array[6].x, vertex_array[6].y, vertex_array[6].z);
-		Vector3 p7 = new Vector3(vertex_array[7].x, vertex_array[7].y, vertex_array[7].z);
-		
-		Vector3[] vertices = new Vector3[]
-		{
-			// Bottom
-			p0, p1, p2, p3,
-			
-			// Left
-			p7, p4, p0, p3,
-			
-			// Front
-			p4, p5, p1, p0,
-			
-			// Back
-			p6, p7, p3, p2,
-			
-			// Right
-			p5, p6, p2, p1,
-			
-			// Top
-			p7, p6, p5, p4
-		};
-		#endregion
-		
-		#region Normales
-		Vector3 up 	= Vector3.up;
-		Vector3 down 	= Vector3.down;
-		Vector3 front 	= Vector3.forward;
-		Vector3 back 	= Vector3.back;
-		Vector3 left 	= Vector3.left;
-		Vector3 right 	= Vector3.right;
-		
-		Vector3[] normales = new Vector3[]
-		{
-			// Bottom
-			down, down, down, down,
-			
-			// Left
-			left, left, left, left,
-			
-			// Front
-			front, front, front, front,
-			
-			// Back
-			back, back, back, back,
-			
-			// Right
-			right, right, right, right,
-			
-			// Top
-			up, up, up, up
-		};
-		#endregion	
-		
-		#region UVs
-		Vector2 _00 = new Vector2( 0f, 0f );
-		Vector2 _10 = new Vector2( 1f, 0f );
-		Vector2 _01 = new Vector2( 0f, 1f );
-		Vector2 _11 = new Vector2( 1f, 1f );
-		
-		Vector2[] uvs = new Vector2[]
-		{
-			// Bottom
-			_11, _01, _00, _10,
-			
-			// Left
-			_11, _01, _00, _10,
-			
-			// Front
-			_11, _01, _00, _10,
-			
-			// Back
-			_11, _01, _00, _10,
-			
-			// Right
-			_11, _01, _00, _10,
-			
-			// Top
-			_11, _01, _00, _10,
-		};
-		#endregion
-		
-		#region Triangles
-		int[] triangles = new int[]
-		{
-			// Bottom
-			3, 1, 0,
-			3, 2, 1,			
-			
-			// Left
-			3 + 4 * 1, 1 + 4 * 1, 0 + 4 * 1,
-			3 + 4 * 1, 2 + 4 * 1, 1 + 4 * 1,
-			
-			// Front
-			3 + 4 * 2, 1 + 4 * 2, 0 + 4 * 2,
-			3 + 4 * 2, 2 + 4 * 2, 1 + 4 * 2,
-			
-			// Back
-			3 + 4 * 3, 1 + 4 * 3, 0 + 4 * 3,
-			3 + 4 * 3, 2 + 4 * 3, 1 + 4 * 3,
-			
-			// Right
-			3 + 4 * 4, 1 + 4 * 4, 0 + 4 * 4,
-			3 + 4 * 4, 2 + 4 * 4, 1 + 4 * 4,
-			
-			// Top
-			3 + 4 * 5, 1 + 4 * 5, 0 + 4 * 5,
-			3 + 4 * 5, 2 + 4 * 5, 1 + 4 * 5,
-			
-		};
-		#endregion
-		
-		mesh.vertices = vertices;
-		mesh.normals = normales;
-		mesh.uv = uvs;
-		mesh.triangles = triangles;
-		
-		mesh.RecalculateBounds();
-		mesh.Optimize();
-	} // End eightMesh
+	}
 }
