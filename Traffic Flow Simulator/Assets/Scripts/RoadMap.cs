@@ -1057,8 +1057,8 @@ public static class RoadMap
 	 */
 	private static void drawContinuationNode (string node_id, GameObject node, float radius, 
 												float edge_width, float angle, TurnSide side, 
-												string ref_edge_id) {
-		
+												string ref_edge_id)
+	{
 		GameObject topology = new GameObject();
 		topology.name = Constants.Name_Topological_Objects;
 		topology.transform.SetParent(node.transform);
@@ -1066,22 +1066,13 @@ public static class RoadMap
 		Vector2 road_center_point = new Vector2(0, -((radius * 0.5f) + 0.1f));
 		Vector2 road_center_point_rotated;
 		
-		if (side == TurnSide.Right) {
-			road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, angle);
-		}
-		else {
-			road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, -angle);
-		}
+		float rotation_angle = (side == TurnSide.Right) ? angle : -angle;
 		
-		Vector3 start_point = new Vector3(road_center_point.x,0,road_center_point.y);
-		Vector3 control_point = new Vector3(0,0,0);
-		Vector3 end_point = new Vector3(road_center_point_rotated.x,0,road_center_point_rotated.y);
+		road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, rotation_angle);
 		
-		float rotation_angle = angle;
-		
-		if (side == TurnSide.Left) {
-			rotation_angle = -angle;
-		}
+		Vector3 start_point 	= new Vector3(road_center_point.x,0,road_center_point.y);
+		Vector3 control_point 	= new Vector3(0,0,0);
+		Vector3 end_point 		= new Vector3(road_center_point_rotated.x,0,road_center_point_rotated.y);
 		
 		DrawRoad.BezierMesh (topology, Constants.road_thickness, edge_width, start_point, control_point, end_point, rotation_angle);
 		
@@ -1169,6 +1160,11 @@ public static class RoadMap
 		#endregion
 		
 		#region Lane lines
+		GameObject source_start_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_Start_Points	  , node, Constants.Tag_Lane_Start_Point_Group);
+		GameObject destination_start_points = MyUtilities.CreateGameObject(Constants.Name_Destination_Start_Points, node, Constants.Tag_Lane_Start_Point_Group);
+		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , node, Constants.Tag_Lane_End_Point_Group);
+		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , node, Constants.Tag_Lane_End_Point_Group);
+		
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
 		Vector2 P, PR, PCB;
@@ -1190,10 +1186,11 @@ public static class RoadMap
 				PR = road_center_point_rotated - aux_vector_rotated;
 				PCB = MyMathClass.intersectionPoint(P,ref_edge_direction,PR,oth_edge_direction);
 				
-				P_3D = new Vector3(P.x,y_position_lines,P.y);
-				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
-				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
-				
+				P_3D 	= new Vector3(P.x	, y_position_lines, P.y  );
+				PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
+				PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
+				//GameObject LSP = setLaneStartPoint (node_id, i, lane_type, POSITION, source_start_points);
+				//GameObject LEP = setLaneEndPoint   (node_id, i, lane_type, POSITION, source_end_points);
 				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
@@ -1214,10 +1211,11 @@ public static class RoadMap
 				PR = road_center_point_rotated - aux_vector_rotated;
 				PCB = MyMathClass.intersectionPoint(P,ref_edge_direction,PR,oth_edge_direction);
 				
-				P_3D = new Vector3(P.x,y_position_lines,P.y);
-				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
-				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
-				
+				P_3D 	= new Vector3(P.x	, y_position_lines, P.y  );
+				PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
+				PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
+				//GameObject LSP = setLaneStartPoint (node_id, i, lane_type, POSITION, destination_start_points);
+				//GameObject LEP = setLaneEndPoint   (node_id, i, lane_type, POSITION, destination_end_points);
 				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
