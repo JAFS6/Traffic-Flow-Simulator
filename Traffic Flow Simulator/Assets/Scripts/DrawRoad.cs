@@ -115,8 +115,8 @@ public static class DrawRoad
 		#region Lane lines
 		float markings_d = (length / 2) - 4f;
 		
-		// Paint as many lines as lanes are in each direction except one 
-		// and put as many start lane as lanes are.
+		// Draw as many lines as lanes are in each direction except one 
+		// and draw lane markings.
 		
 		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
 		{
@@ -453,7 +453,7 @@ public static class DrawRoad
 	 * Otherwise it will be aligned with the negative Z axis.
 	 * @param[in] parent Parent object to which the markings will join.
 	 */
-	public static void lane_markings (char lane_type, Vector2 pos, bool positiveZ, GameObject parent)
+	private static void lane_markings (char lane_type, Vector2 pos, bool positiveZ, GameObject parent)
 	{
 		Vector3 marking_pos = new Vector3 (pos.x, Constants.markings_Y_position, pos.y);
 		Quaternion rotation = (positiveZ) ? Quaternion.identity : Quaternion.AngleAxis(180, Vector3.up);
