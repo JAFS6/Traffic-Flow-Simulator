@@ -26,16 +26,11 @@ public static class RoadMap
 	
 	public static float max_x,min_x,max_z,min_z; // Ground limits
 
-	// Materials
-	private static Material asphalt_material;
-
 	public static void CreateNewMap (string name)
 	{
 		map_name = name;
 		nodes = new Dictionary<string, Node> ();
 		edges = new Dictionary<string, Edge> ();
-		
-		asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
 	}
 	
 	/**
@@ -890,27 +885,6 @@ public static class RoadMap
 		topology.name = Constants.Name_Topological_Objects;
 		topology.transform.SetParent(edge_root.transform);
 		
-		#region Platform
-		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		platform.name = Constants.Name_Platform;
-		platform.transform.SetParent(topology.transform);
-		platform.transform.localScale = new Vector3(e.width, Constants.road_thickness, e.length);
-		platform.GetComponent<Renderer>().material.color = Color.gray;
-		platform.GetComponent<Renderer>().material = asphalt_material;
-		platform.GetComponent<Renderer>().material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
-		Vector3 platform_position = new Vector3(0,(-Constants.road_thickness/2) + Constants.platform_Y_position,0);
-		platform.transform.position = platform_position;
-		#endregion
-		
-		// Road markings
-		float lines_Y_pos = (-Constants.line_thickness/2) + Constants.markings_Y_position;
-
-		#region Hard shoulder lines
-		float hard_shoulder_d = (e.width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
-		DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(-hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
-		DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3( hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
-		#endregion
-		
 		// Lane number on source-destination direction
 		int lane_num_src_des = (e.src_des == Constants.String_No_Lane) ? 0 : e.src_des.Length;
 		// Lane number on destination-source direction
@@ -918,33 +892,19 @@ public static class RoadMap
 		
 		float half_lane_width = Constants.lane_width/2;
 		float half_length = e.length/2;
+		float hard_shoulder_d = (e.width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
 		
-		#region Center lines
-		if (lane_num_src_des > 0 && lane_num_des_src > 0)
-		{
-			// If both directions have lanes
-			int lane_diff = 0; // Same number of lanes in each direction
-			
-			if (lane_num_src_des != lane_num_des_src) // Different number of lanes in each direction
-			{
-				lane_diff = lane_num_src_des - lane_num_des_src;
-			}
-			float half_center_lines_separation = Constants.center_lines_separation/2;
-			float center_line_common_calc = - (lane_diff * half_lane_width);
-			DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc - half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
-			DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc + half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
-		}
-		#endregion
-
-		#region Lane lines
-		float markings_d = (e.length / 2) - 4f;
+		DrawRoad.edgePlatform (e.width, e.length, e.src_des, e.des_src,
+		                       nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit,
+		                       nodes[e.source_id	 ].node_type != NodeType.Continuation && nodes[e.source_id	   ].node_type != NodeType.Limit,
+		                       topology);
+		
 		GameObject source_start_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_Start_Points	  , edge_root, Constants.Tag_Lane_Start_Point_Group);
 		GameObject destination_start_points = MyUtilities.CreateGameObject(Constants.Name_Destination_Start_Points, edge_root, Constants.Tag_Lane_Start_Point_Group);
 		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , edge_root, Constants.Tag_Lane_End_Point_Group);
 		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , edge_root, Constants.Tag_Lane_End_Point_Group);
 		
-		// Paint as many lines as lanes are in each direction except one 
-		// and put as many start lane as lanes are.
+		// Put as many start lane as lanes are.
 		
 		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
 		{
@@ -954,18 +914,10 @@ public static class RoadMap
 			{
 				char  src_des_lane_type = e.src_des[i];
 				float src_des_posX = + hard_shoulder_d - lane_d;
-				
-				if (i < lane_num_src_des-1)
-				{
-					DrawRoad.lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
-				}
 					
 				GameObject LSP = setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length + Constants.Guide_Node_padding), source_start_points);
 				GameObject LEP = setLaneEndPoint   (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length - Constants.Guide_Node_padding), source_end_points);
 				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
-				
-				Vector2 src_des_marking_pos = new Vector2(src_des_posX + half_lane_width, - markings_d);
-				DrawRoad.lane_markings (src_des_lane_type, src_des_marking_pos, true, topology);
 			}
 			
 			if (i < lane_num_des_src)
@@ -973,48 +925,11 @@ public static class RoadMap
 				char  des_src_lane_type = e.des_src[i];
 				float des_src_posX = - hard_shoulder_d + lane_d;
 				
-				if (i < lane_num_des_src-1)
-				{
-					DrawRoad.lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
-				}
-				
 				GameObject LSP = setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length - Constants.Guide_Node_padding), destination_start_points);
 				GameObject LEP = setLaneEndPoint   (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length + Constants.Guide_Node_padding), destination_end_points);
 				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
-				
-				Vector2 des_src_marking_pos = new Vector2(des_src_posX - half_lane_width, + markings_d);
-				DrawRoad.lane_markings (des_src_lane_type, des_src_marking_pos, false, topology);
 			}
 		}
-		#endregion
-		
-		#region Detention lines
-		float detention_line_dZ = half_length - (Constants.public_transport_line_width/2);
-		
-		if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit && lane_num_src_des > 0)
-		{
-			float detention_line_posX = (+hard_shoulder_d) - ((lane_num_src_des * (Constants.lane_width + Constants.line_width))/2);
-			DrawRoad.continuous_line (MyUtilities.detentionLineWidth(e.src_des), 
-									Constants.line_thickness, 
-									Constants.public_transport_line_width, 
-									new Vector3(detention_line_posX, lines_Y_pos, + detention_line_dZ), 
-									Constants.Line_Name_Detention, 
-									topology);
-		}
-		
-		if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit && lane_num_des_src > 0)
-		{
-			float detention_line_posX = (-hard_shoulder_d) + ((lane_num_des_src * (Constants.lane_width + Constants.line_width))/2);
-			DrawRoad.continuous_line (MyUtilities.detentionLineWidth(e.des_src), 
-									Constants.line_thickness, 
-									Constants.public_transport_line_width, 
-									new Vector3(detention_line_posX, lines_Y_pos, - detention_line_dZ), 
-									Constants.Line_Name_Detention, 
-									topology);
-		}
-		#endregion
-
-		// End road markings
 
 		edge_root.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
 		edge_root.transform.position = e.fixed_position;
