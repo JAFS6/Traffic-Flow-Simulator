@@ -82,6 +82,74 @@ public static class DrawRoad
 	}
 	
 	/**
+	 * @brief Draw a discontinuous white line aligned with the Z axis
+	 * @param[in] width Width of the line
+	 * @param[in] height Thickness of the line
+	 * @param[in] length Length of the line
+	 * @param[in] position Center position of the line
+	 * @param[in] name Name for the object
+	 * @param[in] parent Parent object to which the line will join
+	 */
+	public static void discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent)
+	{
+		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
+		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
+		
+		discontinuous_line (width, height, position1, position2, name, parent);
+	}
+	
+	/**
+	 * @brief Draw a discontinuous white line between the positions position1 and position2
+	 * @param[in] width Width of the line
+	 * @param[in] height Thickness of the line
+	 * @param[in] position1 Position of one end of the line
+	 * @param[in] position2 Position of the other end of the line
+	 * @param[in] name Name for the object
+	 * @param[in] parent Parent object to which the line will join
+	 */
+	public static void discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent)
+	{
+		GameObject discontinuous_line = new GameObject ();
+		discontinuous_line.name = name;
+		discontinuous_line.transform.parent = new_parent.transform;
+		discontinuous_line.transform.position = MyMathClass.middlePoint(position1,position2);
+		float length = MyMathClass.Distance(position1,position2);
+		
+		int piece_num = 0;
+		
+		while ( (((piece_num * 2) - 1) * Constants.discontinuous_line_length) + (2 * Constants.discontinuous_line_min_margin) <= length )
+		{
+			piece_num++;
+		}
+		
+		if ((((piece_num * 2) - 1) * Constants.discontinuous_line_length) + (2 * Constants.discontinuous_line_min_margin) > length)
+		{
+			piece_num--;
+		}
+		
+		Vector3 pos_aux = MyMathClass.middlePoint(position1,position2);
+		
+		pos_aux.z -= Constants.discontinuous_line_length * ((float)piece_num - 1);
+		
+		for (int i=0; i < piece_num; i++)
+		{
+			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			line.name = name;
+			line.transform.localScale = new Vector3(width, height, Constants.discontinuous_line_length);
+			line.transform.position = pos_aux;
+			line.GetComponent<Renderer>().material.color = Color.white;
+			line.GetComponent<Renderer>().material = white_asphalt_material;
+			line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
+			line.transform.parent = discontinuous_line.transform;
+			
+			pos_aux.z += Constants.discontinuous_line_length * 2;
+		}
+		discontinuous_line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(position1,position2));
+		discontinuous_line.AddComponent<BoxCollider>();
+		discontinuous_line.GetComponent<BoxCollider>().size = new Vector3(width, height, length);
+	}
+	
+	/**
 	 * @brief Draw lane markings by the specified lane type.
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal).
 	 * @param[in] pos Position of the center of the markings on the XZ plane.
