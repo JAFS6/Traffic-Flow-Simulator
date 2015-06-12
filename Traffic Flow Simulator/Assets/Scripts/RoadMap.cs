@@ -965,7 +965,7 @@ public static class RoadMap
 					DrawRoad.lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
 				}
 					
-				setLaneStartPoint (src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
+				setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
 				
 				Vector2 src_des_marking_pos = new Vector2(src_des_posX + half_lane_width, - markings_d);
 				DrawRoad.lane_markings (src_des_lane_type, src_des_marking_pos, true, topology);
@@ -981,7 +981,7 @@ public static class RoadMap
 					DrawRoad.lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
 				}
 				
-				setLaneStartPoint (des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
+				setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
 				
 				Vector2 des_src_marking_pos = new Vector2(des_src_posX - half_lane_width, + markings_d);
 				DrawRoad.lane_markings (des_src_lane_type, des_src_marking_pos, false, topology);
@@ -1025,26 +1025,34 @@ public static class RoadMap
 	
 	/**
 	 * @brief Sets a LaneStart object at the specified position
+	 * @param[in] edgeID Identifier of the edge.
+	 * @param[in] lane_order Order of the lane from hard shoulder to center starting at 0.
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
 	 * @param[in] position Position where the object will be placed
 	 * @param[in] parent Parent object to which the object will join
+	 * @return The created object.
 	 */
-	private static void setLaneStartPoint (char lane_type, Vector3 position, GameObject parent) {
+	private static GameObject setLaneStartPoint (string edgeID, int lane_order, char lane_type, Vector3 position, GameObject parent)
+	{
+		string name_base = edgeID + "_" + lane_order + "_";
 		
-		switch (lane_type) {
+		GameObject lane_start = new GameObject();
+		lane_start.transform.SetParent(parent.transform);
+		lane_start.transform.position = position;
+		lane_start.AddComponent<GuideNode>();
+		lane_start.GetComponent<GuideNode>().setGuideNodeType(GuideNodeType.Lane_start);
+		
+		switch (lane_type)
+		{
 			case Constants.Char_Public_Lane:
-				GameObject publicLaneStart = new GameObject();
-				publicLaneStart.name = Constants.Lane_Name_Public;
-				publicLaneStart.tag = Constants.Tag_Lane_Start_Point;
-				publicLaneStart.transform.position = position;
-				publicLaneStart.transform.parent = parent.transform;
+				lane_start.name = name_base + Constants.Lane_Name_Public;
+				lane_start.tag = Constants.Tag_Lane_Start_Point;
+				lane_start.GetComponent<GuideNode>().setGuideNodeTransportType(TransportType.Public);
 				break;
 			case Constants.Char_Normal_Lane:
-				GameObject normalLaneStart = new GameObject();
-				normalLaneStart.name = Constants.Lane_Name_Normal;
-				normalLaneStart.tag = Constants.Tag_Lane_Start_Point;
-				normalLaneStart.transform.position = position;
-				normalLaneStart.transform.parent = parent.transform;
+				lane_start.name = name_base + Constants.Lane_Name_Normal;
+				lane_start.tag = Constants.Tag_Lane_Start_Point;
+				lane_start.GetComponent<GuideNode>().setGuideNodeTransportType(TransportType.PublicAndPrivate);
 				break;
 			case 'A':
 				Debug.Log("Parking lane start point not designed yet");
@@ -1056,6 +1064,7 @@ public static class RoadMap
 				Debug.Log("Trying to draw invalid type of lane");
 				break;
 		}
+		return lane_start;
 	}
 
 	/**
