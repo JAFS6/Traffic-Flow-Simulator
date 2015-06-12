@@ -84,8 +84,10 @@ public static class Constants : object {
 	public const string Tag_Node_Intersection = "Intersection_node";
 	public const string Tag_Edge = "Edge";
 	public const string Tag_Unknown = "Unknown";
-	public const string Tag_Lane_Start_Point = "LaneStartPoint";
-	public const string Tag_Lane_Start_Point_Group = "LaneStartPointGroup";
+	public const string Tag_Lane_Start_Point 		= "LaneStartPoint";
+	public const string Tag_Lane_Start_Point_Group 	= "LaneStartPointGroup";
+	public const string Tag_Lane_End_Point 			= "LaneEndPoint";
+	public const string Tag_Lane_End_Point_Group 	= "LaneEndPointGroup";
 	public const string Tag_Vehicle = "Vehicle";
 	public const string Tag_Ground = "Ground";
 	#endregion

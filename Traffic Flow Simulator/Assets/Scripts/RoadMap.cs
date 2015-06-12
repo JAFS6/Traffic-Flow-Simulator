@@ -1065,6 +1065,49 @@ public static class RoadMap
 		}
 		return lane_start;
 	}
+	
+	/**
+	 * @brief Sets a LaneEnd object at the specified position.
+	 * @param[in] edgeID Identifier of the edge.
+	 * @param[in] lane_order Order of the lane from hard shoulder to center starting at 0.
+	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
+	 * @param[in] position Position where the object will be placed.
+	 * @param[in] parent Parent object to which the object will join.
+	 * @return The created object.
+	 */
+	private static GameObject setLaneEndPoint (string edgeID, int lane_order, char lane_type, Vector3 position, GameObject parent)
+	{
+		string name_base = edgeID + "_" + lane_order + "_";
+		
+		GameObject lane_end = new GameObject();
+		lane_end.transform.SetParent(parent.transform);
+		lane_end.transform.position = position;
+		lane_end.tag = Constants.Tag_Lane_End_Point;
+		GuideNode script = lane_end.AddComponent<GuideNode>();
+		script.setGuideNodeType(GuideNodeType.Lane_end);
+		
+		switch (lane_type)
+		{
+			case Constants.Char_Public_Lane:
+				lane_end.name = name_base + Constants.Lane_Name_Public;
+				script.setGuideNodeTransportType(TransportType.Public);
+				break;
+			case Constants.Char_Normal_Lane:
+				lane_end.name = name_base + Constants.Lane_Name_Normal;
+				script.setGuideNodeTransportType(TransportType.PublicAndPrivate);
+				break;
+			case 'A':
+				Debug.Log("Parking lane start point not designed yet");
+				break;
+			case 'V':
+				Debug.Log("Bus/HOV lane start point not designed yet");
+				break;
+			default:
+				Debug.Log("Trying to draw invalid type of lane");
+				break;
+		}
+		return lane_end;
+	}
 
 	/**
 	 * @brief Calculate the total number of lanes of the edge whose identifier is passed as an argument
