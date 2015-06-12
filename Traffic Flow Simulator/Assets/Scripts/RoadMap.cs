@@ -28,7 +28,6 @@ public static class RoadMap
 	public static float max_x,min_x,max_z,min_z; // Ground limits
 
 	// Materials
-	private static Material black_material;
 	private static Material asphalt_material;
 
 	public static void CreateNewMap (string name)
@@ -37,7 +36,6 @@ public static class RoadMap
 		nodes = new Dictionary<string, Node> ();
 		edges = new Dictionary<string, Edge> ();
 		
-		black_material = Resources.Load ("Materials/Simple_Black", typeof(Material)) as Material;
 		asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
 	}
 	
@@ -690,15 +688,11 @@ public static class RoadMap
 
 		if (n.node_type == NodeType.Limit) {  // DRAW LIMIT NODE
 			Edge e = edges[getLimitEdge(n.id)];
-
-			float width = (e.lane_num*Constants.lane_width) + 2*Constants.lane_width; // To protrude from both sides
-
-			GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			
+			GameObject aux_road = new GameObject();
 			aux_road.name = node_id;
 			aux_road.tag = Constants.Tag_Node_Limit;
-			aux_road.GetComponent<Renderer>().material = black_material;
-			pos.y += (Constants.limit_height/2);
-			aux_road.transform.localScale = new Vector3(width,Constants.limit_height,Constants.limit_depth);
+			DrawRoad.nodeLimit(node_id, e.lane_num, aux_road);
 			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down); // Vector (0,1) is the orientation of the limit node
 			aux_road.transform.position = pos;
 			// Place the node in the roads layer
@@ -753,13 +747,12 @@ public static class RoadMap
 				pos.y = -0.05f + Constants.platform_Y_position;
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
 				aux_road.transform.localScale = new Vector3(edges[n.widest_edge_id].width,Constants.road_thickness,edges[n.widest_edge_id].width);
+				aux_road.name = node_id;
 				
 				if (n.node_type == NodeType.Intersection) {
-					aux_road.name = node_id;
 					aux_road.tag = Constants.Tag_Node_Intersection;
 				}
 				else {
-					aux_road.name = node_id;
 					aux_road.tag = Constants.Tag_Unknown;
 				}
 				// Place the node in the roads layer

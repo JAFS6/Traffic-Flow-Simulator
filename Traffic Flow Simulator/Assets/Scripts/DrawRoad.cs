@@ -26,6 +26,7 @@ public static class DrawRoad
 	// Materials
 	private static Material white_asphalt_material;
 	private static Material asphalt_material;
+	private static Material black_material;
 	
 	// Prefabs
 	private static GameObject straight_arrow_prefab;
@@ -36,10 +37,31 @@ public static class DrawRoad
 	 */
 	static DrawRoad ()
 	{
-		white_asphalt_material 	= Resources.Load ("Materials/White_asphalt"					, typeof(Material	)) as Material;
-		asphalt_material 		= Resources.Load ("Materials/Asphalt"						, typeof(Material	)) as Material;
-		straight_arrow_prefab 	= Resources.Load ("Prefabs/RoadMarkings/straight_arrow"		, typeof(GameObject	)) as GameObject;
-		bus_taxi_markings_prefab= Resources.Load ("Prefabs/RoadMarkings/taxi_bus_markings"	, typeof(GameObject	)) as GameObject;
+		white_asphalt_material 		= Resources.Load ("Materials/White_asphalt"					, typeof(Material	)) as Material;
+		asphalt_material 			= Resources.Load ("Materials/Asphalt"						, typeof(Material	)) as Material;
+		black_material 				= Resources.Load ("Materials/Simple_Black"					, typeof(Material	)) as Material;
+		straight_arrow_prefab 		= Resources.Load ("Prefabs/RoadMarkings/straight_arrow"		, typeof(GameObject	)) as GameObject;
+		bus_taxi_markings_prefab	= Resources.Load ("Prefabs/RoadMarkings/taxi_bus_markings"	, typeof(GameObject	)) as GameObject;
+	}
+	
+	/**
+	 * @brief Draws a node limit oriented to positive Z axis.
+	 * @param[in] name The name for the object.
+	 * @param[in] lane_num The number of lanes on this node.
+	 * @param[in] parent Parent object to which the object will join.
+	 */
+	public static void nodeLimit (string name, int lane_num, GameObject parent)
+	{
+		float width = (lane_num*Constants.lane_width) + 2*Constants.lane_width; // To protrude from both sides
+		
+		GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		aux_road.name = name;
+		aux_road.tag = Constants.Tag_Node_Limit;
+		aux_road.transform.SetParent(parent.transform);
+		aux_road.GetComponent<Renderer>().material = black_material;
+		aux_road.transform.localScale = new Vector3(width,Constants.limit_height,Constants.limit_depth);
+		Vector3 pos = new Vector3(0,(Constants.limit_height/2),0);
+		aux_road.transform.position = pos;
 	}
 	
 	/**
