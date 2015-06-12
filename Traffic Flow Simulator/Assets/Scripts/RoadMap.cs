@@ -19,8 +19,8 @@ using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 
-public static class RoadMap {
-
+public static class RoadMap
+{
 	private static string map_name;
 	private static Dictionary<string, Node> nodes;
 	private static Dictionary<string, Edge> edges;
@@ -30,16 +30,15 @@ public static class RoadMap {
 	// Materials
 	private static Material black_material;
 	private static Material asphalt_material;
-	private static Material white_asphalt_material;
 
-	public static void CreateNewMap (string name) {
+	public static void CreateNewMap (string name)
+	{
 		map_name = name;
 		nodes = new Dictionary<string, Node> ();
 		edges = new Dictionary<string, Edge> ();
 		
 		black_material = Resources.Load ("Materials/Simple_Black", typeof(Material)) as Material;
 		asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
-		white_asphalt_material = Resources.Load ("Materials/White_asphalt", typeof(Material)) as Material;
 	}
 	
 	/**
@@ -1038,115 +1037,6 @@ public static class RoadMap {
 				break;
 		}
 	}
-	
-	/**
-	 * @brief Draw a curved lane line by type
-	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Control point of the line
-	 * @param[in] position3 Position of the other end of the line
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_curved_lane_line (char lane_type, Vector3 position1, Vector3 position2, Vector3 position3, GameObject parent) {
-		
-		switch (lane_type) {
-		case Constants.Char_Public_Lane:
-			draw_continuous_curved_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Public_Transport_Lane, parent);
-			break;
-		case Constants.Char_Normal_Lane:
-			draw_discontinuous_curved_line (Constants.line_width, Constants.line_thickness, position1, position2, position3, Constants.Line_Name_Normal_Lane, parent);
-			break;
-		case 'A':
-			Debug.Log("Parking not designed yet");
-			break;
-		case 'V':
-			Debug.Log("Bus/HOV not designed yet");
-			break;
-		default:
-			Debug.Log("Trying to draw invalid type of lane");
-			break;
-		}
-	}
-	
-	/**
-	 * @brief Draw a continuous curved white line between the positions position1 and position3, passing throught position2
-	 * @param[in] width Width of the line
-	 * @param[in] height Thickness of the line
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Control point of the line
-	 * @param[in] position3 Position of the other end of the line
-	 * @param[in] name Name for the object
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_continuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
-		GameObject continuous_curved_line = new GameObject();
-		continuous_curved_line.name = name;
-		continuous_curved_line.transform.parent = parent.transform;
-		
-		Vector3 start = position1;
-		Vector3 end;
-		
-		for (int i=1; i<=10; i++) {
-			end = MyMathClass.CalculateBezierPoint((float)i/10,position1,position2,position2,position3);
-		
-			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			line.name = name;
-			line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(start,end));
-			line.transform.position = MyMathClass.middlePoint(start,end);
-			line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(start,end));
-			line.GetComponent<Renderer>().material.color = Color.white;
-			line.GetComponent<Renderer>().material = white_asphalt_material;
-			line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
-			line.transform.parent = continuous_curved_line.transform;
-			
-			start = end;
-		}
-	}
-	
-	/**
-	 * @brief Draw a discontinuous curved white line between the positions position1 and position3, passing throught position2
-	 * @param[in] width Width of the line
-	 * @param[in] height Thickness of the line
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Control point of the line
-	 * @param[in] position3 Position of the other end of the line
-	 * @param[in] name Name for the object
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_discontinuous_curved_line (float width, float height, Vector3 position1, Vector3 position2, Vector3 position3, string name, GameObject parent) {
-		GameObject continuous_curved_line = new GameObject();
-		continuous_curved_line.name = name;
-		continuous_curved_line.transform.parent = parent.transform;
-		
-		float curve_length = MyMathClass.CalculateBezierLength(position1,position2,position2,position3);
-		int num_segments_posible = (int)(curve_length / Constants.discontinuous_line_length);
-		
-		if (num_segments_posible % 2 == 0) {
-			num_segments_posible--;
-		}
-		
-		float margin_length = (curve_length - (num_segments_posible * Constants.discontinuous_line_length) ) / 2;
-		
-		float prev_dist = margin_length;
-		float next_dist = prev_dist + Constants.discontinuous_line_length;
-		
-		while (next_dist < curve_length) {
-			Vector3 prev = MyMathClass.CalculateBezierPointWithDistance(position1,position2,position2,position3,prev_dist);
-			Vector3 next = MyMathClass.CalculateBezierPointWithDistance(position1,position2,position2,position3,next_dist);
-			GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
-			line.name = name;
-			line.transform.localScale = new Vector3(width, height, MyMathClass.Distance(prev,next));
-			line.transform.position = MyMathClass.middlePoint(prev,next);
-			line.transform.rotation = Quaternion.LookRotation(MyMathClass.orientationVector(prev,next));
-			line.GetComponent<Renderer>().material.color = Color.white;
-			line.GetComponent<Renderer>().material = white_asphalt_material;
-			line.GetComponent<Renderer>().material.mainTextureScale = new Vector2(line.transform.localScale.x,line.transform.localScale.z);
-			line.transform.parent = continuous_curved_line.transform;
-			
-			prev_dist = next_dist + Constants.discontinuous_line_length;
-			next_dist = prev_dist + Constants.discontinuous_line_length;
-		}
-	}
 
 	/**
 	 * @brief Calculate the total number of lanes of the edge whose identifier is passed as an argument
@@ -1244,8 +1134,8 @@ public static class RoadMap {
 		Vector3 LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
 		Vector3 RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 		
-		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
-		draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
+		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
+		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
 		
 		// Center lines
 		Vector2 aux_vector,aux_vector_rotated;
@@ -1288,8 +1178,8 @@ public static class RoadMap {
 			LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
 			RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
 			
-			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,topology);
-			draw_continuous_curved_line(Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,topology);
+			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,topology);
+			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,topology);
 		}
 		
 		// Lane lines
@@ -1318,7 +1208,7 @@ public static class RoadMap {
 				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
 				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
 				
-				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, topology);
+				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
 		
@@ -1342,7 +1232,7 @@ public static class RoadMap {
 				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
 				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
 				
-				draw_curved_lane_line(lane_type, P_3D, PCB_3D, PR_3D, topology);
+				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
 			}
 		}
 		// End road markings
