@@ -137,18 +137,15 @@ public static class RoadMap
 	 */
 	public static bool existsNode (string node_id)
 	{
-		if (nodes.ContainsKey (node_id))
-		{
-			return true;
-		}
-		return false;
+		return (nodes.ContainsKey (node_id)) ? true : false;
 	}
 
 	/**
 	 * @brief Gets a list of identifiers of the nodes of the map
 	 * @return A list of strings
 	 */
-	public static List<string> getNodeIDs () {
+	public static List<string> getNodeIDs ()
+	{
 		List<string> l = new List<string>(nodes.Keys);
 		return l;
 	}
@@ -159,11 +156,12 @@ public static class RoadMap
 	 * @return A Vector2 with the node position in the plane XZ
 	 * @post If the ID does not exist a vector (0,0) is returned
 	 */
-	public static Vector2 getNodePosition (string node_id) {
-
+	public static Vector2 getNodePosition (string node_id)
+	{
 		Vector2 pos = new Vector2 ();
 
-		if (nodes.ContainsKey (node_id)) {
+		if (nodes.ContainsKey (node_id))
+		{
 			pos.x = nodes [node_id].x;
 			pos.y = nodes [node_id].y;
 		}
@@ -177,12 +175,14 @@ public static class RoadMap
 	 * @return The type of node
 	 * @post If the ID does not exist the return type will be UNKNOWN
 	 */
-	public static NodeType getNodeType (string node_id) {
-
-		if (nodes.ContainsKey (node_id)) {
+	public static NodeType getNodeType (string node_id)
+	{
+		if (nodes.ContainsKey (node_id))
+		{
 			return nodes[node_id].node_type;
 		}
-		else {
+		else
+		{
 			Debug.LogError ("Error on getNodeType, node " + node_id + " doesn't exists. Returning default.");
 			return NodeType.Limit;
 		}
@@ -192,7 +192,8 @@ public static class RoadMap
 	 * @brief Gets the number of edges in the map
 	 * @return The number of edges in the map
 	 */
-	public static int getEdgeCount () {
+	public static int getEdgeCount ()
+	{
 		return edges.Count;
 	}
 
@@ -200,7 +201,8 @@ public static class RoadMap
 	 * @brief Gets a list of identifiers of the edges of the map
 	 * @return A list of strings
 	 */
-	public static List<string> getEdgeIDs () {
+	public static List<string> getEdgeIDs ()
+	{
 		List<string> l = new List<string>(edges.Keys);
 		return l;
 	}
@@ -211,11 +213,12 @@ public static class RoadMap
 	 * @return A Vector2 with the central position of the edge in the XZ plane
 	 * @post If the ID does not exist a vector (0,0) is returned
 	 */
-	public static Vector2 getEdgePosition (string edge_id) {
-		
+	public static Vector2 getEdgePosition (string edge_id)
+	{
 		Vector2 pos = new Vector2 ();
 		
-		if (edges.ContainsKey (edge_id)) {
+		if (edges.ContainsKey (edge_id))
+		{
 			string src_node_id = edges[edge_id].source_id;
 			string des_node_id = edges[edge_id].destination_id;
 		
@@ -236,14 +239,17 @@ public static class RoadMap
 	 * @return A Vector2 with the direction of the edge in the XZ plane
 	 * @post If the ID does not exist a vector (0,0) is returned
 	 */
-	public static Vector2 getEdgeDirection (string edge_id, DirectionType d) {
+	public static Vector2 getEdgeDirection (string edge_id, DirectionType d)
+	{
 		Vector2 pos = new Vector2 ();
 		
-		if (edges.ContainsKey (edge_id)) {
+		if (edges.ContainsKey (edge_id))
+		{
 			pos.x = edges[edge_id].direction.x;
 			pos.y = edges[edge_id].direction.y;
 			
-			if (d == DirectionType.Destination_Source) {
+			if (d == DirectionType.Destination_Source)
+			{
 				pos.x = -pos.x;
 				pos.y = -pos.y;
 			}
@@ -260,11 +266,13 @@ public static class RoadMap
 	 * @post After the execution of the method, the parameters src_id and dst_id will have the desired identifiers or 
 	 * Constants.String_Unknown string if the edge does not exist
 	 */
-	public static void getEdgeNodeLimits (string edge_id, out string src_id, out string dst_id) {
+	public static void getEdgeNodeLimits (string edge_id, out string src_id, out string dst_id)
+	{
 		src_id = Constants.String_Unknown;
 		dst_id = Constants.String_Unknown;
 		
-		if (edges.ContainsKey (edge_id)) {
+		if (edges.ContainsKey (edge_id))
+		{
 			src_id = edges[edge_id].source_id;
 			dst_id = edges[edge_id].destination_id;
 		}
@@ -278,11 +286,13 @@ public static class RoadMap
 	 * @post After the execution of the method, the parameters src_pos and dst_pos will have searched positions or
 	 * (0,0) if the edge does not exist
 	 */
-	public static void getEdgeLimitsPositions (string edge_id, out Vector2 src_pos, out Vector2 dst_pos) {
+	public static void getEdgeLimitsPositions (string edge_id, out Vector2 src_pos, out Vector2 dst_pos)
+	{
 		src_pos = new Vector2(0,0);
 		dst_pos = new Vector2(0,0);
 		
-		if (edges.ContainsKey (edge_id)) {
+		if (edges.ContainsKey (edge_id))
+		{
 			Vector2 aux = new Vector2(0,0);
 			aux = edges[edge_id].direction * (edges[edge_id].length / 2);
 			src_pos = (Vector2) edges[edge_id].fixed_position - aux;
@@ -295,13 +305,14 @@ public static class RoadMap
 	 * @param[in] node_id Limit node ID
 	 * @return A string with the edge ID searched or Constants.String_Unknown string if the node type is not limit.
 	 */
-	public static string getLimitEdge (string node_id) {
-		
-		if (nodes[node_id].node_type == NodeType.Limit) {
-		
-			foreach (KeyValuePair<string, Edge> edge in edges) {
-				
-				if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+	public static string getLimitEdge (string node_id)
+	{
+		if (nodes[node_id].node_type == NodeType.Limit)
+		{
+			foreach (KeyValuePair<string, Edge> edge in edges)
+			{
+				if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id)
+				{
 					return edge.Value.id;
 				}
 			}
@@ -317,26 +328,28 @@ public static class RoadMap
 	 * @post After the execution of the method, the edge1 and Edge2 parameters will have the desired identifiers or 
 	 * Constants.String_Unknown string if the node type is not continuation or does not exist
 	 */
-	public static void getContinuationEdges (string node_id, out string edge1, out string edge2) {
-		
+	public static void getContinuationEdges (string node_id, out string edge1, out string edge2)
+	{
 		edge1 = Constants.String_Unknown;
 		edge2 = Constants.String_Unknown;
 		
-		if (nodes.ContainsKey (node_id)) {
-		
-			if (nodes[node_id].node_type == NodeType.Continuation) {
-			
+		if (nodes.ContainsKey (node_id))
+		{
+			if (nodes[node_id].node_type == NodeType.Continuation)
+			{
 				bool first_found = false;
 				
-				foreach (KeyValuePair<string, Edge> edge in edges) {
-					
-					if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
-					
-						if (!first_found) {
+				foreach (KeyValuePair<string, Edge> edge in edges)
+				{
+					if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id)
+					{
+						if (!first_found)
+						{
 							first_found = true;
 							edge1 = edge.Value.id;
 						}
-						else {
+						else
+						{
 							edge2 = edge.Value.id;
 							break;
 						}
@@ -352,48 +365,51 @@ public static class RoadMap
 	 * @param[out] tt Type of transport that will enter the map through that node
 	 * @return True if there is a lane entry to the map from that node, false if not or if the node passed is not a limit node
 	 */
-	public static bool isEntryNode (string node_id, out TransportType tt) {
-		
+	public static bool isEntryNode (string node_id, out TransportType tt)
+	{
 		tt = TransportType.PublicAndPrivate; // Default initialization
 		
-		if (nodes[node_id].node_type == NodeType.Limit) {
+		if (nodes[node_id].node_type == NodeType.Limit)
+		{
 			string edge_id = getLimitEdge(node_id);
 			
-			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != Constants.String_No_Lane) {
-			
-				if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane) && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) { // Contains P and N
+			if (edges[edge_id].source_id == node_id && edges[edge_id].src_des != Constants.String_No_Lane)
+			{
+				if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane) && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) // Contains P and N
+				{
 					tt = TransportType.PublicAndPrivate;
 				}
-				else if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane)) { // Only contains P
+				else if (edges[edge_id].src_des.Contains(Constants.String_Public_Lane)) // Only contains P
+				{
 					tt = TransportType.Public;
 				}
-				else if (edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) { // Only contains N
+				else if (edges[edge_id].src_des.Contains(Constants.String_Normal_Lane)) // Only contains N
+				{
 					tt = TransportType.Private;
 				}
 				
 				return true;
 			}
-			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != Constants.String_No_Lane) {
-			
-				if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane) && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) { // Contains P and N
+			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != Constants.String_No_Lane)
+			{
+				if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane) && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) // Contains P and N
+				{
 					tt = TransportType.PublicAndPrivate;
 				}
-				else if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane)) { // Only contains P
+				else if (edges[edge_id].des_src.Contains(Constants.String_Public_Lane)) // Only contains P
+				{
 					tt = TransportType.Public;
 				}
-				else if (edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) { // Only contains N
+				else if (edges[edge_id].des_src.Contains(Constants.String_Normal_Lane)) // Only contains N
+				{
 					tt = TransportType.Private;
 				}
 				
 				return true;
 			}
-			else {
-				return false;
-			}
+			else { return false; }
 		}
-		else {
-			return false;
-		}
+		else { return false; }
 	}
 
 	/**
@@ -402,30 +418,32 @@ public static class RoadMap
 	 * @return The orientation vector calculated
 	 * @post If the ID does not exist or is no limit node, (0,0) is returned
 	 */
-	public static Vector2 entryOrientation (string node_id) {
+	public static Vector2 entryOrientation (string node_id)
+	{
 		Vector3 v = new Vector3 (0,0,0);
 
-		if (nodes.ContainsKey (node_id)) {
-			if (nodes[node_id].node_type == NodeType.Limit) {
+		if (nodes.ContainsKey (node_id))
+		{
+			if (nodes[node_id].node_type == NodeType.Limit)
+			{
 				string edge_id = getLimitEdge(node_id);
 
-				if (edges[edge_id].source_id == node_id) {
+				if (edges[edge_id].source_id == node_id)
+				{
 					// Destination - source
 					v.x = nodes[ edges[edge_id].destination_id ].x - nodes[ edges[edge_id].source_id ].x;
 					v.z = nodes[ edges[edge_id].destination_id ].y - nodes[ edges[edge_id].source_id ].y;
 				}
-				else {
+				else
+				{
 					// Source - destination
 					v.x = nodes[ edges[edge_id].source_id ].x - nodes[ edges[edge_id].destination_id ].x;
 					v.z = nodes[ edges[edge_id].source_id ].y - nodes[ edges[edge_id].destination_id ].y;
 				}
 			}
 		}
-
 		v.Normalize ();
-
 		Vector2 orientation = new Vector2 (v.x,v.z);
-
 		return orientation;
 	}
 	
@@ -434,32 +452,35 @@ public static class RoadMap
 	 * @param[in] node_id Limit node ID
 	 * @return A list of objects or an empty list if the specified node was not a limit node
 	 */
-	public static List<GameObject> getLaneStartPoints (string node_id) {
-		
+	public static List<GameObject> getLaneStartPoints (string node_id)
+	{
 		List<GameObject> list = new List<GameObject>();
 		
-		if (nodes[node_id].node_type == NodeType.Limit) {
+		if (nodes[node_id].node_type == NodeType.Limit)
+		{
 			string edge_id = RoadMap.getLimitEdge(node_id);
 			
 			GameObject object_edge = GameObject.Find(edge_id);
 			
 			GameObject StartPointsObject = null;
 			
-			if (edges[edge_id].source_id == node_id) {
+			if (edges[edge_id].source_id == node_id)
+			{
 				StartPointsObject = object_edge.transform.FindChild(Constants.Name_Source_Start_Points).gameObject;
 			}
-			else if (edges[edge_id].destination_id == node_id) {
+			else if (edges[edge_id].destination_id == node_id)
+			{
 				StartPointsObject = object_edge.transform.FindChild(Constants.Name_Destination_Start_Points).gameObject;
 			}
 			
-			if (StartPointsObject != null) {
-				
-				foreach (Transform child in StartPointsObject.transform) {
+			if (StartPointsObject != null)
+			{
+				foreach (Transform child in StartPointsObject.transform)
+				{
 					list.Add(child.gameObject);
 				}
 			}
 		}
-		
 		return list;
 	}
 	
