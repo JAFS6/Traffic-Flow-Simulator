@@ -723,7 +723,7 @@ public static class RoadMap
 			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down); // Vector (0,1) is the orientation of the limit node
 			aux_road.transform.position = pos;
 			// Place the node in the roads layer
-			MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+			MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
 		else if (n.node_type == NodeType.Continuation) {  // DRAW CONTINUATION NODE
 			GameObject aux_road = new GameObject();
@@ -761,7 +761,7 @@ public static class RoadMap
 			aux_road.transform.rotation = Quaternion.AngleAxis (rotation_degrees, Vector3.up);
 			aux_road.transform.position = pos;
 			// Place the node in the roads layer
-			MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+			MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
 		else if (n.node_type == NodeType.Intersection) {  // DRAW INTERSECTION NODE
 		
@@ -783,7 +783,7 @@ public static class RoadMap
 					aux_road.tag = Constants.Tag_Unknown;
 				}
 				// Place the node in the roads layer
-				MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+				MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 			}
 		}
 		else {
@@ -938,15 +938,10 @@ public static class RoadMap
 
 		#region Lane lines
 		float markings_d = (e.length / 2) - 4f;
-		GameObject source_start_points = new GameObject();
-		source_start_points.transform.SetParent(edge_root.transform);
-		source_start_points.name = Constants.Name_Source_Start_Points;
-		source_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
-		
-		GameObject destination_start_points = new GameObject();
-		destination_start_points.transform.SetParent(edge_root.transform);
-		destination_start_points.name = Constants.Name_Destination_Start_Points;
-		destination_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
+		GameObject source_start_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_Start_Points	  , edge_root, Constants.Tag_Lane_Start_Point_Group);
+		GameObject destination_start_points = MyUtilities.CreateGameObject(Constants.Name_Destination_Start_Points, edge_root, Constants.Tag_Lane_Start_Point_Group);
+		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , edge_root, Constants.Tag_Lane_End_Point_Group);
+		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , edge_root, Constants.Tag_Lane_End_Point_Group);
 		
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes are.
@@ -966,6 +961,7 @@ public static class RoadMap
 				}
 					
 				setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
+				setLaneEndPoint   (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length), source_end_points);
 				
 				Vector2 src_des_marking_pos = new Vector2(src_des_posX + half_lane_width, - markings_d);
 				DrawRoad.lane_markings (src_des_lane_type, src_des_marking_pos, true, topology);
@@ -982,6 +978,7 @@ public static class RoadMap
 				}
 				
 				setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
+				setLaneEndPoint   (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length), destination_end_points);
 				
 				Vector2 des_src_marking_pos = new Vector2(des_src_posX - half_lane_width, + markings_d);
 				DrawRoad.lane_markings (des_src_lane_type, des_src_marking_pos, false, topology);
@@ -995,7 +992,7 @@ public static class RoadMap
 		if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit && lane_num_src_des > 0)
 		{
 			float detention_line_posX = (+hard_shoulder_d) - ((lane_num_src_des * (Constants.lane_width + Constants.line_width))/2);
-			DrawRoad.continuous_line (MyUtilitiesClass.detentionLineWidth(e.src_des), 
+			DrawRoad.continuous_line (MyUtilities.detentionLineWidth(e.src_des), 
 									Constants.line_thickness, 
 									Constants.public_transport_line_width, 
 									new Vector3(detention_line_posX, lines_Y_pos, + detention_line_dZ), 
@@ -1006,7 +1003,7 @@ public static class RoadMap
 		if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit && lane_num_des_src > 0)
 		{
 			float detention_line_posX = (-hard_shoulder_d) + ((lane_num_des_src * (Constants.lane_width + Constants.line_width))/2);
-			DrawRoad.continuous_line (MyUtilitiesClass.detentionLineWidth(e.des_src), 
+			DrawRoad.continuous_line (MyUtilities.detentionLineWidth(e.des_src), 
 									Constants.line_thickness, 
 									Constants.public_transport_line_width, 
 									new Vector3(detention_line_posX, lines_Y_pos, - detention_line_dZ), 
@@ -1020,7 +1017,7 @@ public static class RoadMap
 		edge_root.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
 		edge_root.transform.position = e.fixed_position;
 		// Place the edge in the roads layer
-		MyUtilitiesClass.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+		MyUtilities.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 	}
 	
 	/**

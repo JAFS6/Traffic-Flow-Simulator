@@ -69,8 +69,10 @@ public static class Constants : object {
 	public const string Name_Ground = "Ground";
 	public const string Name_Platform = "Platform";
 	
-	public const string Name_Source_Start_Points = "Source Start Points";
-	public const string Name_Destination_Start_Points = "Destination Start Points";
+	public const string Name_Source_Start_Points 		= "Source Start Points";
+	public const string Name_Destination_Start_Points 	= "Destination Start Points";
+	public const string Name_Source_End_Points 			= "Source End Points";
+	public const string Name_Destination_End_Points 	= "Destination End Points";
 	
 	public const string Name_Turn_Section  = "Turn Section";
 	public const string Name_Turn_Platform = "Turn Platform";

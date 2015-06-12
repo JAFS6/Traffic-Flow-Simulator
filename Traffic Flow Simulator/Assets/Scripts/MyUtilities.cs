@@ -16,8 +16,27 @@
 using UnityEngine;
 using System.Collections;
 
-public static class MyUtilitiesClass : object
+public static class MyUtilities : object
 {
+	/**
+	 * @brief Creates a game object.
+	 * @param[in] name Name for the game object.
+	 * @param[in] parent Parent for the game object.
+	 * @param[in] tag Tag for the game object.
+	 * @return The new game object.
+	 */
+	public static GameObject CreateGameObject (string name, GameObject parent, string tag)
+	{
+		GameObject g = new GameObject();
+		g.name = name;
+		
+		if (parent != null) g.transform.SetParent(parent.transform);
+		
+		if (tag != null) g.tag = tag;
+		
+		return g;
+	}
+	
 	/**
 	 * @brief Assigns the hierarchy whose root is passed as argument to the layer passed as argument
 	 * @param[in] root Root of the hierarchy
