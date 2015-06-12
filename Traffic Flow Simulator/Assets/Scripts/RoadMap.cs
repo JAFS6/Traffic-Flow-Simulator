@@ -13,7 +13,6 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-//using UnityEditor;
 using UnityEngine;
 using System.Collections;
 using System.IO;
@@ -48,9 +47,10 @@ public static class RoadMap
 	 * @param[in] intersection_type Intersection type: normal (0) or roundabout (1) (Only applies to intersection nodes)
 	 * @pre The id must be different from all previously inserted ids, if it matches one, the new node will not be inserted
 	 */
-	public static void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.Normal) {
-		
-		if ( !nodes.ContainsKey (id) ) {
+	public static void addNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type = IntersectionType.Normal)
+	{
+		if ( !nodes.ContainsKey (id) )
+		{
 			Node newnode = new Node ();
 			newnode.id = id;
 			newnode.node_type = node_type;
@@ -72,9 +72,10 @@ public static class RoadMap
 	 * @pre The id must be different from all previously inserted ids, if it matches one, the new edge will not be inserted
 	 * @pre Ids source and destination nodes must exist, if some of them not exist the edge will not be inserted
 	 */
-	public static void addEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src) {
-		
-		if ( (!edges.ContainsKey (id)) && nodes.ContainsKey (source_id) && nodes.ContainsKey (destination_id)) {
+	public static void addEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src)
+	{
+		if ( (!edges.ContainsKey (id)) && nodes.ContainsKey (source_id) && nodes.ContainsKey (destination_id))
+		{
 			Edge newedge = new Edge ();
 			newedge.id = id;
 			newedge.source_id = source_id;
@@ -92,9 +93,10 @@ public static class RoadMap
 	 * @param[in] new_intersection_type New type of intersection
 	 * @pre If the node does not exist, nothing is done
 	 */
-	public static void setIntersectionType (string id, IntersectionType new_intersection_type) {
-		
-		if ( nodes.ContainsKey (id) ) {
+	public static void setIntersectionType (string id, IntersectionType new_intersection_type)
+	{
+		if ( nodes.ContainsKey (id) )
+		{
 			Node aux_node = nodes[id];
 			aux_node.intersection_type = new_intersection_type;
 			nodes[id] = aux_node;
@@ -105,7 +107,8 @@ public static class RoadMap
 	 * @brief Sets the name of the map
 	 * @param[in] name A string containing the name of the map
 	 */
-	public static void setMapName (string name) {
+	public static void setMapName (string name)
+	{
 		map_name = name;
 	}
 
@@ -113,7 +116,8 @@ public static class RoadMap
 	 * @brief Gets the name of the map
 	 * @return A string containing the name of the map
 	 */
-	public static string getMapName () {
+	public static string getMapName ()
+	{
 		return map_name;
 	}
 
@@ -121,7 +125,8 @@ public static class RoadMap
 	 * @brief Gets the number of nodes in the map
 	 * @return The number of nodes in the map
 	 */
-	public static int getNodeCount () {
+	public static int getNodeCount ()
+	{
 		return nodes.Count;
 	}
 	
@@ -130,9 +135,10 @@ public static class RoadMap
 	 * @param[in] node_id The identifier to check
 	 * @return True if the node exists, false otherwise
 	 */
-	public static bool existsNode (string node_id) {
-		
-		if (nodes.ContainsKey (node_id)) {
+	public static bool existsNode (string node_id)
+	{
+		if (nodes.ContainsKey (node_id))
+		{
 			return true;
 		}
 		return false;
@@ -721,7 +727,7 @@ public static class RoadMap
 			TurnSide side;
 			float angle_between_edges = nodeAngle(n.id, selected_edge, non_selected_edge, out side);
 			// Create the continuation node
-			CreateContinuationNode(node_id, aux_road, edge_width, edge_width, angle_between_edges, side, selected_edge);
+			drawContinuationNode (node_id, aux_road, edge_width, edge_width, angle_between_edges, side, selected_edge);
 			
 			Vector2 edge_direction = new Vector2(nodes[node_id].x - edges[selected_edge].fixed_position.x, nodes[node_id].y - edges[selected_edge].fixed_position.z);
 			edge_direction.Normalize();
@@ -1054,7 +1060,7 @@ public static class RoadMap
 	}
 
 	/**
-	 * @brief Creates a mesh for the nodes of type continuation.
+	 * @brief Draws necessary elements for nodes of type continuation.
 	 * @param[in] node_id ID of the node that is being created
 	 * @param[in] node The GameObject that is being created
 	 * @param[in] radius Radius of the circle circumscribed by the edges
@@ -1063,7 +1069,7 @@ public static class RoadMap
 	 * @param[in] side Left if the turn is to the left, Right if the turn is to the right
 	 * @param[in] ref_edge_id Edge identifier of the referency edge used to draw road markings
 	 */
-	private static void CreateContinuationNode (string node_id, GameObject node, float radius, 
+	private static void drawContinuationNode (string node_id, GameObject node, float radius, 
 												float edge_width, float angle, TurnSide side, 
 												string ref_edge_id) {
 		
@@ -1229,5 +1235,5 @@ public static class RoadMap
 			}
 		}
 		// End road markings
-	} // CreateContinuationNode
+	}
 }
