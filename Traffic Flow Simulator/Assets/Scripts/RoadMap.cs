@@ -867,75 +867,6 @@ public static class RoadMap
 		
 		return angle_deg;
 	}
-
-	/**
-	 * @brief Draw the edge with id "edge_id" in the 3D environment
-	 * @param[in] edge_id Edge ID to draw
-	 * @pre Before running this method should be run once prepareEdges method
-	 */
-	private static void drawEdge (string edge_id)
-	{
-		Edge e = edges[edge_id];
-		
-		GameObject edge_root = new GameObject();
-		edge_root.name = edge_id;
-		edge_root.tag = Constants.Tag_Edge;
-		
-		GameObject topology = new GameObject();
-		topology.name = Constants.Name_Topological_Objects;
-		topology.transform.SetParent(edge_root.transform);
-		
-		// Lane number on source-destination direction
-		int lane_num_src_des = (e.src_des == Constants.String_No_Lane) ? 0 : e.src_des.Length;
-		// Lane number on destination-source direction
-		int lane_num_des_src = (e.des_src == Constants.String_No_Lane) ? 0 : e.des_src.Length;
-		
-		float half_lane_width = Constants.lane_width/2;
-		float half_length = e.length/2;
-		float hard_shoulder_d = (e.width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
-		
-		DrawRoad.edgePlatform (e.width, e.length, e.src_des, e.des_src,
-		                       nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit,
-		                       nodes[e.source_id	 ].node_type != NodeType.Continuation && nodes[e.source_id	   ].node_type != NodeType.Limit,
-		                       topology);
-		
-		GameObject source_start_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_Start_Points	  , edge_root, Constants.Tag_Lane_Start_Point_Group);
-		GameObject destination_start_points = MyUtilities.CreateGameObject(Constants.Name_Destination_Start_Points, edge_root, Constants.Tag_Lane_Start_Point_Group);
-		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , edge_root, Constants.Tag_Lane_End_Point_Group);
-		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , edge_root, Constants.Tag_Lane_End_Point_Group);
-		
-		// Put as many start lane as lanes are.
-		
-		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
-		{
-			float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
-			
-			if (i < lane_num_src_des)
-			{
-				char  src_des_lane_type = e.src_des[i];
-				float src_des_posX = + hard_shoulder_d - lane_d;
-					
-				GameObject LSP = setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length + Constants.Guide_Node_padding), source_start_points);
-				GameObject LEP = setLaneEndPoint   (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length - Constants.Guide_Node_padding), source_end_points);
-				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
-			}
-			
-			if (i < lane_num_des_src)
-			{
-				char  des_src_lane_type = e.des_src[i];
-				float des_src_posX = - hard_shoulder_d + lane_d;
-				
-				GameObject LSP = setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length - Constants.Guide_Node_padding), destination_start_points);
-				GameObject LEP = setLaneEndPoint   (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length + Constants.Guide_Node_padding), destination_end_points);
-				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
-			}
-		}
-
-		edge_root.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
-		edge_root.transform.position = e.fixed_position;
-		// Place the edge in the roads layer
-		MyUtilities.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
-	}
 	
 	/**
 	 * @brief Sets a LaneStart object at the specified position.
@@ -1043,6 +974,75 @@ public static class RoadMap
 		}
 
 		return lane_num;
+	}
+	
+	/**
+	 * @brief Draw the edge with id "edge_id" in the 3D environment
+	 * @param[in] edge_id Edge ID to draw
+	 * @pre Before running this method should be run once prepareEdges method
+	 */
+	private static void drawEdge (string edge_id)
+	{
+		Edge e = edges[edge_id];
+		
+		GameObject edge_root = new GameObject();
+		edge_root.name = edge_id;
+		edge_root.tag = Constants.Tag_Edge;
+		
+		GameObject topology = new GameObject();
+		topology.name = Constants.Name_Topological_Objects;
+		topology.transform.SetParent(edge_root.transform);
+		
+		// Lane number on source-destination direction
+		int lane_num_src_des = (e.src_des == Constants.String_No_Lane) ? 0 : e.src_des.Length;
+		// Lane number on destination-source direction
+		int lane_num_des_src = (e.des_src == Constants.String_No_Lane) ? 0 : e.des_src.Length;
+		
+		float half_lane_width = Constants.lane_width/2;
+		float half_length = e.length/2;
+		float hard_shoulder_d = (e.width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
+		
+		DrawRoad.edgePlatform (e.width, e.length, e.src_des, e.des_src,
+		                       nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit,
+		                       nodes[e.source_id	 ].node_type != NodeType.Continuation && nodes[e.source_id	   ].node_type != NodeType.Limit,
+		                       topology);
+		
+		GameObject source_start_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_Start_Points	  , edge_root, Constants.Tag_Lane_Start_Point_Group);
+		GameObject destination_start_points = MyUtilities.CreateGameObject(Constants.Name_Destination_Start_Points, edge_root, Constants.Tag_Lane_Start_Point_Group);
+		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , edge_root, Constants.Tag_Lane_End_Point_Group);
+		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , edge_root, Constants.Tag_Lane_End_Point_Group);
+		
+		// Put as many start lane as lanes are.
+		
+		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
+		{
+			float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
+			
+			if (i < lane_num_src_des)
+			{
+				char  src_des_lane_type = e.src_des[i];
+				float src_des_posX = + hard_shoulder_d - lane_d;
+				
+				GameObject LSP = setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length + Constants.Guide_Node_padding), source_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length - Constants.Guide_Node_padding), source_end_points);
+				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+			}
+			
+			if (i < lane_num_des_src)
+			{
+				char  des_src_lane_type = e.des_src[i];
+				float des_src_posX = - hard_shoulder_d + lane_d;
+				
+				GameObject LSP = setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length - Constants.Guide_Node_padding), destination_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length + Constants.Guide_Node_padding), destination_end_points);
+				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+			}
+		}
+		
+		edge_root.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
+		edge_root.transform.position = e.fixed_position;
+		// Place the edge in the roads layer
+		MyUtilities.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 	}
 
 	/**
