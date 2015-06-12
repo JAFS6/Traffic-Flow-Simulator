@@ -43,6 +43,49 @@ public static class DrawRoad
 	}
 	
 	/**
+	 * @brief Draw a lane line by type aligned with the Z axis
+	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
+	 * @param[in] length Line length
+	 * @param[in] position Center line position
+	 * @param[in] parent Parent object to which the line will join
+	 */
+	public static void lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
+		
+		Vector3 position1 = new Vector3(position.x, position.y, position.z - (length/2));
+		Vector3 position2 = new Vector3(position.x, position.y, position.z + (length/2));
+		
+		lane_line (lane_type, position1, position2, parent);
+	}
+	
+	/**
+	 * @brief Draw a lane line by type aligned with the Z axis
+	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
+	 * @param[in] position1 Position of one end of the line
+	 * @param[in] position2 Position of the other end of the line
+	 * @param[in] parent Parent object to which the line will join
+	 */
+	public static void lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent) {
+		
+		switch (lane_type) {
+		case Constants.Char_Public_Lane:
+			continuous_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Public_Transport_Lane, parent);
+			break;
+		case Constants.Char_Normal_Lane:
+			discontinuous_line (Constants.line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Normal_Lane, parent);
+			break;
+		case 'A':
+			Debug.Log("Parking not designed yet");
+			break;
+		case 'V':
+			Debug.Log("Bus/HOV not designed yet");
+			break;
+		default:
+			Debug.Log("Trying to draw invalid type of lane");
+			break;
+		}
+	}
+	
+	/**
 	 * @brief Draw a continuous white line aligned with the Z axis
 	 * @param[in] width Width of the line
 	 * @param[in] height Thickness of the line

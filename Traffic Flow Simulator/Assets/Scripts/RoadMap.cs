@@ -943,7 +943,7 @@ public static class RoadMap {
 				
 				if (i < lane_num_src_des-1)
 				{
-					draw_lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
+					DrawRoad.lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
 				}
 					
 				setLaneStartPoint (src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
@@ -959,7 +959,7 @@ public static class RoadMap {
 				
 				if (i < lane_num_des_src-1)
 				{
-					draw_lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
+					DrawRoad.lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
 				}
 				
 				setLaneStartPoint (des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
@@ -1002,7 +1002,7 @@ public static class RoadMap {
 		edge_root.transform.position = e.fixed_position;
 		// Place the edge in the roads layer
 		MyUtilitiesClass.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
-	} // End drawEdge
+	}
 	
 	/**
 	 * @brief Sets a LaneStart object at the specified position
@@ -1037,49 +1037,6 @@ public static class RoadMap {
 				Debug.Log("Trying to draw invalid type of lane");
 				break;
 		}
-	}
-
-	/**
-	 * @brief Draw a lane line by type aligned with the Z axis
-	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
-	 * @param[in] length Line length
-	 * @param[in] position Center line position
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_lane_line (char lane_type, float length, Vector3 position, GameObject parent) {
-
-		Vector3 position1 = new Vector3(position.x, position.y, position.z - (length/2));
-		Vector3 position2 = new Vector3(position.x, position.y, position.z + (length/2));
-		
-		draw_lane_line (lane_type, position1, position2, parent);
-	}
-	
-	/**
-	 * @brief Draw a lane line by type aligned with the Z axis
-	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
-	 * @param[in] position1 Position of one end of the line
-	 * @param[in] position2 Position of the other end of the line
-	 * @param[in] parent Parent object to which the line will join
-	 */
-	private static void draw_lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent) {
-	
-		switch (lane_type) {
-			case Constants.Char_Public_Lane:
-				DrawRoad.continuous_line (Constants.public_transport_line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Public_Transport_Lane, parent);
-				break;
-			case Constants.Char_Normal_Lane:
-				DrawRoad.discontinuous_line (Constants.line_width, Constants.line_thickness, position1, position2, Constants.Line_Name_Normal_Lane, parent);
-				break;
-			case 'A':
-				Debug.Log("Parking not designed yet");
-				break;
-			case 'V':
-				Debug.Log("Bus/HOV not designed yet");
-				break;
-			default:
-				Debug.Log("Trying to draw invalid type of lane");
-				break;
-			}
 	}
 	
 	/**
