@@ -960,8 +960,8 @@ public static class RoadMap
 					DrawRoad.lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
 				}
 					
-				GameObject LSP = setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
-				GameObject LEP = setLaneEndPoint   (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length), source_end_points);
+				GameObject LSP = setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length + Constants.Guide_Node_padding), source_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length - Constants.Guide_Node_padding), source_end_points);
 				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 				
 				Vector2 src_des_marking_pos = new Vector2(src_des_posX + half_lane_width, - markings_d);
@@ -978,8 +978,8 @@ public static class RoadMap
 					DrawRoad.lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
 				}
 				
-				GameObject LSP = setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
-				GameObject LEP = setLaneEndPoint   (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length), destination_end_points);
+				GameObject LSP = setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length - Constants.Guide_Node_padding), destination_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length + Constants.Guide_Node_padding), destination_end_points);
 				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 				
 				Vector2 des_src_marking_pos = new Vector2(des_src_posX - half_lane_width, + markings_d);
