@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+	<graph id="example_1" edgedefault="directed">
+		<node id="a0_src_des_0"/>
+		<node id="a0_src_des_1"/>
+		<node id="a0_src_des_2"/>
+		<node id="a0_des_src_0"/>
+		<node id="a0_des_src_1"/>
+		<node id="a1_src_des_0"/>
+		<node id="a1_src_des_1"/>
+		<node id="a1_des_src_0"/>
+		<node id="a1_des_src_1"/>
+		<node id="a1_des_src_2"/>
+		<node id="a2_src_des_0"/>
+		<node id="a3_src_des_0"/>
+		<node id="a3_src_des_1"/>
+		<node id="a3_des_src_0"/>
+		<node id="a3_des_src_1"/>
+		<node id="a4_src_des_0"/>
+		<node id="a4_src_des_1"/>
+		
+		<edge id="e00" source="a1_src_des_0" target="a4_src_des_0"/>
+		<edge id="e01" source="a1_src_des_0" target="a3_src_des_1"/>
+		
+		<edge id="e02" source="a1_src_des_1" target="a4_src_des_0"/>
+		<edge id="e03" source="a1_src_des_1" target="a4_src_des_1"/>
+		<edge id="e04" source="a1_src_des_1" target="a3_src_des_1"/>
+		
+		<edge id="e05" source="a2_src_des_0" target="a1_des_src_0"/>
+		<edge id="e06" source="a2_src_des_0" target="a1_des_src_2"/>
+		<edge id="e07" source="a2_src_des_0" target="a4_src_des_0"/>
+		<edge id="e08" source="a2_src_des_0" target="a3_src_des_0"/>
+		<edge id="e09" source="a2_src_des_0" target="a3_src_des_1"/>
+		
+		<edge id="e10" source="a3_des_src_0" target="a1_des_src_0"/>
+		<edge id="e11" source="a3_des_src_0" target="a1_des_src_1"/>
+		
+		<edge id="e12" source="a3_des_src_1" target="a1_des_src_2"/>
+		<edge id="e13" source="a3_des_src_1" target="a4_src_des_1"/>
+	</graph>
+</graphml>
