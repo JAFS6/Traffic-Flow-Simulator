@@ -871,15 +871,27 @@ public static class RoadMap
 	/**
 	 * @brief Sets a LaneStart object at the specified position.
 	 * @param[in] edgeID Identifier of the edge.
+	 * @param[in] direction Edge direction to wich it belongs.
 	 * @param[in] lane_order Order of the lane from hard shoulder to center starting at 0.
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
 	 * @param[in] position Position where the object will be placed.
 	 * @param[in] parent Parent object to which the object will join.
 	 * @return The created object.
 	 */
-	private static GameObject setLaneStartPoint (string edgeID, int lane_order, char lane_type, Vector3 position, GameObject parent)
+	private static GameObject setLaneStartPoint (string edgeID, DirectionType direction, int lane_order, char lane_type, Vector3 position, GameObject parent)
 	{
-		string name_base = edgeID + "_" + lane_order + "_";
+		string name_base = edgeID + "_";
+		
+		if (direction == DirectionType.Source_Destination)
+		{
+			name_base += "src_des_";
+		}
+		else
+		{
+			name_base += "des_src_";
+		}
+		
+		name_base += lane_order + "_";
 		
 		GameObject lane_start = new GameObject();
 		lane_start.transform.SetParent(parent.transform);
@@ -914,15 +926,27 @@ public static class RoadMap
 	/**
 	 * @brief Sets a LaneEnd object at the specified position.
 	 * @param[in] edgeID Identifier of the edge.
+	 * @param[in] direction Edge direction to wich it belongs.
 	 * @param[in] lane_order Order of the lane from hard shoulder to center starting at 0.
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
 	 * @param[in] position Position where the object will be placed.
 	 * @param[in] parent Parent object to which the object will join.
 	 * @return The created object.
 	 */
-	private static GameObject setLaneEndPoint (string edgeID, int lane_order, char lane_type, Vector3 position, GameObject parent)
+	private static GameObject setLaneEndPoint (string edgeID, DirectionType direction, int lane_order, char lane_type, Vector3 position, GameObject parent)
 	{
-		string name_base = edgeID + "_" + lane_order + "_";
+		string name_base = edgeID + "_";
+		
+		if (direction == DirectionType.Source_Destination)
+		{
+			name_base += "src_des_";
+		}
+		else
+		{
+			name_base += "des_src_";
+		}
+		
+		name_base += lane_order + "_";
 		
 		GameObject lane_end = new GameObject();
 		lane_end.transform.SetParent(parent.transform);
@@ -1023,8 +1047,8 @@ public static class RoadMap
 				char  src_des_lane_type = e.src_des[i];
 				float src_des_posX = + hard_shoulder_d - lane_d;
 				
-				GameObject LSP = setLaneStartPoint (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length + Constants.Guide_Node_padding), source_start_points);
-				GameObject LEP = setLaneEndPoint   (edge_id, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length - Constants.Guide_Node_padding), source_end_points);
+				GameObject LSP = setLaneStartPoint (edge_id, DirectionType.Source_Destination, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length + Constants.Guide_Node_padding), source_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, DirectionType.Source_Destination, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length - Constants.Guide_Node_padding), source_end_points);
 				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 			
@@ -1033,8 +1057,8 @@ public static class RoadMap
 				char  des_src_lane_type = e.des_src[i];
 				float des_src_posX = - hard_shoulder_d + lane_d;
 				
-				GameObject LSP = setLaneStartPoint (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length - Constants.Guide_Node_padding), destination_start_points);
-				GameObject LEP = setLaneEndPoint   (edge_id, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length + Constants.Guide_Node_padding), destination_end_points);
+				GameObject LSP = setLaneStartPoint (edge_id, DirectionType.Destination_Source, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length - Constants.Guide_Node_padding), destination_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, DirectionType.Destination_Source, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length + Constants.Guide_Node_padding), destination_end_points);
 				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 		}

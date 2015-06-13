@@ -9,7 +9,7 @@
 \section{Red viaria}
 
 	\paragraph{}
-	La red viaria que utilizará el simulador vendrá especificada en un fichero con formato GraphML \cite{GraphML_man}. Dicha red estará determinada por dos grafos, un grafo no dirigido, de topología, en el que los cruces serán los nodos, y las vías serán los arcos; y un grafo dirigido, para indicar los giros, en el que las vías serán los nodos y los giros serán los arcos. Debido a las restricciones que impone la definición de GraphML sobre los identificadores, cada grafo deberá estar en un fichero distinto. Para ello usaremos dos ficheros por cada red viaria, siendo los ficheros *.topology.graphml para el primer tipo de grafo y los ficheros *.turns.graphml para el segundo. El identificador del grafo en cada uno de los ficheros de la pareja de cada grafo será el mismo.
+	La red viaria que utilizará el simulador vendrá especificada en un fichero con formato GraphML \cite{GraphML_man}. Dicha red estará determinada por dos grafos, un grafo no dirigido, de topología, en el que los cruces serán los nodos, y las vías serán los arcos; y un grafo dirigido, para indicar los giros, en el que los carrilles de las vías serán los nodos y los giros serán los arcos. Debido a las restricciones que impone la definición de GraphML sobre los identificadores, cada grafo deberá estar en un fichero distinto. Para ello usaremos dos ficheros por cada red viaria, siendo los ficheros *.topology.graphml para el primer tipo de grafo y los ficheros *.turns.graphml para el segundo. El identificador del grafo en cada uno de los ficheros de la pareja de cada grafo será el mismo.
 	
 	\paragraph{Nodos del grafo de topología}
 	
@@ -52,7 +52,7 @@
 	\paragraph{Nodos del grafo de giros}
 	
 	\paragraph{}
-	Cada nodo estará definido por un identificador alfanumérico que se corresponderá con uno de los identificadores de los arcos del grafo de topología.
+	Cada nodo estará definido por un identificador alfanumérico que se corresponderá con uno de los identificadores de los carriles de los arcos del grafo de topología.
 	
 	\paragraph{Arcos del grafo de giros}
 	
