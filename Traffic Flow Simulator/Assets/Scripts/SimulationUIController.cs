@@ -14,11 +14,14 @@
 	limitations under the License.
 */
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class SimulationUIController : MonoBehaviour {
 	// Pause control
 	public static bool is_paused;
+	[SerializeField]
+	private GameObject mapNameLabel;
 	
 	void Start () {
 		is_paused = false;
@@ -37,6 +40,11 @@ public class SimulationUIController : MonoBehaviour {
 				resumeSimulation ();
 			}
 		}
+	}
+	
+	public void setMapName (string name)
+	{
+		mapNameLabel.GetComponent<Text>().text = name;
 	}
 	
 	public void resumeSimulation () {

@@ -51,7 +51,8 @@ public class SimulationController : MonoBehaviour {
 		// Load map data
 		MapLoader loader = new MapLoader();
 		loader.LoadMap(map_filename);
-
+		
+		this.gameObject.GetComponent<SimulationUIController>().setMapName(map_filename);
 		// Draw the map
 		RoadMap.draw ();
 
