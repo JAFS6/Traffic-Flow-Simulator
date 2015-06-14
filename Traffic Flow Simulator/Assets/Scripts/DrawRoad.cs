@@ -32,6 +32,9 @@ public static class DrawRoad
 	private static GameObject straight_arrow_prefab;
 	private static GameObject bus_taxi_markings_prefab;
 	
+	// Camera
+	private static GameObject camera;
+	
 	/**
 	 * @brief Initializes the DrawRoad class.
 	 */

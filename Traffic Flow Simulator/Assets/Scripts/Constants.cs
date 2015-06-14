@@ -139,6 +139,8 @@ public static class Constants : object {
 	public const float platform_Y_position 	= -0.004f;
 	public const float markings_Y_position 	= -0.001f;
 	public const float vehicles_Y_position 	= 0f;
+	
+	public const float nameSign_Y_position 	= 4f;
 	#endregion
 	
 	#region Speed measures

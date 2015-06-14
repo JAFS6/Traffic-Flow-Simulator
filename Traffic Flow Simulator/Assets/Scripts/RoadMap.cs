@@ -20,6 +20,7 @@ using System.Collections.Generic;
 
 public static class RoadMap
 {
+	private static GameObject SimulationController;
 	private static string map_name;
 	private static Dictionary<string, Node> nodes;
 	private static Dictionary<string, Edge> edges;
@@ -1067,6 +1068,14 @@ public static class RoadMap
 		edge_root.transform.position = e.fixed_position;
 		// Place the edge in the roads layer
 		MyUtilities.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+		// Create the sign name
+		string road_name = (edges[edge_id].name != null && edges[edge_id].name != "") ? edges[edge_id].name : edge_id;
+		
+		if (SimulationController == null)
+		{
+			SimulationController = GameObject.Find("SimulationController");
+		}
+		SimulationController.GetComponent<SimulationUIController>().nameSign(road_name, new Vector2(e.fixed_position.x, e.fixed_position.z), edge_root);
 	}
 
 	/**
