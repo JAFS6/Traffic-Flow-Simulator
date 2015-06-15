@@ -978,6 +978,60 @@ public static class RoadMap
 		}
 		return lane_end;
 	}
+	
+	/**
+	 * @brief Sets a OnLane object at the specified position.
+	 * @param[in] edgeID Identifier of the edge or node.
+	 * @param[in] direction Edge direction to wich it belongs.
+	 * @param[in] lane_order Order of the lane from hard shoulder to center starting at 0.
+	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
+	 * @param[in] position Position where the object will be placed.
+	 * @param[in] parent Parent object to which the object will join.
+	 * @return The created object.
+	 */
+	private static GameObject setOnLanePoint (string ID, DirectionType direction, int lane_order, char lane_type, Vector3 position, GameObject parent)
+	{
+		string name_base = ID + "_";
+		
+		if (direction == DirectionType.Source_Destination)
+		{
+			name_base += "src_des_";
+		}
+		else
+		{
+			name_base += "des_src_";
+		}
+		
+		name_base += lane_order + "_";
+		
+		GameObject onLane = new GameObject();
+		onLane.transform.SetParent(parent.transform);
+		onLane.transform.position = position;
+		GuideNode script = onLane.AddComponent<GuideNode>();
+		script.setGuideNodeType(GuideNodeType.OnLane);
+		
+		switch (lane_type)
+		{
+		case Constants.Char_Public_Lane:
+			onLane.name = name_base + Constants.Lane_Name_Public;
+			script.setGuideNodeTransportType(TransportType.Public);
+			break;
+		case Constants.Char_Normal_Lane:
+			onLane.name = name_base + Constants.Lane_Name_Normal;
+			script.setGuideNodeTransportType(TransportType.PublicAndPrivate);
+			break;
+		case 'A':
+			Debug.Log("Parking lane start point not designed yet");
+			break;
+		case 'V':
+			Debug.Log("Bus/HOV lane start point not designed yet");
+			break;
+		default:
+			Debug.Log("Trying to draw invalid type of lane");
+			break;
+		}
+		return onLane;
+	}
 
 	/**
 	 * @brief Calculate the total number of lanes of the edge whose identifier is passed as an argument
@@ -1197,6 +1251,8 @@ public static class RoadMap
 		GameObject destination_start_points = MyUtilities.CreateGameObject(Constants.Name_Destination_Start_Points, node, Constants.Tag_Lane_Start_Point_Group);
 		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , node, Constants.Tag_Lane_End_Point_Group);
 		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , node, Constants.Tag_Lane_End_Point_Group);
+		GameObject source_onlane_points 	= MyUtilities.CreateGameObject(Constants.Name_OnLane_Points 		  , node, null);
+		GameObject destination_onlane_points= MyUtilities.CreateGameObject(Constants.Name_OnLane_Points  		  , node, null);
 		
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
@@ -1205,7 +1261,7 @@ public static class RoadMap
 		
 		if (e.src_des != Constants.String_No_Lane) {
 			
-			for (int i=0; i<e.src_des.Length-1; i++) {
+			for (int i=0; i<e.src_des.Length; i++) {
 				char lane_type = e.src_des[i];
 				
 				if (edges[ref_edge_id].source_id == node_id) {
@@ -1222,15 +1278,21 @@ public static class RoadMap
 				P_3D 	= new Vector3(P.x	, y_position_lines, P.y  );
 				PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
 				PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
-				//GameObject LSP = setLaneStartPoint (node_id, i, lane_type, POSITION, source_start_points);
-				//GameObject LEP = setLaneEndPoint   (node_id, i, lane_type, POSITION, source_end_points);
-				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
+				if (i<e.src_des.Length-1)
+				{
+					DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
+				}
+				GameObject LSP = setLaneStartPoint	(node_id, DirectionType.Source_Destination, i, lane_type, P_3D	, source_start_points);
+				GameObject OLP = setOnLanePoint		(node_id, DirectionType.Source_Destination, i, lane_type, PCB_3D, source_onlane_points);
+				GameObject LEP = setLaneEndPoint	(node_id, DirectionType.Source_Destination, i, lane_type, PR_3D	, source_end_points);
+				LSP.GetComponent<GuideNode>().addNextGuideNode(OLP);
+				OLP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 		}
 		
 		if (e.des_src != Constants.String_No_Lane) {
 			
-			for (int i=0; i<e.des_src.Length-1; i++) {
+			for (int i=0; i<e.des_src.Length; i++) {
 				char lane_type = e.des_src[i];
 				
 				if (edges[ref_edge_id].source_id == node_id) {
@@ -1247,9 +1309,15 @@ public static class RoadMap
 				P_3D 	= new Vector3(P.x	, y_position_lines, P.y  );
 				PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
 				PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
-				//GameObject LSP = setLaneStartPoint (node_id, i, lane_type, POSITION, destination_start_points);
-				//GameObject LEP = setLaneEndPoint   (node_id, i, lane_type, POSITION, destination_end_points);
-				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
+				if (i<e.des_src.Length-1)
+				{
+					DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
+				}
+				GameObject LSP = setLaneStartPoint	(node_id, DirectionType.Destination_Source, i, lane_type, P_3D	, destination_start_points);
+				GameObject OLP = setOnLanePoint		(node_id, DirectionType.Destination_Source, i, lane_type, PCB_3D, destination_onlane_points);
+				GameObject LEP = setLaneEndPoint	(node_id, DirectionType.Destination_Source, i, lane_type, PR_3D	, destination_end_points);
+				LSP.GetComponent<GuideNode>().addNextGuideNode(OLP);
+				OLP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 		}
 		#endregion

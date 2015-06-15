@@ -21,7 +21,7 @@ public enum IntersectionType: byte {Normal, Roundabout};
 public enum TransportType	: byte {Public, Private, PublicAndPrivate};
 public enum DirectionType	: byte {Source_Destination, Destination_Source};
 public enum TurnSide		: byte {Left, Right};
-public enum GuideNodeType 	: byte {Lane_start, Lane_end, On_the_lane, On_node};
+public enum GuideNodeType 	: byte {Lane_start, Lane_end, OnLane};
 
 public struct Node
 {
@@ -73,6 +73,7 @@ public static class Constants : object {
 	public const string Name_Destination_Start_Points 	= "Destination Start Points";
 	public const string Name_Source_End_Points 			= "Source End Points";
 	public const string Name_Destination_End_Points 	= "Destination End Points";
+	public const string Name_OnLane_Points				= "On Lane Points";
 	
 	public const string Name_Turn_Section  = "Turn Section";
 	public const string Name_Turn_Platform = "Turn Platform";
@@ -149,7 +150,7 @@ public static class Constants : object {
 	
 	#region Precision measures
 	public const float bezier_precision = 400f;
-	public const float Guide_Node_padding = 0.2f;
+	public const float Guide_Node_padding = 0.5f;
 	// Distance between vehicle position and GuideNode at which the vehicle position its considered 
 	// the same as the GuideNode
 	public const float guideNodePositionError = 0.5f;

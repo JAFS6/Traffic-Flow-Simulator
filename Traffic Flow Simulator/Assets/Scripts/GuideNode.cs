@@ -40,13 +40,9 @@ public class GuideNode : MonoBehaviour
 		{
 			color = Color.red;
 		}
-		else if (type == GuideNodeType.On_node)
+		else if (type == GuideNodeType.OnLane)
 		{
 			color = Color.yellow;
-		}
-		else
-		{
-			color = Color.magenta;
 		}
 		
 		Debug.DrawLine(this.transform.position, 
@@ -56,7 +52,8 @@ public class GuideNode : MonoBehaviour
 		{
 			foreach (GameObject next in next_GuideNodes)
 			{
-				Debug.DrawLine(this.transform.position, next.transform.position, Color.blue);
+				Debug.DrawLine(this.transform.position + new Vector3(0,0.2f,0),
+				               next.transform.position + new Vector3(0,0.2f,0), Color.blue);
 			}
 		}
 	}
