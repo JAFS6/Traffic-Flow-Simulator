@@ -1075,7 +1075,7 @@ public static class RoadMap
 		{
 			SimulationController = GameObject.Find("SimulationController");
 		}
-		SimulationController.GetComponent<SimulationUIController>().nameSign(road_name, new Vector2(e.fixed_position.x, e.fixed_position.z), edge_root);
+		SimulationController.GetComponent<SimulationUIController>().nameSign(road_name, new Vector2(e.fixed_position.x, e.fixed_position.z));
 	}
 
 	/**
