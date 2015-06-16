@@ -1310,8 +1310,8 @@ public static class RoadMap
 				Vector3 PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
 				Vector3 PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
 				
-				GameObject LSP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_start_points);
-				GameObject LEP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_end_points);
+				GameObject LEP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_start_points);
+				GameObject LSP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_end_points);
 				
 				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
 				
