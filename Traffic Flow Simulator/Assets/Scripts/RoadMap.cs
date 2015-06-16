@@ -1166,13 +1166,16 @@ public static class RoadMap
 		// Attention: Following similar procedure of BezierMesh
 		// Road markings
 		float half_width = edge_width/2;
-		float half_line_thickness = Constants.line_thickness/2;
 		float half_line_width = Constants.line_width/2;
+		float center_hard_shoulder_line = half_width - Constants.hard_shoulder_width - half_line_width;
+		float half_line_thickness = Constants.line_thickness/2;
+		
+		float half_lane_width = Constants.lane_width/2;
 		float y_position_lines = -half_line_thickness + Constants.markings_Y_position;
 		
 		#region Hard shoulders
-		Vector2 LP = new Vector2 (start_point.x - (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
-		Vector2 RP = new Vector2 (start_point.x + (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
+		Vector2 LP = new Vector2 (start_point.x - (center_hard_shoulder_line), start_point.z);
+		Vector2 RP = new Vector2 (start_point.x + (center_hard_shoulder_line), start_point.z);
 		
 		/*	Rotate angle degrees the points left and right.
 			Due to the equal distance to the center of the imaginary lines start and end, rotate the left point give us
@@ -1189,60 +1192,34 @@ public static class RoadMap
 		Vector2 LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
 		Vector2 RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
 		
-		Vector3 LP_3D  = new Vector3(LP.x,     y_position_lines, LP.y);
-		Vector3 RP_3D  = new Vector3(RP.x,     y_position_lines, RP.y);
-		Vector3 LPR_3D = new Vector3(LPR.x,    y_position_lines, LPR.y);
-		Vector3 RPR_3D = new Vector3(RPR.x,    y_position_lines, RPR.y);
-		Vector3 LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
-		Vector3 RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
-		
-		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
-		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
+		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,new Vector3(LP.x,y_position_lines,LP.y),new Vector3(LCB_2D.x,y_position_lines,LCB_2D.y),new Vector3(LPR.x,y_position_lines,LPR.y),Constants.Line_Name_Hard_Shoulder,topology);
+		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,new Vector3(RP.x,y_position_lines,RP.y),new Vector3(RCB_2D.x,y_position_lines,RCB_2D.y),new Vector3(RPR.x,y_position_lines,RPR.y),Constants.Line_Name_Hard_Shoulder,topology);
 		#endregion
 		
 		#region Center lines
-		Vector2 aux_vector,aux_vector_rotated;
 		Edge e = edges[ref_edge_id];
 		Vector2 center_point = new Vector2(start_point.x,start_point.z);
 		
-		if (e.src_des != Constants.String_No_Lane && e.des_src != Constants.String_No_Lane) { // If both directions have lanes
-			
+		if (e.src_des != Constants.String_No_Lane && e.des_src != Constants.String_No_Lane) // If both directions have lanes
+		{
 			int lane_diff = 0; // Same number of lanes in each direction
 			
-			if (e.src_des.Length != e.des_src.Length) { // Different number of lanes in each direction
-				lane_diff = e.src_des.Length - e.des_src.Length;
-			}
+			if (e.src_des.Length != e.des_src.Length) // Different number of lanes in each direction
+			{	lane_diff = e.src_des.Length - e.des_src.Length; }
 			
-			if (edges[ref_edge_id].source_id == node_id) {
-				center_point.x =  (lane_diff * (Constants.lane_width/2));
-			}
-			else {
-				center_point.x = -(lane_diff * (Constants.lane_width/2));
-			}
+			if (edges[ref_edge_id].source_id == node_id) { center_point.x =  (lane_diff * (Constants.lane_width/2)); }
+			else 										 { center_point.x = -(lane_diff * (Constants.lane_width/2)); }
 			
 			LP = new Vector2 (center_point.x - (Constants.center_lines_separation/2), center_point.y);
 			RP = new Vector2 (center_point.x + (Constants.center_lines_separation/2), center_point.y);
-			
-			aux_vector = MyMathClass.orientationVector(road_center_point,LP);
-			aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
-			LPR = road_center_point_rotated - aux_vector_rotated;
-			
-			aux_vector = MyMathClass.orientationVector(road_center_point,RP);
-			aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
-			RPR = road_center_point_rotated - aux_vector_rotated;
+			LPR = rotatePointBezier (LP, road_center_point, rotation_angle);
+			RPR = rotatePointBezier (RP, road_center_point, rotation_angle);
 			
 			LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
 			RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
 			
-			LP_3D  = new Vector3(LP.x,     y_position_lines, LP.y);
-			RP_3D  = new Vector3(RP.x,     y_position_lines, RP.y);
-			LPR_3D = new Vector3(LPR.x,    y_position_lines, LPR.y);
-			RPR_3D = new Vector3(RPR.x,    y_position_lines, RPR.y);
-			LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
-			RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
-			
-			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,topology);
-			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,topology);
+			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,new Vector3(LP.x,y_position_lines,LP.y),new Vector3(LCB_2D.x,y_position_lines,LCB_2D.y),new Vector3(LPR.x,y_position_lines,LPR.y),Constants.Line_Name_Center,topology);
+			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,new Vector3(RP.x,y_position_lines,RP.y),new Vector3(RCB_2D.x,y_position_lines,RCB_2D.y),new Vector3(RPR.x,y_position_lines,RPR.y),Constants.Line_Name_Center,topology);
 		}
 		#endregion
 		
@@ -1257,70 +1234,116 @@ public static class RoadMap
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
 		Vector2 P, PR, PCB;
-		Vector3 P_3D, PR_3D, PCB_3D;
 		
-		if (e.src_des != Constants.String_No_Lane) {
-			
-			for (int i=0; i<e.src_des.Length; i++) {
+		if (e.src_des != Constants.String_No_Lane)
+		{
+			for (int i=0; i<e.src_des.Length; i++)
+			{
 				char lane_type = e.src_des[i];
+				float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
 				
-				if (edges[ref_edge_id].source_id == node_id) {
-					P = new Vector2(-((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
-				}
-				else {
-					P = new Vector2(((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
-				}
-				aux_vector = MyMathClass.orientationVector(road_center_point,P);
-				aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
-				PR = road_center_point_rotated - aux_vector_rotated;
-				PCB = MyMathClass.intersectionPoint(P,ref_edge_direction,PR,oth_edge_direction);
+				if (edges[ref_edge_id].source_id == node_id) { P = new Vector2(-center_hard_shoulder_line + lane_d, start_point.z);	}
+				else                                         { P = new Vector2( center_hard_shoulder_line - lane_d, start_point.z); }
 				
-				P_3D 	= new Vector3(P.x	, y_position_lines, P.y  );
-				PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
-				PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
+				PR  = rotatePointBezier (P, road_center_point, rotation_angle);
+				PCB = MyMathClass.intersectionPoint(P, ref_edge_direction, PR, oth_edge_direction);
+				
 				if (i<e.src_des.Length-1)
 				{
-					DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
+					DrawRoad.curved_lane_line (lane_type,	new Vector3(P.x		, y_position_lines, P.y	 ),
+					                           				new Vector3(PCB.x	, y_position_lines, PCB.y),
+					                           				new Vector3(PR.x	, y_position_lines, PR.y ), topology);
 				}
-				GameObject LSP = setLaneStartPoint	(node_id, DirectionType.Source_Destination, i, lane_type, P_3D	, source_start_points);
-				GameObject OLP = setOnLanePoint		(node_id, DirectionType.Source_Destination, i, lane_type, PCB_3D, source_onlane_points);
-				GameObject LEP = setLaneEndPoint	(node_id, DirectionType.Source_Destination, i, lane_type, PR_3D	, source_end_points);
-				LSP.GetComponent<GuideNode>().addNextGuideNode(OLP);
-				OLP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+				
+				if (edges[ref_edge_id].source_id == node_id) { P = new Vector2(-center_hard_shoulder_line + lane_d - half_lane_width, start_point.z); }
+				else                                         { P = new Vector2( center_hard_shoulder_line - lane_d + half_lane_width, start_point.z); }
+				PR = rotatePointBezier (P, road_center_point, rotation_angle);
+				PCB = MyMathClass.intersectionPoint(P, ref_edge_direction, PR, oth_edge_direction);
+				Vector3 P_3D 	= new Vector3(P.x	, y_position_lines, P.y	 );
+				Vector3 PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
+				Vector3 PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
+				
+				GameObject LSP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_start_points);
+				GameObject LEP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_end_points);
+				
+				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
+				
+				for (int j=0; j<3; j++)
+				{
+					Vector3 PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Source_Destination, i, lane_type, PCB_3D_fixed, source_onlane_points);
+					
+					if (j == 0)       { LSP.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+					else { prev_next_OLP[0].GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+					prev_next_OLP[0] = prev_next_OLP[1];
+				}
+				prev_next_OLP[1].GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 		}
 		
-		if (e.des_src != Constants.String_No_Lane) {
-			
-			for (int i=0; i<e.des_src.Length; i++) {
+		if (e.des_src != Constants.String_No_Lane)
+		{
+			for (int i=0; i<e.des_src.Length; i++)
+			{
 				char lane_type = e.des_src[i];
+				float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
 				
-				if (edges[ref_edge_id].source_id == node_id) {
-					P = new Vector2(((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
-				}
-				else {
-					P = new Vector2(-((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
-				}
-				aux_vector = MyMathClass.orientationVector(road_center_point,P);
-				aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
-				PR = road_center_point_rotated - aux_vector_rotated;
-				PCB = MyMathClass.intersectionPoint(P,ref_edge_direction,PR,oth_edge_direction);
+				if (edges[ref_edge_id].source_id == node_id) { P = new Vector2( center_hard_shoulder_line - lane_d, start_point.z); }
+				else                                         { P = new Vector2(-center_hard_shoulder_line + lane_d, start_point.z); }
 				
-				P_3D 	= new Vector3(P.x	, y_position_lines, P.y  );
-				PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
-				PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
+				PR  = rotatePointBezier (P, road_center_point, rotation_angle);
+				PCB = MyMathClass.intersectionPoint(P, ref_edge_direction, PR, oth_edge_direction);
+				
 				if (i<e.des_src.Length-1)
 				{
-					DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
+					DrawRoad.curved_lane_line (lane_type,	new Vector3(P.x		, y_position_lines, P.y	 ),
+															new Vector3(PCB.x	, y_position_lines, PCB.y),
+															new Vector3(PR.x	, y_position_lines, PR.y ), topology);
 				}
-				GameObject LSP = setLaneStartPoint	(node_id, DirectionType.Destination_Source, i, lane_type, P_3D	, destination_start_points);
-				GameObject OLP = setOnLanePoint		(node_id, DirectionType.Destination_Source, i, lane_type, PCB_3D, destination_onlane_points);
-				GameObject LEP = setLaneEndPoint	(node_id, DirectionType.Destination_Source, i, lane_type, PR_3D	, destination_end_points);
-				LSP.GetComponent<GuideNode>().addNextGuideNode(OLP);
-				OLP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+				
+				if (edges[ref_edge_id].source_id == node_id) { P = new Vector2( center_hard_shoulder_line - lane_d + half_lane_width, start_point.z); }
+				else                                         { P = new Vector2(-center_hard_shoulder_line + lane_d - half_lane_width, start_point.z); }
+				
+				PR = rotatePointBezier (P, road_center_point, rotation_angle);
+				PCB = MyMathClass.intersectionPoint(P, ref_edge_direction, PR, oth_edge_direction);
+				Vector3 P_3D 	= new Vector3(P.x	, y_position_lines, P.y	 );
+				Vector3 PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
+				Vector3 PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
+				
+				GameObject LSP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_start_points);
+				GameObject LEP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_end_points);
+				
+				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
+				
+				for (int j=0; j<3; j++)
+				{
+					Vector3 PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Destination_Source, i, lane_type, PCB_3D_fixed, destination_onlane_points);
+					
+					if (j == 0)       { LSP.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+					else { prev_next_OLP[0].GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+					prev_next_OLP[0] = prev_next_OLP[1];
+				}
+				prev_next_OLP[1].GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 		}
 		#endregion
 		// End road markings
+	}
+	
+	/*
+	 * @brief Calculates the corresponding rotated point for the P point on a continuation node.
+	 * @param[in] P The point to rotate.
+	 * @param[in] road_center_point Position of the center of the road in the same side of P.
+	 * @param[in] rotation_angle The rotation angle of the continuation node.
+	 * @return The calculated point.
+	 */
+	private static Vector2 rotatePointBezier (Vector2 P, Vector2 road_center_point, float rotation_angle)
+	{
+		Vector2 aux_vector 					= MyMathClass.orientationVector(road_center_point,P);
+		Vector2 aux_vector_rotated 			= MyMathClass.rotatePoint(aux_vector, rotation_angle);
+		Vector2 road_center_point_rotated 	= MyMathClass.rotatePoint(road_center_point, rotation_angle);
+		Vector2 PR 							= road_center_point_rotated - aux_vector_rotated;
+		return PR;
 	}
 }
