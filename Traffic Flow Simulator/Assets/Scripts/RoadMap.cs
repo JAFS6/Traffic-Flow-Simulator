@@ -541,15 +541,18 @@ public static class RoadMap
 		// Calculate info before draw
 		prepareEdges ();
 		// Draw the edges
-		foreach (KeyValuePair<string, Edge> edge in edges)
+		List<string> edgeKeys = getEdgeIDs ();
+		foreach (string edgeKey in edgeKeys)
 		{
-			drawEdge (edge.Key);
+			drawEdge (edgeKey);
 		}
 		// Draw the nodes
-		foreach (KeyValuePair<string, Node> node in nodes)
+		List<string> nodeKeys = getNodeIDs ();
+		foreach (string nodeKey in nodeKeys)
 		{
-			drawNode (node.Key);
+			drawNode (nodeKey);
 		}
+		// Connect guide nodes
 		connectGuideNodes ();
 	}
 	
@@ -1380,7 +1383,51 @@ public static class RoadMap
 	 */
 	private static void connectContinuationNodes ()
 	{
+		List<string> nodeKeys = getNodeIDs ();
 		
+		foreach (string nodeKey in nodeKeys)
+		{
+			Node node = nodes[nodeKey];
+			
+			if (node.node_type == NodeType.Continuation)
+			{
+				GameObject node_obj							= GameObject.Find(node.id);/*
+				GameObject node_source_start_points			= node_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
+				GameObject node_source_end_points			= node_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
+				GameObject node_destination_start_points	= node_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
+				GameObject node_destination_end_points		= node_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+				
+				GameObject ref_edge_obj						= GameObject.Find(node.reference_edge_id);
+				GameObject ref_edge_source_start_points		= ref_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
+				GameObject ref_edge_source_end_points		= ref_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
+				GameObject ref_edge_destination_start_points= ref_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
+				GameObject ref_edge_destination_end_points	= ref_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+				
+				GameObject oth_edge_obj						= GameObject.Find(node.other_edge_id);
+				GameObject oth_edge_source_start_points		= oth_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
+				GameObject oth_edge_source_end_points		= oth_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
+				GameObject oth_edge_destination_start_points= oth_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
+				GameObject oth_edge_destination_end_points	= oth_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+				
+				if (edges[node.reference_edge_id].source_id == node.id)
+				{
+					
+				}
+				else
+				{
+					
+				}
+				
+				// Connection ref src-des to node
+				
+				// Connection ref des-src to node
+				
+				// Connection oth src-des to node
+				
+				// Connection oth des-src to node
+				*/
+			}
+		}
 	}
 	
 	/**
