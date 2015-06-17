@@ -31,7 +31,7 @@ public struct Node
 	public float 			y;					// Position of the node on the Z axis.
 	public IntersectionType intersection_type;	// Only for Intersection Nodes: Type of intersection (Normal, Roundabout).
 	public string 			widest_edge_id;		// Identifier of the widest edge which touches the node.
-	public bool 			two_ways;			// Indicates whether two directions (true) or one (false).
+	public string			reference_edge_id;	// Reference edge identifier, for continuation node type only.
 }
 
 public struct Edge

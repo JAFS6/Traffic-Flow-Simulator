@@ -542,10 +542,15 @@ public static class RoadMap
 		prepareEdges ();
 		// Draw the edges
 		foreach (KeyValuePair<string, Edge> edge in edges)
+		{
 			drawEdge (edge.Key);
+		}
 		// Draw the nodes
 		foreach (KeyValuePair<string, Node> node in nodes)
+		{
 			drawNode (node.Key);
+		}
+		connectGuideNodes ();
 	}
 	
 	/**
@@ -628,16 +633,6 @@ public static class RoadMap
 					if (edges[edge_key].width > best_width) {
 						best_width = edges[edge_key].width;
 						n.widest_edge_id = edge_key;
-					}
-					
-					// Sense update
-					if (n.node_type == NodeType.Continuation) {
-						if (edges[edge_key].src_des != Constants.String_No_Lane && edges[edge_key].des_src != Constants.String_No_Lane) {
-							n.two_ways = true;
-						}
-						else {
-							n.two_ways = false;
-						}
 					}
 				}
 			}
@@ -743,6 +738,7 @@ public static class RoadMap
 			// Calculate angle and side of the turn
 			TurnSide side;
 			float angle_between_edges = nodeAngle(n.id, selected_edge, non_selected_edge, out side);
+			nodes[node_id].reference_edge_id = selected_edge;
 			// Create the continuation node
 			drawContinuationNode (node_id, aux_road, edge_width, edge_width, angle_between_edges, side, selected_edge);
 			
@@ -1365,5 +1361,30 @@ public static class RoadMap
 		Vector2 road_center_point_rotated 	= MyMathClass.rotatePoint(road_center_point, rotation_angle);
 		Vector2 PR 							= road_center_point_rotated - aux_vector_rotated;
 		return PR;
+	}
+	
+	/**
+	 * @brief Connects the guidenodes on intersections (edge to edge) and on continuation nodes (node to edge)
+	 */
+	private static void connectGuideNodes ()
+	{
+		connectContinuationNodes ();
+		connectIntersectionsGuideNodes ();
+	}
+	
+	/**
+	 * @brief Connects the guidenodes on continuation nodes (node to edge)
+	 */
+	private static void connectContinuationNodes ()
+	{
+		
+	}
+	
+	/**
+	 * @brief Connects the guidenodes on intersections (edge to edge)
+	 */
+	private static void connectIntersectionsGuideNodes ()
+	{
+		
 	}
 }
