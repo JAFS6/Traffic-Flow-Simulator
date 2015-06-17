@@ -1149,13 +1149,7 @@ public static class RoadMap
 		GameObject topology = new GameObject();
 		topology.name = Constants.Name_Topological_Objects;
 		topology.transform.SetParent(node.transform);
-		// DEBUG
-		if (SimulationController == null)
-		{
-			SimulationController = GameObject.Find("SimulationController");
-		}
-		SimulationController.GetComponent<SimulationUIController>().nameSign(node_id + " ref: " + ref_edge_id, new Vector2(nodes[node_id].x, nodes[node_id].y));
-		// DEBUG
+		
 		Vector2 road_center_point = new Vector2(0, -((radius * 0.5f) + 0.1f));
 		Vector2 road_center_point_rotated;
 		
