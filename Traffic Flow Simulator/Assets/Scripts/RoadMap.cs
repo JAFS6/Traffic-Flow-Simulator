@@ -1391,24 +1391,37 @@ public static class RoadMap
 			
 			if (node.node_type == NodeType.Continuation)
 			{
-				GameObject node_obj							= GameObject.Find(node.id);/*
-				GameObject node_source_start_points			= node_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
-				GameObject node_source_end_points			= node_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
-				GameObject node_destination_start_points	= node_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
-				GameObject node_destination_end_points		= node_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+				bool lanes_on_src_des = (edges[node.reference_edge_id].src_des != Constants.String_No_Lane); // True if there are lanes
+				bool lanes_on_des_src = (edges[node.reference_edge_id].des_src != Constants.String_No_Lane); // True if there are lanes
+			
+				GameObject node_obj 	= GameObject.Find(node.id);
+				GameObject ref_edge_obj = GameObject.Find(node.reference_edge_id);
+				GameObject oth_edge_obj = GameObject.Find(node.other_edge_id);
 				
-				GameObject ref_edge_obj						= GameObject.Find(node.reference_edge_id);
-				GameObject ref_edge_source_start_points		= ref_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
-				GameObject ref_edge_source_end_points		= ref_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
-				GameObject ref_edge_destination_start_points= ref_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
-				GameObject ref_edge_destination_end_points	= ref_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+				if (lanes_on_src_des)
+				{
+					GameObject node_source_start_points			= node_obj	  .transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
+					GameObject node_source_end_points			= node_obj	  .transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
+					
+					GameObject ref_edge_source_start_points		= ref_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
+					GameObject ref_edge_source_end_points		= ref_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
+					
+					GameObject oth_edge_source_start_points		= oth_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
+					GameObject oth_edge_source_end_points		= oth_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
+				}
 				
-				GameObject oth_edge_obj						= GameObject.Find(node.other_edge_id);
-				GameObject oth_edge_source_start_points		= oth_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
-				GameObject oth_edge_source_end_points		= oth_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
-				GameObject oth_edge_destination_start_points= oth_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
-				GameObject oth_edge_destination_end_points	= oth_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
-				
+				if (lanes_on_des_src)
+				{
+					GameObject node_destination_start_points	= node_obj	  .transform.Find(Constants.Name_Destination_Start_Points).gameObject;
+					GameObject node_destination_end_points		= node_obj	  .transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+					
+					GameObject ref_edge_destination_start_points= ref_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
+					GameObject ref_edge_destination_end_points	= ref_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+					
+					GameObject oth_edge_destination_start_points= oth_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
+					GameObject oth_edge_destination_end_points	= oth_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+				}
+				/*
 				if (edges[node.reference_edge_id].source_id == node.id)
 				{
 					
