@@ -1269,8 +1269,18 @@ public static class RoadMap
 				Vector3 PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
 				Vector3 PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
 				
-				GameObject LSP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_start_points);
-				GameObject LEP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_end_points);
+				GameObject LSP,LEP;
+				
+				if (edges[ref_edge_id].source_id == node_id)
+				{
+					LEP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_start_points);
+					LSP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_end_points);
+				}
+				else
+				{
+					LSP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_end_points);
+				}
 				
 				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
 				
@@ -1316,8 +1326,18 @@ public static class RoadMap
 				Vector3 PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
 				Vector3 PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
 				
-				GameObject LEP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_start_points);
-				GameObject LSP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_end_points);
+				GameObject LSP,LEP;
+				
+				if (edges[ref_edge_id].source_id == node_id)
+				{
+					LSP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_end_points);
+				}
+				else
+				{
+					LEP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_start_points);
+					LSP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_end_points);
+				}
 				
 				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
 				
