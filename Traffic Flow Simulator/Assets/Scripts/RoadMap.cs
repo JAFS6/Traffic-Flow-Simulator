@@ -738,7 +738,8 @@ public static class RoadMap
 			// Calculate angle and side of the turn
 			TurnSide side;
 			float angle_between_edges = nodeAngle(n.id, selected_edge, non_selected_edge, out side);
-			nodes[node_id].reference_edge_id = selected_edge;
+			n.reference_edge_id = selected_edge;
+			n.other_edge_id = non_selected_edge;
 			// Create the continuation node
 			drawContinuationNode (node_id, aux_road, edge_width, edge_width, angle_between_edges, side, selected_edge);
 			
@@ -781,6 +782,8 @@ public static class RoadMap
 		else {
 			Debug.Log("Trying to draw invalid node type");
 		}
+		// Update node info
+		nodes[node_id] = n;
 	} // End drawNode
 
 	/**

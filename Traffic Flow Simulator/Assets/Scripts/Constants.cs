@@ -32,6 +32,7 @@ public struct Node
 	public IntersectionType intersection_type;	// Only for Intersection Nodes: Type of intersection (Normal, Roundabout).
 	public string 			widest_edge_id;		// Identifier of the widest edge which touches the node.
 	public string			reference_edge_id;	// Reference edge identifier, for continuation node type only.
+	public string			other_edge_id;		// The other edge identifier, for continuation node type only.
 }
 
 public struct Edge
