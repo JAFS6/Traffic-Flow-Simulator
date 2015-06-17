@@ -70,4 +70,21 @@ public static class MyUtilities : object
 		
 		return w;
 	}
+	
+	/**
+	 * @brief Gets the first child with str in its name from the parent GameObject;
+	 * @param[in] str The substring to search.
+	 * @param[in] parent The parent.
+	 */
+	public static GameObject getGameObjectWithName (string str, GameObject parent)
+	{
+		foreach (Transform child in parent.transform)
+		{
+			if (child.gameObject.name.Contains(str))
+			{
+				return child.gameObject;
+			}
+		}
+		return null;
+	}
 }

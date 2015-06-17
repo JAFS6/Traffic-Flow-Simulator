@@ -1393,52 +1393,95 @@ public static class RoadMap
 			{
 				bool lanes_on_src_des = (edges[node.reference_edge_id].src_des != Constants.String_No_Lane); // True if there are lanes
 				bool lanes_on_des_src = (edges[node.reference_edge_id].des_src != Constants.String_No_Lane); // True if there are lanes
+				int num_lanes_on_src_des = edges[node.reference_edge_id].src_des.Length;
+				int num_lanes_on_des_src = edges[node.reference_edge_id].des_src.Length;
 			
 				GameObject node_obj 	= GameObject.Find(node.id);
 				GameObject ref_edge_obj = GameObject.Find(node.reference_edge_id);
 				GameObject oth_edge_obj = GameObject.Find(node.other_edge_id);
 				
+				Dictionary<string, GameObject> groups = new Dictionary<string, GameObject>();
+				
 				if (lanes_on_src_des)
 				{
-					GameObject node_source_start_points			= node_obj	  .transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
-					GameObject node_source_end_points			= node_obj	  .transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
+					groups.Add("node_source_start_points"		, node_obj	  .transform.Find(Constants.Name_Source_Start_Points	 ).gameObject);
+					groups.Add("node_source_end_points"  		, node_obj	  .transform.Find(Constants.Name_Source_End_Points		 ).gameObject);
 					
-					GameObject ref_edge_source_start_points		= ref_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
-					GameObject ref_edge_source_end_points		= ref_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
+					groups.Add("ref_edge_source_start_points"	, ref_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject);
+					groups.Add("ref_edge_source_end_points"  	, ref_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject);
 					
-					GameObject oth_edge_source_start_points		= oth_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject;
-					GameObject oth_edge_source_end_points		= oth_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject;
+					groups.Add("oth_edge_source_start_points"	, oth_edge_obj.transform.Find(Constants.Name_Source_Start_Points	 ).gameObject);
+					groups.Add("oth_edge_source_end_points"  	, oth_edge_obj.transform.Find(Constants.Name_Source_End_Points		 ).gameObject);
 				}
 				
 				if (lanes_on_des_src)
 				{
-					GameObject node_destination_start_points	= node_obj	  .transform.Find(Constants.Name_Destination_Start_Points).gameObject;
-					GameObject node_destination_end_points		= node_obj	  .transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+					groups.Add("node_destination_start_points"	  , node_obj	  .transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add("node_destination_end_points"	  , node_obj	  .transform.Find(Constants.Name_Destination_End_Points	 ).gameObject);
 					
-					GameObject ref_edge_destination_start_points= ref_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
-					GameObject ref_edge_destination_end_points	= ref_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+					groups.Add("ref_edge_destination_start_points", ref_edge_obj.transform.Find(Constants.Name_Destination_Start_Points  ).gameObject);
+					groups.Add("ref_edge_destination_end_points"  , ref_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject);
 					
-					GameObject oth_edge_destination_start_points= oth_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject;
-					GameObject oth_edge_destination_end_points	= oth_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject;
+					groups.Add("oth_edge_destination_start_points", oth_edge_obj.transform.Find(Constants.Name_Destination_Start_Points  ).gameObject);
+					groups.Add("oth_edge_destination_end_points"  , oth_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject);
 				}
-				/*
+				
 				if (edges[node.reference_edge_id].source_id == node.id)
 				{
+					if (lanes_on_src_des)
+					{
+						
+					}
 					
+					if (lanes_on_des_src)
+					{
+						
+					}
 				}
 				else
 				{
+					if (lanes_on_src_des)
+					{
+						connectGuideNodesOnContinuationNode(DirectionType.Source_Destination, num_lanes_on_src_des,
+						                                    node.reference_edge_id, groups["ref_edge_source_end_points"],
+						                                    node.id				  , groups["node_source_start_points"]);
+					}
 					
+					if (lanes_on_des_src)
+					{
+						
+					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * @brief Sets second guide nodes as first next guide nodes.
+	 * @param[in] dir Direction: Source-Destination or Destination-Source.
+	 * @param[in] num_lanes Number of lanes on that direction.
+	 * @param[in] first_id Identifier of the node or edge to set its next guide nodes.
+	 * @param[in] first_group GameObject wich have the first guide nodes as childs.
+	 * @param[in] second_id Identifier of the node or edge with the next guide nodes.
+	 * @param[in] second_group GameObject wich have the second guide nodes as childs.
+	 */	
+	private static void connectGuideNodesOnContinuationNode (DirectionType dir, int num_lanes, string first_id, GameObject first_group, string second_id, GameObject second_group)
+	{
+		if (num_lanes > 0)
+		{
+			string direction_str = (dir == DirectionType.Source_Destination) ? "src_des" : "des_src";
+			
+			string first_prefix  =  first_id + "_" + direction_str + "_";
+			string second_prefix = second_id + "_" + direction_str + "_";
+			
+			for (int i=0; i<num_lanes; i++)
+			{
+				string str = first_prefix + i;
+				GameObject first_obj = MyUtilities.getGameObjectWithName(str, first_group);
+				str = second_prefix+ i;
+				GameObject second_obj= MyUtilities.getGameObjectWithName(str, second_group);
 				
-				// Connection ref src-des to node
-				
-				// Connection ref des-src to node
-				
-				// Connection oth src-des to node
-				
-				// Connection oth des-src to node
-				*/
+				first_obj.GetComponent<GuideNode>().addNextGuideNode(second_obj);
 			}
 		}
 	}
