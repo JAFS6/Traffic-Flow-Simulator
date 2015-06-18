@@ -1416,26 +1416,31 @@ public static class RoadMap
 				
 				if (lanes_on_des_src)
 				{
-					groups.Add("node_destination_start_points"	  , node_obj	  .transform.Find(Constants.Name_Destination_Start_Points).gameObject);
-					groups.Add("node_destination_end_points"	  , node_obj	  .transform.Find(Constants.Name_Destination_End_Points	 ).gameObject);
+					groups.Add("node_destination_start_points"	  , node_obj	.transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add("node_destination_end_points"	  , node_obj	.transform.Find(Constants.Name_Destination_End_Points  ).gameObject);
 					
-					groups.Add("ref_edge_destination_start_points", ref_edge_obj.transform.Find(Constants.Name_Destination_Start_Points  ).gameObject);
-					groups.Add("ref_edge_destination_end_points"  , ref_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject);
+					groups.Add("ref_edge_destination_start_points", ref_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add("ref_edge_destination_end_points"  , ref_edge_obj.transform.Find(Constants.Name_Destination_End_Points  ).gameObject);
 					
-					groups.Add("oth_edge_destination_start_points", oth_edge_obj.transform.Find(Constants.Name_Destination_Start_Points  ).gameObject);
-					groups.Add("oth_edge_destination_end_points"  , oth_edge_obj.transform.Find(Constants.Name_Destination_End_Points	 ).gameObject);
+					groups.Add("oth_edge_destination_start_points", oth_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add("oth_edge_destination_end_points"  , oth_edge_obj.transform.Find(Constants.Name_Destination_End_Points  ).gameObject);
 				}
 				
+				#region Connect reference edge
 				if (edges[node.reference_edge_id].source_id == node.id)
 				{
 					if (lanes_on_src_des)
 					{
-						
+						connectGuideNodesOnContinuationNode(DirectionType.Source_Destination, num_lanes_on_src_des,
+						                                    node.reference_edge_id, groups["ref_edge_destination_end_points"],
+						                                    node.id				  , groups["node_source_start_points"]);
 					}
 					
 					if (lanes_on_des_src)
 					{
-						
+						connectGuideNodesOnContinuationNode(DirectionType.Destination_Source, num_lanes_on_des_src,
+						                                    node.id				  , groups["node_destination_end_points"],
+						                                    node.reference_edge_id, groups["ref_edge_source_start_points"]);
 					}
 				}
 				else
@@ -1449,9 +1454,47 @@ public static class RoadMap
 					
 					if (lanes_on_des_src)
 					{
-						
+						connectGuideNodesOnContinuationNode(DirectionType.Destination_Source, num_lanes_on_des_src,
+						                                    node.id				  , groups["node_destination_end_points"],
+						                                    node.reference_edge_id, groups["ref_edge_destination_start_points"]);
 					}
 				}
+				#endregion
+				
+				#region Connect the other edge
+				if (edges[node.other_edge_id].source_id == node.id)
+				{
+					if (lanes_on_src_des)
+					{
+						connectGuideNodesOnContinuationNode(DirectionType.Source_Destination, num_lanes_on_src_des,
+						                                    node.id				, groups["node_source_end_points"],
+						                                    node.other_edge_id	, groups["oth_edge_source_start_points"]);
+					}
+					
+					if (lanes_on_des_src)
+					{
+						connectGuideNodesOnContinuationNode(DirectionType.Destination_Source, num_lanes_on_des_src,
+						                                    node.other_edge_id	, groups["oth_edge_destination_end_points"],
+						                                    node.id				, groups["node_destination_start_points"]);
+					}
+				}
+				else
+				{
+					if (lanes_on_src_des)
+					{
+						connectGuideNodesOnContinuationNode(DirectionType.Source_Destination, num_lanes_on_src_des,
+						                                    node.id				, groups["node_source_end_points"],
+						                                    node.other_edge_id	, groups["oth_edge_destination_start_points"]);
+					}
+					
+					if (lanes_on_des_src)
+					{
+						connectGuideNodesOnContinuationNode(DirectionType.Destination_Source, num_lanes_on_des_src,
+						                                    node.other_edge_id	, groups["oth_edge_source_end_points"],
+						                                    node.id				, groups["node_destination_start_points"]);
+					}
+				}
+				#endregion
 			}
 		}
 	}
@@ -1478,10 +1521,20 @@ public static class RoadMap
 			{
 				string str = first_prefix + i;
 				GameObject first_obj = MyUtilities.getGameObjectWithName(str, first_group);
+				if (first_obj == null)
+				{
+					Debug.LogError("first_obj with name "+str+" not found!");
+				}
 				str = second_prefix+ i;
 				GameObject second_obj= MyUtilities.getGameObjectWithName(str, second_group);
-				
-				first_obj.GetComponent<GuideNode>().addNextGuideNode(second_obj);
+				if (second_obj == null)
+				{
+					Debug.LogError("second_obj with name "+str+" not found!");
+				}
+				else
+				{
+					first_obj.GetComponent<GuideNode>().addNextGuideNode(second_obj);
+				}
 			}
 		}
 	}
