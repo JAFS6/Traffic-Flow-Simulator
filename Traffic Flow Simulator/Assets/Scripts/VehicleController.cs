@@ -32,6 +32,7 @@ public class VehicleController : MonoBehaviour
 	// Control variables of the vehicle
 	private float 		current_speed; 				// Current speed in meters per second
 	private GameObject 	target; 					// Current target GuideNode
+	private float 		target_distance;			// Last distance to target
 	private bool 		obstacle_detected = false;
 	
 	// Sensors (raycasting)
@@ -48,14 +49,7 @@ public class VehicleController : MonoBehaviour
 	}
 	
 	void Update ()
-	{
-		float distance_aux = MyMathClass.Distance(this.transform.position, target.transform.position);
-		
-		if (distance_aux < 0.5)
-		{
-			Debug.Log("Distance to target: " + distance_aux);
-		}
-		
+	{	
 		if (outOfBounds())
 		{
 			Debug.LogWarning(vehicle_type.ToString()+" has reached map border.");
@@ -78,6 +72,7 @@ public class VehicleController : MonoBehaviour
 				{
 					target = next_target;
 					this.transform.LookAt(target.transform);
+					target_distance = MyMathClass.Distance(this.transform.position, target.transform.position);
 				}
 				else if (target.GetComponent<GuideNode>().getGuideNodeType() == GuideNodeType.Lane_end)
 				{
@@ -86,7 +81,7 @@ public class VehicleController : MonoBehaviour
 				}
 				else
 				{
-					Debug.LogWarning(vehicle_type.ToString()+" destroyed due to null target.");
+					Debug.LogError(vehicle_type.ToString()+" destroyed due to null target.");
 					Destroy(this.gameObject);
 				}
 			}
@@ -182,6 +177,8 @@ public class VehicleController : MonoBehaviour
 		List<GameObject> candidates = guidenode.GetComponent<GuideNode>().getNextGuideNodes();
 		target = candidates[Random.Range(0,candidates.Count)];
 		this.transform.LookAt(target.transform);
+		
+		target_distance = MyMathClass.Distance(this.transform.position, target.transform.position);
 	}
 	
 	/**
@@ -202,15 +199,17 @@ public class VehicleController : MonoBehaviour
 	}
 	
 	/**
-	 * @brief Checks if the vehicle position is over the Target GuideNode position.
+	 * @brief Checks if the vehicle position is over the Target GuideNode position. Anyway, target_distance is updated.
 	 * @return True if yes, False otherwise.
 	 */
 	private bool onTarget ()
 	{
-		if (MyMathClass.Distance(this.transform.position, target.transform.position) < Constants.guideNodePositionError)
-		{
-			return true;
-		}
-		return false;
+		float newDistance = MyMathClass.Distance(this.transform.position, target.transform.position);
+		
+		bool isOnTarget = ( newDistance > target_distance );
+		
+		target_distance = newDistance;
+		
+		return isOnTarget;
 	}
 }
