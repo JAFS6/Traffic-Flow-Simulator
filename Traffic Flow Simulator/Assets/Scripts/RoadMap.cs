@@ -1447,21 +1447,54 @@ public static class RoadMap
 				}
 				#endregion
 				
-				#region Connect reference edge
+				#region Connect edges
 				if (edges[node.reference_edge_id].source_id == node.id) // Node is source of reference edge
 				{
 					if (lanes_on_src_des)
 					{
 						connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
-						                                    node.reference_edge_id, groups[ref_edge_destination_end_points],
-						                                    node.id				  , groups[node_source_start_points]);
+						                                    node.id				  , groups[node_source_end_points],
+						                                    node.reference_edge_id, groups[ref_edge_source_start_points]);
 					}
 					
 					if (lanes_on_des_src)
 					{
 						connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
-						                                    node.id				  , groups[node_destination_end_points],
-						                                    node.reference_edge_id, groups[ref_edge_source_start_points]);
+						                                    node.reference_edge_id, groups[ref_edge_destination_end_points],
+						                                    node.id				  , groups[node_destination_start_points]);
+					}
+					
+					if (edges[node.other_edge_id].source_id == node.id) // Node is source of the other edge
+					{
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.other_edge_id	, groups[oth_edge_destination_end_points],
+							                                    node.id				, groups[node_source_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.id				, groups[node_destination_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_source_start_points]);
+						}
+					}
+					else
+					{													// Node is destination of the other edge
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.other_edge_id	, groups[oth_edge_source_end_points],
+							                                    node.id				, groups[node_source_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.id				, groups[node_destination_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_destination_start_points]);
+						}
 					}
 				}
 				else
@@ -1479,40 +1512,38 @@ public static class RoadMap
 						                                    node.id				  , groups[node_destination_end_points],
 						                                    node.reference_edge_id, groups[ref_edge_destination_start_points]);
 					}
-				}
-				#endregion
-				
-				#region Connect the other edge
-				if (edges[node.other_edge_id].source_id == node.id) // Node is source of the other edge
-				{
-					if (lanes_on_src_des)
-					{
-						connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
-						                                    node.id				, groups[node_source_end_points],
-						                                    node.other_edge_id	, groups[oth_edge_source_start_points]);
-					}
 					
-					if (lanes_on_des_src)
+					if (edges[node.other_edge_id].source_id == node.id) // Node is source of the other edge
 					{
-						connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
-						                                    node.other_edge_id	, groups[oth_edge_destination_end_points],
-						                                    node.id				, groups[node_destination_start_points]);
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.id				, groups[node_source_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_source_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.other_edge_id	, groups[oth_edge_destination_end_points],
+							                                    node.id				, groups[node_destination_start_points]);
+						}
 					}
-				}
-				else
-				{													// Node is destination of the other edge
-					if (lanes_on_src_des)
-					{
-						connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
-						                                    node.id				, groups[node_source_end_points],
-						                                    node.other_edge_id	, groups[oth_edge_destination_start_points]);
-					}
-					
-					if (lanes_on_des_src)
-					{
-						connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
-						                                    node.other_edge_id	, groups[oth_edge_source_end_points],
-						                                    node.id				, groups[node_destination_start_points]);
+					else
+					{													// Node is destination of the other edge
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.id				, groups[node_source_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_destination_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.other_edge_id	, groups[oth_edge_source_end_points],
+							                                    node.id				, groups[node_destination_start_points]);
+						}
 					}
 				}
 				#endregion
