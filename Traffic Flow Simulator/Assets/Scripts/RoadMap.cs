@@ -1152,6 +1152,10 @@ public static class RoadMap
 		topology.name = Constants.Name_Topological_Objects;
 		topology.transform.SetParent(node.transform);
 		
+		GameObject reference_hint = new GameObject();
+		reference_hint.name = "Ref: " + ref_edge_id;
+		reference_hint.transform.SetParent(node.transform);
+		
 		Vector2 road_center_point = new Vector2(0, -((radius * 0.5f) + 0.1f));
 		Vector2 road_center_point_rotated;
 		
