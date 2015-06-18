@@ -1286,7 +1286,16 @@ public static class RoadMap
 				
 				for (int j=0; j<3; j++)
 				{
-					Vector3 PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					Vector3 PCB_3D_fixed;
+					
+					if (edges[ref_edge_id].source_id == node_id)
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
+					else
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
 					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Source_Destination, i, lane_type, PCB_3D_fixed, source_onlane_points);
 					
 					if (j == 0)       { LSP.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
@@ -1343,7 +1352,16 @@ public static class RoadMap
 				
 				for (int j=0; j<3; j++)
 				{
-					Vector3 PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					Vector3 PCB_3D_fixed;
+					
+					if (edges[ref_edge_id].source_id == node_id)
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
+					else
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
 					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Destination_Source, i, lane_type, PCB_3D_fixed, destination_onlane_points);
 					
 					if (j == 0)       { LSP.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
