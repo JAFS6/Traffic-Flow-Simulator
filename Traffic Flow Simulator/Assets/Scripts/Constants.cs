@@ -123,7 +123,7 @@ public static class Constants : object {
 	#endregion
 	
 	#region Road measures
-	public const float lane_width = 3f;
+	public const float lane_width = 3.5f;
 	public const float line_width = 0.1f;
 	public const float public_transport_line_width = 0.3f;
 	public const float hard_shoulder_width = 1f;
