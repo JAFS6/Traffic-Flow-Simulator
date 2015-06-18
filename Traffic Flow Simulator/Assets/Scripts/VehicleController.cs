@@ -81,7 +81,8 @@ public class VehicleController : MonoBehaviour
 				}
 				else
 				{
-					Debug.LogError(vehicle_type.ToString()+" destroyed due to null target.");
+					Debug.LogError(vehicle_type.ToString()+" destroyed due to null target. "+
+					"Last guideNode "+target.transform.parent.parent.name+"."+target.transform.parent.name+"."+target.name);
 					Destroy(this.gameObject);
 				}
 			}

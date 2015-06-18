@@ -31,7 +31,8 @@ public struct Node
 	public float 			y;					// Position of the node on the Z axis.
 	public IntersectionType intersection_type;	// Only for Intersection Nodes: Type of intersection (Normal, Roundabout).
 	public string 			widest_edge_id;		// Identifier of the widest edge which touches the node.
-	public bool 			two_ways;			// Indicates whether two directions (true) or one (false).
+	public string			reference_edge_id;	// Reference edge identifier, for continuation node type only.
+	public string			other_edge_id;		// The other edge identifier, for continuation node type only.
 }
 
 public struct Edge
@@ -146,6 +147,7 @@ public static class Constants : object {
 	
 	#region Speed measures
 	public const float urban_speed_limit = 13.8f; // Meters per second (50 Km/h)
+	//public const float urban_speed_limit = 1.38f; // Meters per second (10 Km/h)
 	#endregion
 	
 	#region Precision measures

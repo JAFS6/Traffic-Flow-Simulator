@@ -541,11 +541,19 @@ public static class RoadMap
 		// Calculate info before draw
 		prepareEdges ();
 		// Draw the edges
-		foreach (KeyValuePair<string, Edge> edge in edges)
-			drawEdge (edge.Key);
+		List<string> edgeKeys = getEdgeIDs ();
+		foreach (string edgeKey in edgeKeys)
+		{
+			drawEdge (edgeKey);
+		}
 		// Draw the nodes
-		foreach (KeyValuePair<string, Node> node in nodes)
-			drawNode (node.Key);
+		List<string> nodeKeys = getNodeIDs ();
+		foreach (string nodeKey in nodeKeys)
+		{
+			drawNode (nodeKey);
+		}
+		// Connect guide nodes
+		connectGuideNodes ();
 	}
 	
 	/**
@@ -628,16 +636,6 @@ public static class RoadMap
 					if (edges[edge_key].width > best_width) {
 						best_width = edges[edge_key].width;
 						n.widest_edge_id = edge_key;
-					}
-					
-					// Sense update
-					if (n.node_type == NodeType.Continuation) {
-						if (edges[edge_key].src_des != Constants.String_No_Lane && edges[edge_key].des_src != Constants.String_No_Lane) {
-							n.two_ways = true;
-						}
-						else {
-							n.two_ways = false;
-						}
 					}
 				}
 			}
@@ -743,6 +741,8 @@ public static class RoadMap
 			// Calculate angle and side of the turn
 			TurnSide side;
 			float angle_between_edges = nodeAngle(n.id, selected_edge, non_selected_edge, out side);
+			n.reference_edge_id = selected_edge;
+			n.other_edge_id = non_selected_edge;
 			// Create the continuation node
 			drawContinuationNode (node_id, aux_road, edge_width, edge_width, angle_between_edges, side, selected_edge);
 			
@@ -785,6 +785,8 @@ public static class RoadMap
 		else {
 			Debug.Log("Trying to draw invalid node type");
 		}
+		// Update node info
+		nodes[node_id] = n;
 	} // End drawNode
 
 	/**
@@ -892,7 +894,7 @@ public static class RoadMap
 			name_base += "des_src_";
 		}
 		
-		name_base += lane_order + "_";
+		name_base += "lane_" + lane_order + "_";
 		
 		GameObject lane_start = new GameObject();
 		lane_start.transform.SetParent(parent.transform);
@@ -947,7 +949,7 @@ public static class RoadMap
 			name_base += "des_src_";
 		}
 		
-		name_base += lane_order + "_";
+		name_base += "lane_" + lane_order + "_";
 		
 		GameObject lane_end = new GameObject();
 		lane_end.transform.SetParent(parent.transform);
@@ -1002,7 +1004,7 @@ public static class RoadMap
 			name_base += "des_src_";
 		}
 		
-		name_base += lane_order + "_";
+		name_base += "lane_" + lane_order + "_";
 		
 		GameObject onLane = new GameObject();
 		onLane.transform.SetParent(parent.transform);
@@ -1150,6 +1152,10 @@ public static class RoadMap
 		topology.name = Constants.Name_Topological_Objects;
 		topology.transform.SetParent(node.transform);
 		
+		GameObject reference_hint = new GameObject();
+		reference_hint.name = "Ref: " + ref_edge_id;
+		reference_hint.transform.SetParent(node.transform);
+		
 		Vector2 road_center_point = new Vector2(0, -((radius * 0.5f) + 0.1f));
 		Vector2 road_center_point_rotated;
 		
@@ -1267,8 +1273,8 @@ public static class RoadMap
 				
 				if (edges[ref_edge_id].source_id == node_id)
 				{
-					LEP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_start_points);
-					LSP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_end_points);
+					LSP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_end_points);
 				}
 				else
 				{
@@ -1280,7 +1286,16 @@ public static class RoadMap
 				
 				for (int j=0; j<3; j++)
 				{
-					Vector3 PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					Vector3 PCB_3D_fixed;
+					
+					if (edges[ref_edge_id].source_id == node_id)
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
+					else
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
 					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Source_Destination, i, lane_type, PCB_3D_fixed, source_onlane_points);
 					
 					if (j == 0)       { LSP.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
@@ -1329,15 +1344,24 @@ public static class RoadMap
 				}
 				else
 				{
-					LEP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_start_points);
-					LSP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_end_points);
+					LSP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_end_points);
 				}
 				
 				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
 				
 				for (int j=0; j<3; j++)
 				{
-					Vector3 PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					Vector3 PCB_3D_fixed;
+					
+					if (edges[ref_edge_id].source_id == node_id)
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
+					else
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
 					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Destination_Source, i, lane_type, PCB_3D_fixed, destination_onlane_points);
 					
 					if (j == 0)       { LSP.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
@@ -1365,5 +1389,244 @@ public static class RoadMap
 		Vector2 road_center_point_rotated 	= MyMathClass.rotatePoint(road_center_point, rotation_angle);
 		Vector2 PR 							= road_center_point_rotated - aux_vector_rotated;
 		return PR;
+	}
+	
+	/**
+	 * @brief Connects the guidenodes on intersections (edge to edge) and on continuation nodes (node to edge)
+	 */
+	private static void connectGuideNodes ()
+	{
+		connectContinuationNodes ();
+		connectIntersectionsGuideNodes ();
+	}
+	
+	/**
+	 * @brief Connects the guidenodes on continuation nodes (node to edge)
+	 */
+	private static void connectContinuationNodes ()
+	{
+		List<string> nodeKeys = getNodeIDs ();
+		
+		foreach (string nodeKey in nodeKeys)
+		{
+			Node node = nodes[nodeKey];
+			
+			if (node.node_type == NodeType.Continuation)
+			{
+				bool lanes_on_src_des = (edges[node.reference_edge_id].src_des != Constants.String_No_Lane); // True if there are lanes
+				bool lanes_on_des_src = (edges[node.reference_edge_id].des_src != Constants.String_No_Lane); // True if there are lanes
+				int num_lanes_on_src_des = edges[node.reference_edge_id].src_des.Length; // If there are no lanes on src_des direction, this will have 1 as value, but it'll never be used.
+				int num_lanes_on_des_src = edges[node.reference_edge_id].des_src.Length; // If there are no lanes on des_src direction, this will have 1 as value, but it'll never be used.
+			
+				GameObject node_obj 	= GameObject.Find(node.id);
+				GameObject ref_edge_obj = GameObject.Find(node.reference_edge_id);
+				GameObject oth_edge_obj = GameObject.Find(node.other_edge_id);
+				
+				Dictionary<string, GameObject> groups = new Dictionary<string, GameObject>();
+				
+				#region Gather guide nodes groups
+				string node_source_start_points			= "node_source_start_points";
+				string node_source_end_points			= "node_source_end_points";
+				string node_destination_start_points	= "node_destination_start_points";
+				string node_destination_end_points		= "node_destination_end_points";
+				
+				string ref_edge_source_start_points 	= "ref_edge_source_start_points";
+				string ref_edge_source_end_points		= "ref_edge_source_end_points";
+				string ref_edge_destination_start_points= "ref_edge_destination_start_points";
+				string ref_edge_destination_end_points	= "ref_edge_destination_end_points";
+				
+				string oth_edge_source_start_points 	= "oth_edge_source_start_points";
+				string oth_edge_source_end_points		= "oth_edge_source_end_points";
+				string oth_edge_destination_start_points= "oth_edge_destination_start_points";
+				string oth_edge_destination_end_points  = "oth_edge_destination_end_points";
+				
+				if (lanes_on_src_des)
+				{
+					groups.Add(node_source_start_points		, node_obj	  .transform.Find(Constants.Name_Source_Start_Points).gameObject);
+					groups.Add(node_source_end_points  		, node_obj	  .transform.Find(Constants.Name_Source_End_Points	).gameObject);
+					
+					groups.Add(ref_edge_source_start_points	, ref_edge_obj.transform.Find(Constants.Name_Source_Start_Points).gameObject);
+					groups.Add(ref_edge_source_end_points  	, ref_edge_obj.transform.Find(Constants.Name_Source_End_Points	).gameObject);
+					
+					groups.Add(oth_edge_source_start_points	, oth_edge_obj.transform.Find(Constants.Name_Source_Start_Points).gameObject);
+					groups.Add(oth_edge_source_end_points  	, oth_edge_obj.transform.Find(Constants.Name_Source_End_Points	).gameObject);
+				}
+				
+				if (lanes_on_des_src)
+				{
+					groups.Add(node_destination_start_points	, node_obj	  .transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add(node_destination_end_points	  	, node_obj	  .transform.Find(Constants.Name_Destination_End_Points  ).gameObject);
+					
+					groups.Add(ref_edge_destination_start_points, ref_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add(ref_edge_destination_end_points  , ref_edge_obj.transform.Find(Constants.Name_Destination_End_Points  ).gameObject);
+					
+					groups.Add(oth_edge_destination_start_points, oth_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add(oth_edge_destination_end_points  , oth_edge_obj.transform.Find(Constants.Name_Destination_End_Points  ).gameObject);
+				}
+				#endregion
+				
+				#region Connect edges
+				if (edges[node.reference_edge_id].source_id == node.id) // Node is source of reference edge
+				{
+					if (lanes_on_src_des)
+					{
+						connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+						                                    node.id				  , groups[node_source_end_points],
+						                                    node.reference_edge_id, groups[ref_edge_source_start_points]);
+					}
+					
+					if (lanes_on_des_src)
+					{
+						connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+						                                    node.reference_edge_id, groups[ref_edge_destination_end_points],
+						                                    node.id				  , groups[node_destination_start_points]);
+					}
+					
+					if (edges[node.other_edge_id].source_id == node.id) // Node is source of the other edge
+					{
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.other_edge_id	, groups[oth_edge_destination_end_points],
+							                                    node.id				, groups[node_source_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.id				, groups[node_destination_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_source_start_points]);
+						}
+					}
+					else
+					{													// Node is destination of the other edge
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.other_edge_id	, groups[oth_edge_source_end_points],
+							                                    node.id				, groups[node_source_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.id				, groups[node_destination_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_destination_start_points]);
+						}
+					}
+				}
+				else
+				{														// Node is destination of reference edge
+					if (lanes_on_src_des)
+					{
+						connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+						                                    node.reference_edge_id, groups[ref_edge_source_end_points],
+						                                    node.id				  , groups[node_source_start_points]);
+					}
+					
+					if (lanes_on_des_src)
+					{
+						connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+						                                    node.id				  , groups[node_destination_end_points],
+						                                    node.reference_edge_id, groups[ref_edge_destination_start_points]);
+					}
+					
+					if (edges[node.other_edge_id].source_id == node.id) // Node is source of the other edge
+					{
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.id				, groups[node_source_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_source_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.other_edge_id	, groups[oth_edge_destination_end_points],
+							                                    node.id				, groups[node_destination_start_points]);
+						}
+					}
+					else
+					{													// Node is destination of the other edge
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.id				, groups[node_source_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_destination_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.other_edge_id	, groups[oth_edge_source_end_points],
+							                                    node.id				, groups[node_destination_start_points]);
+						}
+					}
+				}
+				#endregion
+			}
+		}
+	}
+
+	/**
+	 * @brief Sets second guide nodes as first next guide nodes.
+	 * @param[in] num_lanes Number of lanes on that direction.
+	 * @param[in] first_id Identifier of the node or edge to set its next guide nodes.
+	 * @param[in] first_group GameObject wich have the first guide nodes as childs.
+	 * @param[in] second_id Identifier of the node or edge with the next guide nodes.
+	 * @param[in] second_group GameObject wich have the second guide nodes as childs.
+	 */	
+	private static void connectGuideNodesOnContinuationNode (int num_lanes, string first_id, GameObject first_group, string second_id, GameObject second_group)
+	{
+		if (first_group == null)
+		{
+			Debug.LogError("first_group is null");
+		}
+		
+		if (second_group == null)
+		{
+			Debug.LogError("second_group is null");
+		}
+		
+		if (num_lanes > 0)
+		{
+			for (int i=0; i<num_lanes; i++)
+			{
+				string str = "_lane_" + i + "_";
+				
+				GameObject first_obj = MyUtilities.getGameObjectWithName(str, first_group);
+				if (first_obj == null)
+				{
+					Debug.LogError("first_obj with name "+str+" not found in group "+first_group.name+" of "+first_group.transform.parent.name+"!");
+				}
+				
+				GameObject second_obj= MyUtilities.getGameObjectWithName(str, second_group);
+				if (second_obj == null)
+				{
+					Debug.LogError("second_obj with name "+str+" not found in group "+second_group.name+" of "+second_group.transform.parent.name+"!");
+				}
+				
+				if (first_obj != null && second_obj != null)
+				{
+					first_obj.GetComponent<GuideNode>().addNextGuideNode(second_obj);
+					/*Debug.Log(first_group.transform.parent.name+"."+first_group.name+"."+first_obj.name+" ----> "+
+							 second_group.transform.parent.name+"."+second_group.name+"."+second_obj.name);*/
+				}/*
+				else 
+				{
+					Debug.LogError(first_group.transform.parent.name+"."+first_group.name+" ----> "+
+					          second_group.transform.parent.name+"."+second_group.name+" Cannot be done!!");
+				}*/
+			}
+		}
+	}
+	
+	/**
+	 * @brief Connects the guidenodes on intersections (edge to edge)
+	 */
+	private static void connectIntersectionsGuideNodes ()
+	{
+		
 	}
 }
