@@ -1561,6 +1561,16 @@ public static class RoadMap
 	 */	
 	private static void connectGuideNodesOnContinuationNode (int num_lanes, string first_id, GameObject first_group, string second_id, GameObject second_group)
 	{
+		if (first_group == null)
+		{
+			Debug.LogError("first_group is null");
+		}
+		
+		if (second_group == null)
+		{
+			Debug.LogError("second_group is null");
+		}
+		
 		if (num_lanes > 0)
 		{
 			for (int i=0; i<num_lanes; i++)
@@ -1582,14 +1592,14 @@ public static class RoadMap
 				if (first_obj != null && second_obj != null)
 				{
 					first_obj.GetComponent<GuideNode>().addNextGuideNode(second_obj);
-					Debug.Log(first_group.transform.parent.name+"."+first_group.name+"."+first_obj.name+" ----> "+
-							 second_group.transform.parent.name+"."+second_group.name+"."+second_obj.name);
-				}
+					/*Debug.Log(first_group.transform.parent.name+"."+first_group.name+"."+first_obj.name+" ----> "+
+							 second_group.transform.parent.name+"."+second_group.name+"."+second_obj.name);*/
+				}/*
 				else 
 				{
 					Debug.LogError(first_group.transform.parent.name+"."+first_group.name+" ----> "+
 					          second_group.transform.parent.name+"."+second_group.name+" Cannot be done!!");
-				}
+				}*/
 			}
 		}
 	}

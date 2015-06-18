@@ -52,8 +52,13 @@ public class GuideNode : MonoBehaviour
 		{
 			foreach (GameObject next in next_GuideNodes)
 			{
+				Vector3 middle = MyMathClass.middlePoint(this.transform.position, next.transform.position);
+			
 				Debug.DrawLine(this.transform.position + new Vector3(0,0.2f,0),
-				               next.transform.position + new Vector3(0,0.2f,0), Color.blue);
+				               middle + new Vector3(0,0.2f,0), Color.white);
+				
+				Debug.DrawLine(middle + new Vector3(0,0.2f,0),
+				               next.transform.position + new Vector3(0,0.2f,0), Color.cyan);
 			}
 		}
 	}
