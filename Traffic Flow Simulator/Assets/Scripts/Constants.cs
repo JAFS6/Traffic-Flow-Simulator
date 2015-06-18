@@ -146,8 +146,8 @@ public static class Constants : object {
 	#endregion
 	
 	#region Speed measures
-	//public const float urban_speed_limit = 13.8f; // Meters per second (50 Km/h)
-	public const float urban_speed_limit = 1.38f; // Meters per second (10 Km/h)
+	public const float urban_speed_limit = 13.8f; // Meters per second (50 Km/h)
+	//public const float urban_speed_limit = 1.38f; // Meters per second (10 Km/h)
 	#endregion
 	
 	#region Precision measures

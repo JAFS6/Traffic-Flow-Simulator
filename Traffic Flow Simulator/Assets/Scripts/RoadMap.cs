@@ -1273,8 +1273,8 @@ public static class RoadMap
 				
 				if (edges[ref_edge_id].source_id == node_id)
 				{
-					LEP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_start_points);
-					LSP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_end_points);
+					LSP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_end_points);
 				}
 				else
 				{
@@ -1335,15 +1335,15 @@ public static class RoadMap
 				}
 				else
 				{
-					LEP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_start_points);
-					LSP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_end_points);
+					LSP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_end_points);
 				}
 				
 				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
 				
 				for (int j=0; j<3; j++)
 				{
-					Vector3 PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					Vector3 PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
 					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Destination_Source, i, lane_type, PCB_3D_fixed, destination_onlane_points);
 					
 					if (j == 0)       { LSP.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
