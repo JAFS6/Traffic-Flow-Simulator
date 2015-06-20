@@ -15,6 +15,7 @@
 */
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public enum NodeType		: byte {Intersection, Limit, Continuation};
 public enum IntersectionType: byte {Normal, Roundabout};
@@ -23,6 +24,9 @@ public enum DirectionType	: byte {Source_Destination, Destination_Source};
 public enum TurnSide		: byte {Left, Right};
 public enum GuideNodeType 	: byte {Lane_start, Lane_end, OnLane};
 
+/*
+ * @brief Saves the information related to a node.
+ */
 public struct Node
 {
 	public string 			id;					// Identifier of the node.
@@ -35,6 +39,9 @@ public struct Node
 	public string			other_edge_id;		// The other edge identifier, for continuation node type only.
 }
 
+/*
+ * @brief Saves the information related to an edge.
+ */
 public struct Edge
 {
 	public string 	id;							// Identifier of the edge.
@@ -49,6 +56,15 @@ public struct Edge
 	public Vector2 	direction;					// Vector paralel to source-destination direction.
 	public Vector2 	fixed_position_vector;		// Position adjustment vector.
 	public Vector3 	fixed_position;				// Position already set.
+}
+
+/*
+ * @brief Saves the information related to the allowed directions for a lane on an intersection.
+ */
+public struct AllowedDirections
+{
+	public string lane_id;
+	public List<string> direction_ids;
 }
 
 public static class Constants : object {
