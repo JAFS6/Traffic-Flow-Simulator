@@ -32,6 +32,9 @@ public static class DrawRoad
 	private static GameObject straight_arrow_prefab;
 	private static GameObject bus_taxi_markings_prefab;
 	
+	// Camera
+	private static GameObject camera;
+	
 	/**
 	 * @brief Initializes the DrawRoad class.
 	 */
@@ -64,6 +67,121 @@ public static class DrawRoad
 		aux_road.transform.position = pos;
 	}
 	
+	public static void edgePlatform (float width, float length, string src_des, string des_src, bool drawSourceDetentionLine, bool drawDestinationDetentionLine, GameObject parent)
+	{
+		#region Platform
+		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		platform.name = Constants.Name_Platform;
+		platform.transform.SetParent(parent.transform);
+		platform.transform.localScale = new Vector3(width, Constants.road_thickness, length);
+		platform.GetComponent<Renderer>().material.color = Color.gray;
+		platform.GetComponent<Renderer>().material = asphalt_material;
+		platform.GetComponent<Renderer>().material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
+		Vector3 platform_position = new Vector3(0,(-Constants.road_thickness/2) + Constants.platform_Y_position,0);
+		platform.transform.position = platform_position;
+		#endregion
+		
+		// Road markings
+		float lines_Y_pos = (-Constants.line_thickness/2) + Constants.markings_Y_position;
+		
+		#region Hard shoulder lines
+		float hard_shoulder_d = (width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
+		continuous_line (Constants.line_width, Constants.line_thickness, length, new Vector3(-hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, parent);
+		continuous_line (Constants.line_width, Constants.line_thickness, length, new Vector3( hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, parent);
+		#endregion
+		
+		// Lane number on source-destination direction
+		int lane_num_src_des = (src_des == Constants.String_No_Lane) ? 0 : src_des.Length;
+		// Lane number on destination-source direction
+		int lane_num_des_src = (des_src == Constants.String_No_Lane) ? 0 : des_src.Length;
+		
+		float half_lane_width = Constants.lane_width/2;
+		float half_length = length/2;
+		
+		#region Center lines
+		if (lane_num_src_des > 0 && lane_num_des_src > 0)
+		{
+			// If both directions have lanes
+			int lane_diff = 0; // Same number of lanes in each direction
+			
+			if (lane_num_src_des != lane_num_des_src) // Different number of lanes in each direction
+			{
+				lane_diff = lane_num_src_des - lane_num_des_src;
+			}
+			float half_center_lines_separation = Constants.center_lines_separation/2;
+			float center_line_common_calc = - (lane_diff * half_lane_width);
+			continuous_line (Constants.line_width, Constants.line_thickness, length, new Vector3(center_line_common_calc - half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, parent);
+			continuous_line (Constants.line_width, Constants.line_thickness, length, new Vector3(center_line_common_calc + half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, parent);
+		}
+		#endregion
+		
+		#region Lane lines
+		float markings_d = (length / 2) - 4f;
+		
+		// Draw as many lines as lanes are in each direction except one 
+		// and draw lane markings.
+		
+		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
+		{
+			float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
+			
+			if (i < lane_num_src_des)
+			{
+				char  src_des_lane_type = src_des[i];
+				float src_des_posX = + hard_shoulder_d - lane_d;
+				
+				if (i < lane_num_src_des-1)
+				{
+					lane_line (src_des_lane_type, length, new Vector3(src_des_posX, lines_Y_pos, 0), parent);
+				}
+				Vector2 src_des_marking_pos = new Vector2(src_des_posX + half_lane_width, - markings_d);
+				lane_markings (src_des_lane_type, src_des_marking_pos, true, parent);
+			}
+			
+			if (i < lane_num_des_src)
+			{
+				char  des_src_lane_type = des_src[i];
+				float des_src_posX = - hard_shoulder_d + lane_d;
+				
+				if (i < lane_num_des_src-1)
+				{
+					lane_line (des_src_lane_type, length, new Vector3(des_src_posX, lines_Y_pos, 0), parent);
+				}
+				Vector2 des_src_marking_pos = new Vector2(des_src_posX - half_lane_width, + markings_d);
+				lane_markings (des_src_lane_type, des_src_marking_pos, false, parent);
+			}
+		}
+		#endregion
+		
+		#region Detention lines
+		float detention_line_dZ = half_length - (Constants.public_transport_line_width/2);
+		
+		if (drawSourceDetentionLine && lane_num_src_des > 0)
+		{
+			float detention_line_posX = (+hard_shoulder_d) - ((lane_num_src_des * (Constants.lane_width + Constants.line_width))/2);
+			continuous_line (MyUtilities.detentionLineWidth(src_des), 
+	                        Constants.line_thickness, 
+	                        Constants.public_transport_line_width, 
+	                        new Vector3(detention_line_posX, lines_Y_pos, + detention_line_dZ), 
+	                        Constants.Line_Name_Detention, 
+	                 		parent);
+		}
+		
+		if (drawDestinationDetentionLine && lane_num_des_src > 0)
+		{
+			float detention_line_posX = (-hard_shoulder_d) + ((lane_num_des_src * (Constants.lane_width + Constants.line_width))/2);
+			continuous_line (MyUtilities.detentionLineWidth(des_src), 
+			                Constants.line_thickness, 
+			                Constants.public_transport_line_width, 
+			                new Vector3(detention_line_posX, lines_Y_pos, - detention_line_dZ), 
+			                Constants.Line_Name_Detention, 
+			                parent);
+		}
+		#endregion
+		
+		// End road markings
+	}
+	
 	/**
 	 * @brief Draw a lane line by type aligned with the Z axis
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
@@ -71,7 +189,7 @@ public static class DrawRoad
 	 * @param[in] position Center line position
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void lane_line (char lane_type, float length, Vector3 position, GameObject parent)
+	private static void lane_line (char lane_type, float length, Vector3 position, GameObject parent)
 	{
 		Vector3 position1 = new Vector3(position.x, position.y, position.z - (length/2));
 		Vector3 position2 = new Vector3(position.x, position.y, position.z + (length/2));
@@ -86,7 +204,7 @@ public static class DrawRoad
 	 * @param[in] position2 Position of the other end of the line
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent)
+	private static void lane_line (char lane_type, Vector3 position1, Vector3 position2, GameObject parent)
 	{
 		switch (lane_type)
 		{
@@ -117,7 +235,7 @@ public static class DrawRoad
 	 * @param[in] name Name for the object
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent)
+	private static void continuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent)
 	{
 		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
 		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
@@ -134,7 +252,7 @@ public static class DrawRoad
 	 * @param[in] name Name for the object
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void continuous_line (float width, float height, Vector3 position1, Vector3 position2,string name, GameObject parent)
+	private static void continuous_line (float width, float height, Vector3 position1, Vector3 position2,string name, GameObject parent)
 	{
 		GameObject line = GameObject.CreatePrimitive(PrimitiveType.Cube);
 		line.name = name;
@@ -156,7 +274,7 @@ public static class DrawRoad
 	 * @param[in] name Name for the object
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent)
+	private static void discontinuous_line (float width, float height, float length, Vector3 position, string name, GameObject parent)
 	{
 		Vector3 position1 = new Vector3 (position.x, position.y, position.z - (length/2));
 		Vector3 position2 = new Vector3 (position.x, position.y, position.z + (length/2));
@@ -173,7 +291,7 @@ public static class DrawRoad
 	 * @param[in] name Name for the object
 	 * @param[in] parent Parent object to which the line will join
 	 */
-	public static void discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent)
+	private static void discontinuous_line (float width, float height, Vector3 position1, Vector3 position2, string name, GameObject new_parent)
 	{
 		GameObject discontinuous_line = new GameObject ();
 		discontinuous_line.name = name;
@@ -338,7 +456,7 @@ public static class DrawRoad
 	 * Otherwise it will be aligned with the negative Z axis.
 	 * @param[in] parent Parent object to which the markings will join.
 	 */
-	public static void lane_markings (char lane_type, Vector2 pos, bool positiveZ, GameObject parent)
+	private static void lane_markings (char lane_type, Vector2 pos, bool positiveZ, GameObject parent)
 	{
 		Vector3 marking_pos = new Vector3 (pos.x, Constants.markings_Y_position, pos.y);
 		Quaternion rotation = (positiveZ) ? Quaternion.identity : Quaternion.AngleAxis(180, Vector3.up);

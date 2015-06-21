@@ -15,14 +15,18 @@
 */
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public enum NodeType		: byte {Intersection, Limit, Continuation};
 public enum IntersectionType: byte {Normal, Roundabout};
 public enum TransportType	: byte {Public, Private, PublicAndPrivate};
 public enum DirectionType	: byte {Source_Destination, Destination_Source};
 public enum TurnSide		: byte {Left, Right};
-public enum GuideNodeType 	: byte {Lane_start, Lane_end, On_the_lane, On_node};
+public enum GuideNodeType 	: byte {Lane_start, Lane_end, OnLane};
 
+/*
+ * @brief Saves the information related to a node.
+ */
 public struct Node
 {
 	public string 			id;					// Identifier of the node.
@@ -31,9 +35,13 @@ public struct Node
 	public float 			y;					// Position of the node on the Z axis.
 	public IntersectionType intersection_type;	// Only for Intersection Nodes: Type of intersection (Normal, Roundabout).
 	public string 			widest_edge_id;		// Identifier of the widest edge which touches the node.
-	public bool 			two_ways;			// Indicates whether two directions (true) or one (false).
+	public string			reference_edge_id;	// Reference edge identifier, for continuation node type only.
+	public string			other_edge_id;		// The other edge identifier, for continuation node type only.
 }
 
+/*
+ * @brief Saves the information related to an edge.
+ */
 public struct Edge
 {
 	public string 	id;							// Identifier of the edge.
@@ -48,6 +56,15 @@ public struct Edge
 	public Vector2 	direction;					// Vector paralel to source-destination direction.
 	public Vector2 	fixed_position_vector;		// Position adjustment vector.
 	public Vector3 	fixed_position;				// Position already set.
+}
+
+/*
+ * @brief Saves the information related to the allowed directions for a lane on an intersection.
+ */
+public struct AllowedDirections
+{
+	public string lane_id;
+	public List<string> direction_ids;
 }
 
 public static class Constants : object {
@@ -69,8 +86,11 @@ public static class Constants : object {
 	public const string Name_Ground = "Ground";
 	public const string Name_Platform = "Platform";
 	
-	public const string Name_Source_Start_Points = "Source Start Points";
-	public const string Name_Destination_Start_Points = "Destination Start Points";
+	public const string Name_Source_Start_Points 		= "Source Start Points";
+	public const string Name_Destination_Start_Points 	= "Destination Start Points";
+	public const string Name_Source_End_Points 			= "Source End Points";
+	public const string Name_Destination_End_Points 	= "Destination End Points";
+	public const string Name_OnLane_Points				= "On Lane Points";
 	
 	public const string Name_Turn_Section  = "Turn Section";
 	public const string Name_Turn_Platform = "Turn Platform";
@@ -84,8 +104,10 @@ public static class Constants : object {
 	public const string Tag_Node_Intersection = "Intersection_node";
 	public const string Tag_Edge = "Edge";
 	public const string Tag_Unknown = "Unknown";
-	public const string Tag_Lane_Start_Point = "LaneStartPoint";
-	public const string Tag_Lane_Start_Point_Group = "LaneStartPointGroup";
+	public const string Tag_Lane_Start_Point 		= "LaneStartPoint";
+	public const string Tag_Lane_Start_Point_Group 	= "LaneStartPointGroup";
+	public const string Tag_Lane_End_Point 			= "LaneEndPoint";
+	public const string Tag_Lane_End_Point_Group 	= "LaneEndPointGroup";
 	public const string Tag_Vehicle = "Vehicle";
 	public const string Tag_Ground = "Ground";
 	#endregion
@@ -117,7 +139,7 @@ public static class Constants : object {
 	#endregion
 	
 	#region Road measures
-	public const float lane_width = 3f;
+	public const float lane_width = 3.5f;
 	public const float line_width = 0.1f;
 	public const float public_transport_line_width = 0.3f;
 	public const float hard_shoulder_width = 1f;
@@ -135,13 +157,17 @@ public static class Constants : object {
 	public const float platform_Y_position 	= -0.004f;
 	public const float markings_Y_position 	= -0.001f;
 	public const float vehicles_Y_position 	= 0f;
+	
+	public const float nameSign_Y_position 	= 4f;
 	#endregion
 	
 	#region Speed measures
 	public const float urban_speed_limit = 13.8f; // Meters per second (50 Km/h)
+	//public const float urban_speed_limit = 1.38f; // Meters per second (10 Km/h)
 	#endregion
 	
 	#region Precision measures
 	public const float bezier_precision = 400f;
+	public const float Guide_Node_padding = 0.5f;
 	#endregion
 }

@@ -20,22 +20,20 @@ using System.Collections.Generic;
 
 public static class RoadMap
 {
+	private static GameObject SimulationController;
 	private static string map_name;
 	private static Dictionary<string, Node> nodes;
 	private static Dictionary<string, Edge> edges;
+	private static Dictionary<string, AllowedDirections> allowedDirections;
 	
 	public static float max_x,min_x,max_z,min_z; // Ground limits
-
-	// Materials
-	private static Material asphalt_material;
 
 	public static void CreateNewMap (string name)
 	{
 		map_name = name;
 		nodes = new Dictionary<string, Node> ();
 		edges = new Dictionary<string, Edge> ();
-		
-		asphalt_material = Resources.Load ("Materials/Asphalt", typeof(Material)) as Material;
+		allowedDirections = new Dictionary<string, AllowedDirections> ();
 	}
 	
 	/**
@@ -84,6 +82,29 @@ public static class RoadMap
 			newedge.src_des = src_des;
 			newedge.des_src = des_src;
 			edges.Add (newedge.id, newedge);
+		}
+	}
+	
+	/**
+	 * @brief Add a new allowed turn to the map.
+	 * @param[in] turn_node_id Identifier of the starting point of the turn.
+	 * @param[in] next_node_id Identifier of the ending point of the turn.
+	 */
+	public static void addTurn (string turn_node_id, string next_node_id)
+	{
+		if ( allowedDirections.ContainsKey(turn_node_id) )
+		{
+			AllowedDirections dir = allowedDirections[turn_node_id];
+			dir.direction_ids.Add(next_node_id);
+			allowedDirections[turn_node_id] = dir;
+		}
+		else
+		{
+			AllowedDirections newdir;
+			newdir.lane_id = turn_node_id;
+			newdir.direction_ids = new List<string> ();
+			newdir.direction_ids.Add(next_node_id);
+			allowedDirections.Add(turn_node_id, newdir);
 		}
 	}
 	
@@ -545,11 +566,19 @@ public static class RoadMap
 		// Calculate info before draw
 		prepareEdges ();
 		// Draw the edges
-		foreach (KeyValuePair<string, Edge> edge in edges)
-			drawEdge (edge.Key);
+		List<string> edgeKeys = getEdgeIDs ();
+		foreach (string edgeKey in edgeKeys)
+		{
+			drawEdge (edgeKey);
+		}
 		// Draw the nodes
-		foreach (KeyValuePair<string, Node> node in nodes)
-			drawNode (node.Key);
+		List<string> nodeKeys = getNodeIDs ();
+		foreach (string nodeKey in nodeKeys)
+		{
+			drawNode (nodeKey);
+		}
+		// Connect guide nodes
+		connectGuideNodes ();
 	}
 	
 	/**
@@ -633,16 +662,6 @@ public static class RoadMap
 						best_width = edges[edge_key].width;
 						n.widest_edge_id = edge_key;
 					}
-					
-					// Sense update
-					if (n.node_type == NodeType.Continuation) {
-						if (edges[edge_key].src_des != Constants.String_No_Lane && edges[edge_key].des_src != Constants.String_No_Lane) {
-							n.two_ways = true;
-						}
-						else {
-							n.two_ways = false;
-						}
-					}
 				}
 			}
 			// Update node
@@ -723,7 +742,7 @@ public static class RoadMap
 			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down); // Vector (0,1) is the orientation of the limit node
 			aux_road.transform.position = pos;
 			// Place the node in the roads layer
-			MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+			MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
 		else if (n.node_type == NodeType.Continuation) {  // DRAW CONTINUATION NODE
 			GameObject aux_road = new GameObject();
@@ -747,6 +766,8 @@ public static class RoadMap
 			// Calculate angle and side of the turn
 			TurnSide side;
 			float angle_between_edges = nodeAngle(n.id, selected_edge, non_selected_edge, out side);
+			n.reference_edge_id = selected_edge;
+			n.other_edge_id = non_selected_edge;
 			// Create the continuation node
 			drawContinuationNode (node_id, aux_road, edge_width, edge_width, angle_between_edges, side, selected_edge);
 			
@@ -761,7 +782,7 @@ public static class RoadMap
 			aux_road.transform.rotation = Quaternion.AngleAxis (rotation_degrees, Vector3.up);
 			aux_road.transform.position = pos;
 			// Place the node in the roads layer
-			MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+			MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
 		else if (n.node_type == NodeType.Intersection) {  // DRAW INTERSECTION NODE
 		
@@ -783,12 +804,14 @@ public static class RoadMap
 					aux_road.tag = Constants.Tag_Unknown;
 				}
 				// Place the node in the roads layer
-				MyUtilitiesClass.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+				MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 			}
 		}
 		else {
 			Debug.Log("Trying to draw invalid node type");
 		}
+		// Update node info
+		nodes[node_id] = n;
 	} // End drawNode
 
 	/**
@@ -872,179 +895,48 @@ public static class RoadMap
 		
 		return angle_deg;
 	}
-
-	/**
-	 * @brief Draw the edge with id "edge_id" in the 3D environment
-	 * @param[in] edge_id Edge ID to draw
-	 * @pre Before running this method should be run once prepareEdges method
-	 */
-	private static void drawEdge (string edge_id)
-	{
-		Edge e = edges[edge_id];
-		
-		GameObject edge_root = new GameObject();
-		edge_root.name = edge_id;
-		edge_root.tag = Constants.Tag_Edge;
-		
-		GameObject topology = new GameObject();
-		topology.name = Constants.Name_Topological_Objects;
-		topology.transform.SetParent(edge_root.transform);
-		
-		#region Platform
-		GameObject platform = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		platform.name = Constants.Name_Platform;
-		platform.transform.SetParent(topology.transform);
-		platform.transform.localScale = new Vector3(e.width, Constants.road_thickness, e.length);
-		platform.GetComponent<Renderer>().material.color = Color.gray;
-		platform.GetComponent<Renderer>().material = asphalt_material;
-		platform.GetComponent<Renderer>().material.mainTextureScale = new Vector2(platform.transform.localScale.x, platform.transform.localScale.z);
-		Vector3 platform_position = new Vector3(0,(-Constants.road_thickness/2) + Constants.platform_Y_position,0);
-		platform.transform.position = platform_position;
-		#endregion
-		
-		// Road markings
-		float lines_Y_pos = (-Constants.line_thickness/2) + Constants.markings_Y_position;
-
-		#region Hard shoulder lines
-		float hard_shoulder_d = (e.width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
-		DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(-hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
-		DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3( hard_shoulder_d,lines_Y_pos,0), Constants.Line_Name_Hard_Shoulder, topology);
-		#endregion
-		
-		// Lane number on source-destination direction
-		int lane_num_src_des = (e.src_des == Constants.String_No_Lane) ? 0 : e.src_des.Length;
-		// Lane number on destination-source direction
-		int lane_num_des_src = (e.des_src == Constants.String_No_Lane) ? 0 : e.des_src.Length;
-		
-		float half_lane_width = Constants.lane_width/2;
-		float half_length = e.length/2;
-		
-		#region Center lines
-		if (lane_num_src_des > 0 && lane_num_des_src > 0)
-		{
-			// If both directions have lanes
-			int lane_diff = 0; // Same number of lanes in each direction
-			
-			if (lane_num_src_des != lane_num_des_src) // Different number of lanes in each direction
-			{
-				lane_diff = lane_num_src_des - lane_num_des_src;
-			}
-			float half_center_lines_separation = Constants.center_lines_separation/2;
-			float center_line_common_calc = - (lane_diff * half_lane_width);
-			DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc - half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
-			DrawRoad.continuous_line (Constants.line_width, Constants.line_thickness, e.length, new Vector3(center_line_common_calc + half_center_lines_separation,lines_Y_pos,0), Constants.Line_Name_Center, topology);
-		}
-		#endregion
-
-		#region Lane lines
-		float markings_d = (e.length / 2) - 4f;
-		GameObject source_start_points = new GameObject();
-		source_start_points.transform.SetParent(edge_root.transform);
-		source_start_points.name = Constants.Name_Source_Start_Points;
-		source_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
-		
-		GameObject destination_start_points = new GameObject();
-		destination_start_points.transform.SetParent(edge_root.transform);
-		destination_start_points.name = Constants.Name_Destination_Start_Points;
-		destination_start_points.tag = Constants.Tag_Lane_Start_Point_Group;
-		
-		// Paint as many lines as lanes are in each direction except one 
-		// and put as many start lane as lanes are.
-		
-		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
-		{
-			float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
-			
-			if (i < lane_num_src_des)
-			{
-				char  src_des_lane_type = e.src_des[i];
-				float src_des_posX = + hard_shoulder_d - lane_d;
-				
-				if (i < lane_num_src_des-1)
-				{
-					DrawRoad.lane_line (src_des_lane_type, e.length, new Vector3(src_des_posX, lines_Y_pos, 0), topology);
-				}
-					
-				setLaneStartPoint (src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length), source_start_points);
-				
-				Vector2 src_des_marking_pos = new Vector2(src_des_posX + half_lane_width, - markings_d);
-				DrawRoad.lane_markings (src_des_lane_type, src_des_marking_pos, true, topology);
-			}
-			
-			if (i < lane_num_des_src)
-			{
-				char  des_src_lane_type = e.des_src[i];
-				float des_src_posX = - hard_shoulder_d + lane_d;
-				
-				if (i < lane_num_des_src-1)
-				{
-					DrawRoad.lane_line (des_src_lane_type, e.length, new Vector3(des_src_posX, lines_Y_pos, 0), topology);
-				}
-				
-				setLaneStartPoint (des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length), destination_start_points);
-				
-				Vector2 des_src_marking_pos = new Vector2(des_src_posX - half_lane_width, + markings_d);
-				DrawRoad.lane_markings (des_src_lane_type, des_src_marking_pos, false, topology);
-			}
-		}
-		#endregion
-		
-		#region Detention lines
-		float detention_line_dZ = half_length - (Constants.public_transport_line_width/2);
-		
-		if (nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit && lane_num_src_des > 0)
-		{
-			float detention_line_posX = (+hard_shoulder_d) - ((lane_num_src_des * (Constants.lane_width + Constants.line_width))/2);
-			DrawRoad.continuous_line (MyUtilitiesClass.detentionLineWidth(e.src_des), 
-									Constants.line_thickness, 
-									Constants.public_transport_line_width, 
-									new Vector3(detention_line_posX, lines_Y_pos, + detention_line_dZ), 
-									Constants.Line_Name_Detention, 
-									topology);
-		}
-		
-		if (nodes[e.source_id].node_type != NodeType.Continuation && nodes[e.source_id].node_type != NodeType.Limit && lane_num_des_src > 0)
-		{
-			float detention_line_posX = (-hard_shoulder_d) + ((lane_num_des_src * (Constants.lane_width + Constants.line_width))/2);
-			DrawRoad.continuous_line (MyUtilitiesClass.detentionLineWidth(e.des_src), 
-									Constants.line_thickness, 
-									Constants.public_transport_line_width, 
-									new Vector3(detention_line_posX, lines_Y_pos, - detention_line_dZ), 
-									Constants.Line_Name_Detention, 
-									topology);
-		}
-		#endregion
-
-		// End road markings
-
-		edge_root.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
-		edge_root.transform.position = e.fixed_position;
-		// Place the edge in the roads layer
-		MyUtilitiesClass.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
-	}
 	
 	/**
-	 * @brief Sets a LaneStart object at the specified position
+	 * @brief Sets a LaneStart object at the specified position.
+	 * @param[in] edgeID Identifier of the edge.
+	 * @param[in] direction Edge direction to wich it belongs.
+	 * @param[in] lane_order Order of the lane from hard shoulder to center starting at 0.
 	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
-	 * @param[in] position Position where the object will be placed
-	 * @param[in] parent Parent object to which the object will join
+	 * @param[in] position Position where the object will be placed.
+	 * @param[in] parent Parent object to which the object will join.
+	 * @return The created object.
 	 */
-	private static void setLaneStartPoint (char lane_type, Vector3 position, GameObject parent) {
+	private static GameObject setLaneStartPoint (string edgeID, DirectionType direction, int lane_order, char lane_type, Vector3 position, GameObject parent)
+	{
+		string name_base = edgeID + "_";
 		
-		switch (lane_type) {
+		if (direction == DirectionType.Source_Destination)
+		{
+			name_base += "src_des_";
+		}
+		else
+		{
+			name_base += "des_src_";
+		}
+		
+		name_base += "lane_" + lane_order + "_";
+		
+		GameObject lane_start = new GameObject();
+		lane_start.transform.SetParent(parent.transform);
+		lane_start.transform.position = position;
+		lane_start.tag = Constants.Tag_Lane_Start_Point;
+		GuideNode script = lane_start.AddComponent<GuideNode>();
+		script.setGuideNodeType(GuideNodeType.Lane_start);
+		
+		switch (lane_type)
+		{
 			case Constants.Char_Public_Lane:
-				GameObject publicLaneStart = new GameObject();
-				publicLaneStart.name = Constants.Lane_Name_Public;
-				publicLaneStart.tag = Constants.Tag_Lane_Start_Point;
-				publicLaneStart.transform.position = position;
-				publicLaneStart.transform.parent = parent.transform;
+				lane_start.name = name_base + Constants.Lane_Name_Public;
+				script.setGuideNodeTransportType(TransportType.Public);
 				break;
 			case Constants.Char_Normal_Lane:
-				GameObject normalLaneStart = new GameObject();
-				normalLaneStart.name = Constants.Lane_Name_Normal;
-				normalLaneStart.tag = Constants.Tag_Lane_Start_Point;
-				normalLaneStart.transform.position = position;
-				normalLaneStart.transform.parent = parent.transform;
+				lane_start.name = name_base + Constants.Lane_Name_Normal;
+				script.setGuideNodeTransportType(TransportType.PublicAndPrivate);
 				break;
 			case 'A':
 				Debug.Log("Parking lane start point not designed yet");
@@ -1056,6 +948,116 @@ public static class RoadMap
 				Debug.Log("Trying to draw invalid type of lane");
 				break;
 		}
+		return lane_start;
+	}
+	
+	/**
+	 * @brief Sets a LaneEnd object at the specified position.
+	 * @param[in] edgeID Identifier of the edge.
+	 * @param[in] direction Edge direction to wich it belongs.
+	 * @param[in] lane_order Order of the lane from hard shoulder to center starting at 0.
+	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
+	 * @param[in] position Position where the object will be placed.
+	 * @param[in] parent Parent object to which the object will join.
+	 * @return The created object.
+	 */
+	private static GameObject setLaneEndPoint (string edgeID, DirectionType direction, int lane_order, char lane_type, Vector3 position, GameObject parent)
+	{
+		string name_base = edgeID + "_";
+		
+		if (direction == DirectionType.Source_Destination)
+		{
+			name_base += "src_des_";
+		}
+		else
+		{
+			name_base += "des_src_";
+		}
+		
+		name_base += "lane_" + lane_order + "_";
+		
+		GameObject lane_end = new GameObject();
+		lane_end.transform.SetParent(parent.transform);
+		lane_end.transform.position = position;
+		lane_end.tag = Constants.Tag_Lane_End_Point;
+		GuideNode script = lane_end.AddComponent<GuideNode>();
+		script.setGuideNodeType(GuideNodeType.Lane_end);
+		
+		switch (lane_type)
+		{
+			case Constants.Char_Public_Lane:
+				lane_end.name = name_base + Constants.Lane_Name_Public;
+				script.setGuideNodeTransportType(TransportType.Public);
+				break;
+			case Constants.Char_Normal_Lane:
+				lane_end.name = name_base + Constants.Lane_Name_Normal;
+				script.setGuideNodeTransportType(TransportType.PublicAndPrivate);
+				break;
+			case 'A':
+				Debug.Log("Parking lane start point not designed yet");
+				break;
+			case 'V':
+				Debug.Log("Bus/HOV lane start point not designed yet");
+				break;
+			default:
+				Debug.Log("Trying to draw invalid type of lane");
+				break;
+		}
+		return lane_end;
+	}
+	
+	/**
+	 * @brief Sets a OnLane object at the specified position.
+	 * @param[in] edgeID Identifier of the edge or node.
+	 * @param[in] direction Edge direction to wich it belongs.
+	 * @param[in] lane_order Order of the lane from hard shoulder to center starting at 0.
+	 * @param[in] lane_type Lane type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
+	 * @param[in] position Position where the object will be placed.
+	 * @param[in] parent Parent object to which the object will join.
+	 * @return The created object.
+	 */
+	private static GameObject setOnLanePoint (string ID, DirectionType direction, int lane_order, char lane_type, Vector3 position, GameObject parent)
+	{
+		string name_base = ID + "_";
+		
+		if (direction == DirectionType.Source_Destination)
+		{
+			name_base += "src_des_";
+		}
+		else
+		{
+			name_base += "des_src_";
+		}
+		
+		name_base += "lane_" + lane_order + "_";
+		
+		GameObject onLane = new GameObject();
+		onLane.transform.SetParent(parent.transform);
+		onLane.transform.position = position;
+		GuideNode script = onLane.AddComponent<GuideNode>();
+		script.setGuideNodeType(GuideNodeType.OnLane);
+		
+		switch (lane_type)
+		{
+		case Constants.Char_Public_Lane:
+			onLane.name = name_base + Constants.Lane_Name_Public;
+			script.setGuideNodeTransportType(TransportType.Public);
+			break;
+		case Constants.Char_Normal_Lane:
+			onLane.name = name_base + Constants.Lane_Name_Normal;
+			script.setGuideNodeTransportType(TransportType.PublicAndPrivate);
+			break;
+		case 'A':
+			Debug.Log("Parking lane start point not designed yet");
+			break;
+		case 'V':
+			Debug.Log("Bus/HOV lane start point not designed yet");
+			break;
+		default:
+			Debug.Log("Trying to draw invalid type of lane");
+			break;
+		}
+		return onLane;
 	}
 
 	/**
@@ -1079,6 +1081,83 @@ public static class RoadMap
 
 		return lane_num;
 	}
+	
+	/**
+	 * @brief Draw the edge with id "edge_id" in the 3D environment
+	 * @param[in] edge_id Edge ID to draw
+	 * @pre Before running this method should be run once prepareEdges method
+	 */
+	private static void drawEdge (string edge_id)
+	{
+		Edge e = edges[edge_id];
+		
+		GameObject edge_root = new GameObject();
+		edge_root.name = edge_id;
+		edge_root.tag = Constants.Tag_Edge;
+		
+		GameObject topology = new GameObject();
+		topology.name = Constants.Name_Topological_Objects;
+		topology.transform.SetParent(edge_root.transform);
+		
+		// Lane number on source-destination direction
+		int lane_num_src_des = (e.src_des == Constants.String_No_Lane) ? 0 : e.src_des.Length;
+		// Lane number on destination-source direction
+		int lane_num_des_src = (e.des_src == Constants.String_No_Lane) ? 0 : e.des_src.Length;
+		
+		float half_lane_width = Constants.lane_width/2;
+		float half_length = e.length/2;
+		float hard_shoulder_d = (e.width/2) - Constants.hard_shoulder_width - (Constants.line_width/2); // Displacement from the center of the road
+		
+		DrawRoad.edgePlatform (e.width, e.length, e.src_des, e.des_src,
+		                       nodes[e.destination_id].node_type != NodeType.Continuation && nodes[e.destination_id].node_type != NodeType.Limit,
+		                       nodes[e.source_id	 ].node_type != NodeType.Continuation && nodes[e.source_id	   ].node_type != NodeType.Limit,
+		                       topology);
+		
+		GameObject source_start_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_Start_Points	  , edge_root, Constants.Tag_Lane_Start_Point_Group);
+		GameObject destination_start_points = MyUtilities.CreateGameObject(Constants.Name_Destination_Start_Points, edge_root, Constants.Tag_Lane_Start_Point_Group);
+		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , edge_root, Constants.Tag_Lane_End_Point_Group);
+		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , edge_root, Constants.Tag_Lane_End_Point_Group);
+		
+		// Put as many start lane as lanes are.
+		
+		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
+		{
+			float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
+			
+			if (i < lane_num_src_des)
+			{
+				char  src_des_lane_type = e.src_des[i];
+				float src_des_posX = + hard_shoulder_d - lane_d;
+				
+				GameObject LSP = setLaneStartPoint (edge_id, DirectionType.Source_Destination, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length + Constants.Guide_Node_padding), source_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, DirectionType.Source_Destination, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length - Constants.Guide_Node_padding), source_end_points);
+				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+			}
+			
+			if (i < lane_num_des_src)
+			{
+				char  des_src_lane_type = e.des_src[i];
+				float des_src_posX = - hard_shoulder_d + lane_d;
+				
+				GameObject LSP = setLaneStartPoint (edge_id, DirectionType.Destination_Source, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length - Constants.Guide_Node_padding), destination_start_points);
+				GameObject LEP = setLaneEndPoint   (edge_id, DirectionType.Destination_Source, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length + Constants.Guide_Node_padding), destination_end_points);
+				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+			}
+		}
+		
+		edge_root.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
+		edge_root.transform.position = e.fixed_position;
+		// Place the edge in the roads layer
+		MyUtilities.MoveToLayer(edge_root.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+		// Create the sign name
+		string road_name = (edges[edge_id].name != null && edges[edge_id].name != "") ? edges[edge_id].name : edge_id;
+		
+		if (SimulationController == null)
+		{
+			SimulationController = GameObject.Find("SimulationController");
+		}
+		SimulationController.GetComponent<SimulationUIController>().nameSign(road_name, new Vector2(e.fixed_position.x, e.fixed_position.z));
+	}
 
 	/**
 	 * @brief Draws necessary elements for nodes of type continuation.
@@ -1092,45 +1171,42 @@ public static class RoadMap
 	 */
 	private static void drawContinuationNode (string node_id, GameObject node, float radius, 
 												float edge_width, float angle, TurnSide side, 
-												string ref_edge_id) {
-		
+												string ref_edge_id)
+	{
 		GameObject topology = new GameObject();
 		topology.name = Constants.Name_Topological_Objects;
 		topology.transform.SetParent(node.transform);
 		
+		GameObject reference_hint = new GameObject();
+		reference_hint.name = "Ref: " + ref_edge_id;
+		reference_hint.transform.SetParent(node.transform);
+		
 		Vector2 road_center_point = new Vector2(0, -((radius * 0.5f) + 0.1f));
 		Vector2 road_center_point_rotated;
 		
-		if (side == TurnSide.Right) {
-			road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, angle);
-		}
-		else {
-			road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, -angle);
-		}
+		float rotation_angle = (side == TurnSide.Right) ? angle : -angle;
 		
-		Vector3 start_point = new Vector3(road_center_point.x,0,road_center_point.y);
-		Vector3 control_point = new Vector3(0,0,0);
-		Vector3 end_point = new Vector3(road_center_point_rotated.x,0,road_center_point_rotated.y);
+		road_center_point_rotated = MyMathClass.rotatePoint(road_center_point, rotation_angle);
 		
-		float rotation_angle = angle;
-		
-		if (side == TurnSide.Left) {
-			rotation_angle = -angle;
-		}
+		Vector3 start_point 	= new Vector3(road_center_point.x,0,road_center_point.y);
+		Vector3 control_point 	= new Vector3(0,0,0);
+		Vector3 end_point 		= new Vector3(road_center_point_rotated.x,0,road_center_point_rotated.y);
 		
 		DrawRoad.BezierMesh (topology, Constants.road_thickness, edge_width, start_point, control_point, end_point, rotation_angle);
 		
 		// Attention: Following similar procedure of BezierMesh
 		// Road markings
-		
 		float half_width = edge_width/2;
-		float half_line_thickness = Constants.line_thickness/2;
 		float half_line_width = Constants.line_width/2;
+		float center_hard_shoulder_line = half_width - Constants.hard_shoulder_width - half_line_width;
+		float half_line_thickness = Constants.line_thickness/2;
+		
+		float half_lane_width = Constants.lane_width/2;
 		float y_position_lines = -half_line_thickness + Constants.markings_Y_position;
 		
-		// Hard shoulders
-		Vector2 LP = new Vector2 (start_point.x - (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
-		Vector2 RP = new Vector2 (start_point.x + (half_width - Constants.hard_shoulder_width - half_line_width), start_point.z);
+		#region Hard shoulders
+		Vector2 LP = new Vector2 (start_point.x - (center_hard_shoulder_line), start_point.z);
+		Vector2 RP = new Vector2 (start_point.x + (center_hard_shoulder_line), start_point.z);
 		
 		/*	Rotate angle degrees the points left and right.
 			Due to the equal distance to the center of the imaginary lines start and end, rotate the left point give us
@@ -1147,114 +1223,486 @@ public static class RoadMap
 		Vector2 LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
 		Vector2 RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
 		
-		Vector3 LP_3D  = new Vector3(LP.x,     y_position_lines, LP.y);
-		Vector3 RP_3D  = new Vector3(RP.x,     y_position_lines, RP.y);
-		Vector3 LPR_3D = new Vector3(LPR.x,    y_position_lines, LPR.y);
-		Vector3 RPR_3D = new Vector3(RPR.x,    y_position_lines, RPR.y);
-		Vector3 LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
-		Vector3 RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
+		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,new Vector3(LP.x,y_position_lines,LP.y),new Vector3(LCB_2D.x,y_position_lines,LCB_2D.y),new Vector3(LPR.x,y_position_lines,LPR.y),Constants.Line_Name_Hard_Shoulder,topology);
+		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,new Vector3(RP.x,y_position_lines,RP.y),new Vector3(RCB_2D.x,y_position_lines,RCB_2D.y),new Vector3(RPR.x,y_position_lines,RPR.y),Constants.Line_Name_Hard_Shoulder,topology);
+		#endregion
 		
-		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
-		DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Hard_Shoulder,topology);
-		
-		// Center lines
-		Vector2 aux_vector,aux_vector_rotated;
+		#region Center lines
 		Edge e = edges[ref_edge_id];
 		Vector2 center_point = new Vector2(start_point.x,start_point.z);
 		
-		if (e.src_des != Constants.String_No_Lane && e.des_src != Constants.String_No_Lane) { // If both directions have lanes
-			
+		if (e.src_des != Constants.String_No_Lane && e.des_src != Constants.String_No_Lane) // If both directions have lanes
+		{
 			int lane_diff = 0; // Same number of lanes in each direction
 			
-			if (e.src_des.Length != e.des_src.Length) { // Different number of lanes in each direction
-				lane_diff = e.src_des.Length - e.des_src.Length;
-			}
+			if (e.src_des.Length != e.des_src.Length) // Different number of lanes in each direction
+			{	lane_diff = e.src_des.Length - e.des_src.Length; }
 			
-			if (edges[ref_edge_id].source_id == node_id) {
-				center_point.x =  (lane_diff * (Constants.lane_width/2));
-			}
-			else {
-				center_point.x = -(lane_diff * (Constants.lane_width/2));
-			}
+			if (edges[ref_edge_id].source_id == node_id) { center_point.x =  (lane_diff * (Constants.lane_width/2)); }
+			else 										 { center_point.x = -(lane_diff * (Constants.lane_width/2)); }
 			
 			LP = new Vector2 (center_point.x - (Constants.center_lines_separation/2), center_point.y);
 			RP = new Vector2 (center_point.x + (Constants.center_lines_separation/2), center_point.y);
-			
-			aux_vector = MyMathClass.orientationVector(road_center_point,LP);
-			aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
-			LPR = road_center_point_rotated - aux_vector_rotated;
-			
-			aux_vector = MyMathClass.orientationVector(road_center_point,RP);
-			aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
-			RPR = road_center_point_rotated - aux_vector_rotated;
+			LPR = rotatePointBezier (LP, road_center_point, rotation_angle);
+			RPR = rotatePointBezier (RP, road_center_point, rotation_angle);
 			
 			LCB_2D = MyMathClass.intersectionPoint(LP,ref_edge_direction,LPR,oth_edge_direction);
 			RCB_2D = MyMathClass.intersectionPoint(RP,ref_edge_direction,RPR,oth_edge_direction);
 			
-			LP_3D  = new Vector3(LP.x,     y_position_lines, LP.y);
-			RP_3D  = new Vector3(RP.x,     y_position_lines, RP.y);
-			LPR_3D = new Vector3(LPR.x,    y_position_lines, LPR.y);
-			RPR_3D = new Vector3(RPR.x,    y_position_lines, RPR.y);
-			LCB_3D = new Vector3(LCB_2D.x, y_position_lines, LCB_2D.y);
-			RCB_3D = new Vector3(RCB_2D.x, y_position_lines, RCB_2D.y);
-			
-			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,LP_3D,LCB_3D,LPR_3D,Constants.Line_Name_Center,topology);
-			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,RP_3D,RCB_3D,RPR_3D,Constants.Line_Name_Center,topology);
+			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,new Vector3(LP.x,y_position_lines,LP.y),new Vector3(LCB_2D.x,y_position_lines,LCB_2D.y),new Vector3(LPR.x,y_position_lines,LPR.y),Constants.Line_Name_Center,topology);
+			DrawRoad.continuous_curved_line (Constants.line_width,Constants.line_thickness,new Vector3(RP.x,y_position_lines,RP.y),new Vector3(RCB_2D.x,y_position_lines,RCB_2D.y),new Vector3(RPR.x,y_position_lines,RPR.y),Constants.Line_Name_Center,topology);
 		}
+		#endregion
 		
-		// Lane lines
+		#region Lane lines
+		GameObject source_start_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_Start_Points	  , node, Constants.Tag_Lane_Start_Point_Group);
+		GameObject destination_start_points = MyUtilities.CreateGameObject(Constants.Name_Destination_Start_Points, node, Constants.Tag_Lane_Start_Point_Group);
+		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , node, Constants.Tag_Lane_End_Point_Group);
+		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , node, Constants.Tag_Lane_End_Point_Group);
+		GameObject source_onlane_points 	= MyUtilities.CreateGameObject(Constants.Name_OnLane_Points 		  , node, null);
+		GameObject destination_onlane_points= MyUtilities.CreateGameObject(Constants.Name_OnLane_Points  		  , node, null);
+		
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
 		Vector2 P, PR, PCB;
-		Vector3 P_3D, PR_3D, PCB_3D;
 		
-		if (e.src_des != Constants.String_No_Lane) {
-			
-			for (int i=0; i<e.src_des.Length-1; i++) {
+		if (e.src_des != Constants.String_No_Lane)
+		{
+			for (int i=0; i<e.src_des.Length; i++)
+			{
 				char lane_type = e.src_des[i];
+				float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
 				
-				if (edges[ref_edge_id].source_id == node_id) {
-					P = new Vector2(-((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
+				if (edges[ref_edge_id].source_id == node_id) { P = new Vector2(-center_hard_shoulder_line + lane_d, start_point.z);	}
+				else                                         { P = new Vector2( center_hard_shoulder_line - lane_d, start_point.z); }
+				
+				PR  = rotatePointBezier (P, road_center_point, rotation_angle);
+				PCB = MyMathClass.intersectionPoint(P, ref_edge_direction, PR, oth_edge_direction);
+				
+				if (i<e.src_des.Length-1)
+				{
+					DrawRoad.curved_lane_line (lane_type,	new Vector3(P.x		, y_position_lines, P.y	 ),
+					                           				new Vector3(PCB.x	, y_position_lines, PCB.y),
+					                           				new Vector3(PR.x	, y_position_lines, PR.y ), topology);
 				}
-				else {
-					P = new Vector2(((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
+				
+				if (edges[ref_edge_id].source_id == node_id) { P = new Vector2(-center_hard_shoulder_line + lane_d - half_lane_width, start_point.z); }
+				else                                         { P = new Vector2( center_hard_shoulder_line - lane_d + half_lane_width, start_point.z); }
+				PR = rotatePointBezier (P, road_center_point, rotation_angle);
+				PCB = MyMathClass.intersectionPoint(P, ref_edge_direction, PR, oth_edge_direction);
+				Vector3 P_3D 	= new Vector3(P.x	, y_position_lines, P.y	 );
+				Vector3 PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
+				Vector3 PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
+				
+				GameObject LSP,LEP;
+				
+				if (edges[ref_edge_id].source_id == node_id)
+				{
+					LSP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_end_points);
 				}
-				aux_vector = MyMathClass.orientationVector(road_center_point,P);
-				aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
-				PR = road_center_point_rotated - aux_vector_rotated;
-				PCB = MyMathClass.intersectionPoint(P,ref_edge_direction,PR,oth_edge_direction);
+				else
+				{
+					LSP = setLaneStartPoint (node_id, DirectionType.Source_Destination, i, lane_type, P_3D , source_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_end_points);
+				}
 				
-				P_3D = new Vector3(P.x,y_position_lines,P.y);
-				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
-				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
+				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
 				
-				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
+				for (int j=0; j<3; j++)
+				{
+					Vector3 PCB_3D_fixed;
+					
+					if (edges[ref_edge_id].source_id == node_id)
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
+					else
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
+					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Source_Destination, i, lane_type, PCB_3D_fixed, source_onlane_points);
+					
+					if (j == 0)       { LSP.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+					else { prev_next_OLP[0].GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+					prev_next_OLP[0] = prev_next_OLP[1];
+				}
+				prev_next_OLP[1].GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 		}
 		
-		if (e.des_src != Constants.String_No_Lane) {
-			
-			for (int i=0; i<e.des_src.Length-1; i++) {
+		if (e.des_src != Constants.String_No_Lane)
+		{
+			for (int i=0; i<e.des_src.Length; i++)
+			{
 				char lane_type = e.des_src[i];
+				float lane_d = (Constants.lane_width + Constants.line_width) * (i+1);
 				
-				if (edges[ref_edge_id].source_id == node_id) {
-					P = new Vector2(((e.width / 2) - Constants.hard_shoulder_width) - ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
+				if (edges[ref_edge_id].source_id == node_id) { P = new Vector2( center_hard_shoulder_line - lane_d, start_point.z); }
+				else                                         { P = new Vector2(-center_hard_shoulder_line + lane_d, start_point.z); }
+				
+				PR  = rotatePointBezier (P, road_center_point, rotation_angle);
+				PCB = MyMathClass.intersectionPoint(P, ref_edge_direction, PR, oth_edge_direction);
+				
+				if (i<e.des_src.Length-1)
+				{
+					DrawRoad.curved_lane_line (lane_type,	new Vector3(P.x		, y_position_lines, P.y	 ),
+															new Vector3(PCB.x	, y_position_lines, PCB.y),
+															new Vector3(PR.x	, y_position_lines, PR.y ), topology);
 				}
-				else {
-					P = new Vector2(-((e.width / 2) - Constants.hard_shoulder_width) + ((Constants.lane_width + Constants.line_width) * (i+1)), start_point.z);
+				
+				if (edges[ref_edge_id].source_id == node_id) { P = new Vector2( center_hard_shoulder_line - lane_d + half_lane_width, start_point.z); }
+				else                                         { P = new Vector2(-center_hard_shoulder_line + lane_d - half_lane_width, start_point.z); }
+				
+				PR = rotatePointBezier (P, road_center_point, rotation_angle);
+				PCB = MyMathClass.intersectionPoint(P, ref_edge_direction, PR, oth_edge_direction);
+				Vector3 P_3D 	= new Vector3(P.x	, y_position_lines, P.y	 );
+				Vector3 PCB_3D 	= new Vector3(PCB.x	, y_position_lines, PCB.y);
+				Vector3 PR_3D 	= new Vector3(PR.x	, y_position_lines, PR.y );
+				
+				GameObject LSP,LEP;
+				
+				if (edges[ref_edge_id].source_id == node_id)
+				{
+					LSP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_end_points);
 				}
-				aux_vector = MyMathClass.orientationVector(road_center_point,P);
-				aux_vector_rotated = MyMathClass.rotatePoint(aux_vector, rotation_angle);
-				PR = road_center_point_rotated - aux_vector_rotated;
-				PCB = MyMathClass.intersectionPoint(P,ref_edge_direction,PR,oth_edge_direction);
+				else
+				{
+					LSP = setLaneStartPoint (node_id, DirectionType.Destination_Source, i, lane_type, PR_3D, destination_start_points);
+					LEP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_end_points);
+				}
 				
-				P_3D = new Vector3(P.x,y_position_lines,P.y);
-				PR_3D = new Vector3(PR.x,y_position_lines,PR.y);
-				PCB_3D = new Vector3(PCB.x,y_position_lines,PCB.y);
+				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
 				
-				DrawRoad.curved_lane_line (lane_type, P_3D, PCB_3D, PR_3D, topology);
+				for (int j=0; j<3; j++)
+				{
+					Vector3 PCB_3D_fixed;
+					
+					if (edges[ref_edge_id].source_id == node_id)
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
+					else
+					{
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+					}
+					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Destination_Source, i, lane_type, PCB_3D_fixed, destination_onlane_points);
+					
+					if (j == 0)       { LSP.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+					else { prev_next_OLP[0].GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+					prev_next_OLP[0] = prev_next_OLP[1];
+				}
+				prev_next_OLP[1].GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 		}
+		#endregion
 		// End road markings
+	}
+	
+	/*
+	 * @brief Calculates the corresponding rotated point for the P point on a continuation node.
+	 * @param[in] P The point to rotate.
+	 * @param[in] road_center_point Position of the center of the road in the same side of P.
+	 * @param[in] rotation_angle The rotation angle of the continuation node.
+	 * @return The calculated point.
+	 */
+	private static Vector2 rotatePointBezier (Vector2 P, Vector2 road_center_point, float rotation_angle)
+	{
+		Vector2 aux_vector 					= MyMathClass.orientationVector(road_center_point,P);
+		Vector2 aux_vector_rotated 			= MyMathClass.rotatePoint(aux_vector, rotation_angle);
+		Vector2 road_center_point_rotated 	= MyMathClass.rotatePoint(road_center_point, rotation_angle);
+		Vector2 PR 							= road_center_point_rotated - aux_vector_rotated;
+		return PR;
+	}
+	
+	/**
+	 * @brief Connects the guidenodes on intersections (edge to edge) and on continuation nodes (node to edge)
+	 */
+	private static void connectGuideNodes ()
+	{
+		connectContinuationNodes ();
+		connectIntersectionsGuideNodes ();
+	}
+	
+	/**
+	 * @brief Connects the guidenodes on continuation nodes (node to edge)
+	 */
+	private static void connectContinuationNodes ()
+	{
+		List<string> nodeKeys = getNodeIDs ();
+		
+		foreach (string nodeKey in nodeKeys)
+		{
+			Node node = nodes[nodeKey];
+			
+			if (node.node_type == NodeType.Continuation)
+			{
+				bool lanes_on_src_des = (edges[node.reference_edge_id].src_des != Constants.String_No_Lane); // True if there are lanes
+				bool lanes_on_des_src = (edges[node.reference_edge_id].des_src != Constants.String_No_Lane); // True if there are lanes
+				int num_lanes_on_src_des = edges[node.reference_edge_id].src_des.Length; // If there are no lanes on src_des direction, this will have 1 as value, but it'll never be used.
+				int num_lanes_on_des_src = edges[node.reference_edge_id].des_src.Length; // If there are no lanes on des_src direction, this will have 1 as value, but it'll never be used.
+			
+				GameObject node_obj 	= GameObject.Find(node.id);
+				GameObject ref_edge_obj = GameObject.Find(node.reference_edge_id);
+				GameObject oth_edge_obj = GameObject.Find(node.other_edge_id);
+				
+				Dictionary<string, GameObject> groups = new Dictionary<string, GameObject>();
+				
+				#region Gather guide nodes groups
+				string node_source_start_points			= "node_source_start_points";
+				string node_source_end_points			= "node_source_end_points";
+				string node_destination_start_points	= "node_destination_start_points";
+				string node_destination_end_points		= "node_destination_end_points";
+				
+				string ref_edge_source_start_points 	= "ref_edge_source_start_points";
+				string ref_edge_source_end_points		= "ref_edge_source_end_points";
+				string ref_edge_destination_start_points= "ref_edge_destination_start_points";
+				string ref_edge_destination_end_points	= "ref_edge_destination_end_points";
+				
+				string oth_edge_source_start_points 	= "oth_edge_source_start_points";
+				string oth_edge_source_end_points		= "oth_edge_source_end_points";
+				string oth_edge_destination_start_points= "oth_edge_destination_start_points";
+				string oth_edge_destination_end_points  = "oth_edge_destination_end_points";
+				
+				if (lanes_on_src_des)
+				{
+					groups.Add(node_source_start_points		, node_obj	  .transform.Find(Constants.Name_Source_Start_Points).gameObject);
+					groups.Add(node_source_end_points  		, node_obj	  .transform.Find(Constants.Name_Source_End_Points	).gameObject);
+					
+					groups.Add(ref_edge_source_start_points	, ref_edge_obj.transform.Find(Constants.Name_Source_Start_Points).gameObject);
+					groups.Add(ref_edge_source_end_points  	, ref_edge_obj.transform.Find(Constants.Name_Source_End_Points	).gameObject);
+					
+					groups.Add(oth_edge_source_start_points	, oth_edge_obj.transform.Find(Constants.Name_Source_Start_Points).gameObject);
+					groups.Add(oth_edge_source_end_points  	, oth_edge_obj.transform.Find(Constants.Name_Source_End_Points	).gameObject);
+				}
+				
+				if (lanes_on_des_src)
+				{
+					groups.Add(node_destination_start_points	, node_obj	  .transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add(node_destination_end_points	  	, node_obj	  .transform.Find(Constants.Name_Destination_End_Points  ).gameObject);
+					
+					groups.Add(ref_edge_destination_start_points, ref_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add(ref_edge_destination_end_points  , ref_edge_obj.transform.Find(Constants.Name_Destination_End_Points  ).gameObject);
+					
+					groups.Add(oth_edge_destination_start_points, oth_edge_obj.transform.Find(Constants.Name_Destination_Start_Points).gameObject);
+					groups.Add(oth_edge_destination_end_points  , oth_edge_obj.transform.Find(Constants.Name_Destination_End_Points  ).gameObject);
+				}
+				#endregion
+				
+				#region Connect edges
+				if (edges[node.reference_edge_id].source_id == node.id) // Node is source of reference edge
+				{
+					if (lanes_on_src_des)
+					{
+						connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+						                                    node.id				  , groups[node_source_end_points],
+						                                    node.reference_edge_id, groups[ref_edge_source_start_points]);
+					}
+					
+					if (lanes_on_des_src)
+					{
+						connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+						                                    node.reference_edge_id, groups[ref_edge_destination_end_points],
+						                                    node.id				  , groups[node_destination_start_points]);
+					}
+					
+					if (edges[node.other_edge_id].source_id == node.id) // Node is source of the other edge
+					{
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.other_edge_id	, groups[oth_edge_destination_end_points],
+							                                    node.id				, groups[node_source_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.id				, groups[node_destination_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_source_start_points]);
+						}
+					}
+					else
+					{													// Node is destination of the other edge
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.other_edge_id	, groups[oth_edge_source_end_points],
+							                                    node.id				, groups[node_source_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.id				, groups[node_destination_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_destination_start_points]);
+						}
+					}
+				}
+				else
+				{														// Node is destination of reference edge
+					if (lanes_on_src_des)
+					{
+						connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+						                                    node.reference_edge_id, groups[ref_edge_source_end_points],
+						                                    node.id				  , groups[node_source_start_points]);
+					}
+					
+					if (lanes_on_des_src)
+					{
+						connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+						                                    node.id				  , groups[node_destination_end_points],
+						                                    node.reference_edge_id, groups[ref_edge_destination_start_points]);
+					}
+					
+					if (edges[node.other_edge_id].source_id == node.id) // Node is source of the other edge
+					{
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.id				, groups[node_source_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_source_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.other_edge_id	, groups[oth_edge_destination_end_points],
+							                                    node.id				, groups[node_destination_start_points]);
+						}
+					}
+					else
+					{													// Node is destination of the other edge
+						if (lanes_on_src_des)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_src_des,
+							                                    node.id				, groups[node_source_end_points],
+							                                    node.other_edge_id	, groups[oth_edge_destination_start_points]);
+						}
+						
+						if (lanes_on_des_src)
+						{
+							connectGuideNodesOnContinuationNode(num_lanes_on_des_src,
+							                                    node.other_edge_id	, groups[oth_edge_source_end_points],
+							                                    node.id				, groups[node_destination_start_points]);
+						}
+					}
+				}
+				#endregion
+			}
+		}
+	}
+
+	/**
+	 * @brief Sets second guide nodes as first next guide nodes.
+	 * @param[in] num_lanes Number of lanes on that direction.
+	 * @param[in] first_id Identifier of the node or edge to set its next guide nodes.
+	 * @param[in] first_group GameObject wich have the first guide nodes as childs.
+	 * @param[in] second_id Identifier of the node or edge with the next guide nodes.
+	 * @param[in] second_group GameObject wich have the second guide nodes as childs.
+	 */	
+	private static void connectGuideNodesOnContinuationNode (int num_lanes, string first_id, GameObject first_group, string second_id, GameObject second_group)
+	{
+		if (first_group == null)
+		{
+			Debug.LogError("first_group is null");
+		}
+		
+		if (second_group == null)
+		{
+			Debug.LogError("second_group is null");
+		}
+		
+		if (num_lanes > 0)
+		{
+			for (int i=0; i<num_lanes; i++)
+			{
+				string str = "_lane_" + i + "_";
+				
+				GameObject first_obj = MyUtilities.getGameObjectWithName(str, first_group);
+				if (first_obj == null)
+				{
+					Debug.LogError("first_obj with name "+str+" not found in group "+first_group.name+" of "+first_group.transform.parent.name+"!");
+				}
+				
+				GameObject second_obj= MyUtilities.getGameObjectWithName(str, second_group);
+				if (second_obj == null)
+				{
+					Debug.LogError("second_obj with name "+str+" not found in group "+second_group.name+" of "+second_group.transform.parent.name+"!");
+				}
+				
+				if (first_obj != null && second_obj != null)
+				{
+					first_obj.GetComponent<GuideNode>().addNextGuideNode(second_obj);
+					/*Debug.Log(first_group.transform.parent.name+"."+first_group.name+"."+first_obj.name+" ----> "+
+							 second_group.transform.parent.name+"."+second_group.name+"."+second_obj.name);*/
+				}/*
+				else 
+				{
+					Debug.LogError(first_group.transform.parent.name+"."+first_group.name+" ----> "+
+					          second_group.transform.parent.name+"."+second_group.name+" Cannot be done!!");
+				}*/
+			}
+		}
+	}
+	
+	/**
+	 * @brief Connects the guidenodes on intersections (edge to edge)
+	 */
+	private static void connectIntersectionsGuideNodes ()
+	{
+		List<string> turns_keys = new List<string>(allowedDirections.Keys);
+		string edgeID;
+		DirectionType dir;
+		int lane_order;
+		
+		foreach (string startTurnID in turns_keys)
+		{
+			MyUtilities.splitTurnPointID(startTurnID, out edgeID, out dir, out lane_order);
+			string str = edgeID;
+			string str_group;
+			
+			if (dir == DirectionType.Source_Destination)
+			{
+				str += "_src_des_";
+				str_group = Constants.Name_Source_End_Points;
+			}
+			else
+			{
+				str += "_des_src_";
+				str_group = Constants.Name_Destination_End_Points;
+			}
+			
+			str += "lane_" + lane_order;
+			
+			GameObject src_edge_obj = GameObject.Find(edgeID);
+			GameObject end_points_group = src_edge_obj.transform.Find(str_group).gameObject;
+			GameObject startPoint = MyUtilities.getGameObjectWithNameInHierarchy(str, end_points_group);
+			
+			List<string> nexts = allowedDirections[startTurnID].direction_ids;
+			
+			foreach (string n in nexts)
+			{
+				MyUtilities.splitTurnPointID(n, out edgeID, out dir, out lane_order);
+				str = edgeID;
+				
+				if (dir == DirectionType.Source_Destination)
+				{
+					str += "_src_des_";
+					str_group = Constants.Name_Source_Start_Points;
+				}
+				else
+				{
+					str += "_des_src_";
+					str_group = Constants.Name_Destination_Start_Points;
+				}
+				str += "lane_" + lane_order;
+				GameObject des_edge_obj = GameObject.Find(edgeID);
+				GameObject start_points_group = des_edge_obj.transform.Find(str_group).gameObject;
+				GameObject endPoint = MyUtilities.getGameObjectWithNameInHierarchy(str, start_points_group);
+				startPoint.GetComponent<GuideNode>().addNextGuideNode(endPoint);
+			}
+		}
 	}
 }
