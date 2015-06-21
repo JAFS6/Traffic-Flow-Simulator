@@ -24,6 +24,7 @@ public static class RoadMap
 	private static string map_name;
 	private static Dictionary<string, Node> nodes;
 	private static Dictionary<string, Edge> edges;
+	private static Dictionary<string, AllowedDirections> allowedDirections;
 	
 	public static float max_x,min_x,max_z,min_z; // Ground limits
 
@@ -32,6 +33,7 @@ public static class RoadMap
 		map_name = name;
 		nodes = new Dictionary<string, Node> ();
 		edges = new Dictionary<string, Edge> ();
+		allowedDirections = new Dictionary<string, AllowedDirections> ();
 	}
 	
 	/**
@@ -80,6 +82,29 @@ public static class RoadMap
 			newedge.src_des = src_des;
 			newedge.des_src = des_src;
 			edges.Add (newedge.id, newedge);
+		}
+	}
+	
+	/**
+	 * @brief Add a new allowed turn to the map.
+	 * @param[in] turn_node_id Identifier of the starting point of the turn.
+	 * @param[in] next_node_id Identifier of the ending point of the turn.
+	 */
+	public static void addTurn (string turn_node_id, string next_node_id)
+	{
+		if ( allowedDirections.ContainsKey(turn_node_id) )
+		{
+			AllowedDirections dir = allowedDirections[turn_node_id];
+			dir.direction_ids.Add(next_node_id);
+			allowedDirections[turn_node_id] = dir;
+		}
+		else
+		{
+			AllowedDirections newdir;
+			newdir.lane_id = turn_node_id;
+			newdir.direction_ids = new List<string> ();
+			newdir.direction_ids.Add(next_node_id);
+			allowedDirections.Add(turn_node_id, newdir);
 		}
 	}
 	
