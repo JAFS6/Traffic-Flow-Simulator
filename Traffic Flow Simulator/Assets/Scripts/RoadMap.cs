@@ -1652,6 +1652,57 @@ public static class RoadMap
 	 */
 	private static void connectIntersectionsGuideNodes ()
 	{
+		List<string> turns_keys = new List<string>(allowedDirections.Keys);
+		string edgeID;
+		DirectionType dir;
+		int lane_order;
 		
+		foreach (string startTurnID in turns_keys)
+		{
+			MyUtilities.splitTurnPointID(startTurnID, out edgeID, out dir, out lane_order);
+			string str = edgeID;
+			string str_group;
+			
+			if (dir == DirectionType.Source_Destination)
+			{
+				str += "_src_des_";
+				str_group = Constants.Name_Source_End_Points;
+			}
+			else
+			{
+				str += "_des_src_";
+				str_group = Constants.Name_Destination_End_Points;
+			}
+			
+			str += "lane_" + lane_order;
+			
+			GameObject src_edge_obj = GameObject.Find(edgeID);
+			GameObject end_points_group = src_edge_obj.transform.Find(str_group).gameObject;
+			GameObject startPoint = MyUtilities.getGameObjectWithNameInHierarchy(str, end_points_group);
+			
+			List<string> nexts = allowedDirections[startTurnID].direction_ids;
+			
+			foreach (string n in nexts)
+			{
+				MyUtilities.splitTurnPointID(n, out edgeID, out dir, out lane_order);
+				str = edgeID;
+				
+				if (dir == DirectionType.Source_Destination)
+				{
+					str += "_src_des_";
+					str_group = Constants.Name_Source_Start_Points;
+				}
+				else
+				{
+					str += "_des_src_";
+					str_group = Constants.Name_Destination_Start_Points;
+				}
+				str += "lane_" + lane_order;
+				GameObject des_edge_obj = GameObject.Find(edgeID);
+				GameObject start_points_group = des_edge_obj.transform.Find(str_group).gameObject;
+				GameObject endPoint = MyUtilities.getGameObjectWithNameInHierarchy(str, start_points_group);
+				startPoint.GetComponent<GuideNode>().addNextGuideNode(endPoint);
+			}
+		}
 	}
 }
