@@ -22,13 +22,13 @@ using MapLoaderSerial;
 
 public class MapLoader {
 
-	private xml_Graphml xml_graphml;
-
 	public void LoadMap (string mapFilename) {
 		
 		// Prepare filename of the map to load
 		string full_path = Application.dataPath + Constants.maps_path + mapFilename + ".topology.graphml";
 		MapLoaderRoutine (full_path);
+		full_path = Application.dataPath + Constants.maps_path + mapFilename + ".turns.graphml";
+		MapTurnsLoaderRoutine (full_path);
 	}
 	
 	private void MapLoaderRoutine (string full_path) {
@@ -45,7 +45,7 @@ public class MapLoader {
 		// Serializer
 		XmlSerializer serial = new XmlSerializer(typeof(xml_Graphml));
 		Stream reader = new FileStream(full_path,FileMode.Open);
-		xml_graphml = (xml_Graphml)serial.Deserialize(reader);
+		xml_Graphml xml_graphml = (xml_Graphml)serial.Deserialize(reader);
 		
 		RoadMap.setMapName(xml_graphml.xml_Graphs[0].ID);
 		
@@ -178,6 +178,24 @@ public class MapLoader {
 		
 	} // private void MapLoaderRoutine (string full_path)
 	
+	private void MapTurnsLoaderRoutine (string full_path)
+	{
+		// Serializer
+		XmlSerializer serial = new XmlSerializer(typeof(xml_Graphml));
+		Stream reader = new FileStream(full_path,FileMode.Open);
+		xml_Graphml xml_graphml = (xml_Graphml)serial.Deserialize(reader);
+		
+		// Process the edges of the graph. The nodes are not necessary.
+		
+		foreach (xml_Edge e in xml_graphml.xml_Graphs[0].xml_Edges)
+		{
+			string turn_start = e.src_ID;
+			string turn_end = e.des_ID;
+			
+			SaveTurn (turn_start, turn_end);
+		}
+	}
+	
 	private void SaveNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type) {
 		
 		if (node_type == NodeType.Intersection) {
@@ -190,6 +208,11 @@ public class MapLoader {
 	
 	private void SaveEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src) {
 		RoadMap.addEdge (id, source_id, destination_id, name, src_des, des_src);
+	}
+	
+	private void SaveTurn (string turn_start, string turn_end)
+	{
+		RoadMap.addTurn(turn_start, turn_end);
 	}
 	
 	private NodeType stringToNodeType (string s) {

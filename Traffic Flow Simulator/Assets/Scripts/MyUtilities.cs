@@ -87,4 +87,49 @@ public static class MyUtilities : object
 		}
 		return null;
 	}
+	
+	/**
+	 * @brief Gets the first child in hierarchy with str in its name from the parent GameObject;
+	 * @param[in] str The substring to search.
+	 * @param[in] parent The parent.
+	 */
+	public static GameObject getGameObjectWithNameInHierarchy (string str, GameObject parent)
+	{
+		foreach (Transform child in parent.transform)
+		{
+			if (child.gameObject.name.Contains(str))
+			{
+				return child.gameObject;
+			}
+			else
+			{
+				GameObject g = getGameObjectWithNameInHierarchy(str, child.gameObject);
+				
+				if (g != null)
+				{
+					return g;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static void splitTurnPointID (string str, out string edgeID, out DirectionType direction, out int lane_order)
+	{
+		int i;
+		
+		if (str.Contains("_src_des_"))
+		{
+			i = str.IndexOf("_src_des_");
+			direction = DirectionType.Source_Destination;
+		}
+		else
+		{
+			i = str.IndexOf("_des_src_");
+			direction = DirectionType.Destination_Source;
+		}
+		
+		edgeID = str.Substring(0,i);
+		lane_order = System.Convert.ToInt32(str.Substring(i+9,str.Length-(i+9)));
+	}
 }
