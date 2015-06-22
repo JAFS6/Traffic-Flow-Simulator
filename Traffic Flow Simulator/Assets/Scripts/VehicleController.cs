@@ -53,7 +53,7 @@ public class VehicleController : MonoBehaviour
 		if (outOfBounds())
 		{
 			Debug.LogWarning(vehicle_type.ToString()+" has reached map border.");
-			Destroy(this.gameObject);
+			destroyVehicle ();
 		}
 		else
 		{
@@ -77,13 +77,13 @@ public class VehicleController : MonoBehaviour
 				else if (target.GetComponent<GuideNode>().getGuideNodeType() == GuideNodeType.Lane_end)
 				{
 					Debug.LogWarning(vehicle_type.ToString()+" has reached node limit.");
-					Destroy(this.gameObject);
+					destroyVehicle ();
 				}
 				else
 				{
 					Debug.LogError(vehicle_type.ToString()+" destroyed due to null target. "+
 					"Last guideNode "+target.transform.parent.parent.name+"."+target.transform.parent.name+"."+target.name);
-					Destroy(this.gameObject);
+					destroyVehicle ();
 				}
 			}
 			
@@ -234,5 +234,11 @@ public class VehicleController : MonoBehaviour
 			}
 		}
 		return filtered;
+	}
+	
+	private void destroyVehicle ()
+	{
+		GameObject.Find("SimulationController").GetComponent<SimulationController>().vehicleDestroyed();
+		Destroy(this.gameObject);
 	}
 }
