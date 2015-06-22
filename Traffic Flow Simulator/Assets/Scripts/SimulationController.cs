@@ -14,6 +14,7 @@
 	limitations under the License.
 */
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Xml;
 using System.IO;
@@ -32,12 +33,14 @@ public class SimulationController : MonoBehaviour {
 	
 	// Control variables to instantiate vehicles
 	private Dictionary<string, EntryNodeInfo> entryNodes;
+	[SerializeField]
+	private GameObject maxVehicles_slider;
 
 	// Control variables predetermined positions of the camera
-	private GameObject main_camera;
-	private Vector3 initial_camera_position;
-	private Vector3 initial_camera_direction;
-	private Vector2[] node_positions;
+	private GameObject 	main_camera;
+	private Vector3 	initial_camera_position;
+	private Vector3 	initial_camera_direction;
+	private Vector2[] 	node_positions;
 
 	// Actions to take when the application starts
 	void Start () {
@@ -159,16 +162,37 @@ public class SimulationController : MonoBehaviour {
 		// Get the node ids
 		List<string> node_IDs = RoadMap.getNodeIDs();
 		
+		// Vehicles on simulation
+		int num_vehicles_running = 0;
+		int num_spawn_errors = 0;
+		int max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
+		
 		while (true)
-		{
-			if (!SimulationUIController.is_paused)
+		{	
+			Debug.Log("num_vehicles_running: " + (num_vehicles_running+1) + ", num_spawn_errors: " + (num_spawn_errors+1) + ", max_vehicles: "+ max_vehicles);
+			
+			while ( num_vehicles_running < max_vehicles )
 			{
-				foreach (string id in node_IDs)
+				Debug.Log("num_vehicles_running: " + (num_vehicles_running+1) + ", num_spawn_errors: " + (num_spawn_errors+1) + ", max_vehicles: "+ max_vehicles);
+				
+				if (!SimulationUIController.is_paused)
 				{
-					spawnVehicle (prefab[Random.Range(0,num_prefabs)], dir_prefab, id);
+					GameObject spawned_vehicle = spawnVehicle (prefab[Random.Range(0,num_prefabs)], dir_prefab, node_IDs[Random.Range(0,node_IDs.Count)]);
+					
+					if (spawned_vehicle != null)
+					{
+						num_vehicles_running++;
+					}
+					else
+					{
+						num_spawn_errors++;
+					}
 				}
+				yield return new WaitForSeconds(0.25f); // Time between spawns
+				max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
 			}
-			yield return new WaitForSeconds(5);
+			yield return new WaitForSeconds(1); // Time between attempts of spawn
+			max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
 		}
 	}
 
