@@ -30,7 +30,6 @@ public class SliderValue : MonoBehaviour {
 	
 	void Update ()
 	{
-		
 		string v_str;
 		
 		if (!isInt)
