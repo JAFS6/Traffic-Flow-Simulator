@@ -30,7 +30,7 @@ public class SimulationUIController : MonoBehaviour
 	[SerializeField]
 	private GameObject pause_panel;
 	[SerializeField]
-	private GameObject pause_hint;
+	private GameObject pause_button;
 	[SerializeField]
 	private GameObject roadNames_group;
 	[SerializeField]
@@ -51,9 +51,7 @@ public class SimulationUIController : MonoBehaviour
 		{
 			if (!is_paused) // Key ESC shows pause menu
 			{
-				is_paused = true;
-				hidePauseHint();
-				showPausePanel();
+				pauseSimulation ();
 			}
 			else if (is_paused) // Key ESC resumes simulation
 			{
@@ -87,12 +85,18 @@ public class SimulationUIController : MonoBehaviour
 		mapNameLabel.GetComponent<Text>().text = name;
 	}
 	
+	public void pauseSimulation ()
+	{
+		is_paused = true;
+		hidePauseButton();
+		showPausePanel();
+	}
+	
 	public void resumeSimulation ()
 	{
 		hidePausePanel();
-		showPauseHint();
+		showPauseButton();
 		is_paused = false;
-		Cursor.visible = true;
 	}
 	
 	public void backToMainMenu ()
@@ -126,14 +130,14 @@ public class SimulationUIController : MonoBehaviour
 		pause_panel.SetActive(false);
 	}
 	
-	private void showPauseHint ()
+	private void showPauseButton ()
 	{
-		pause_hint.SetActive(true);
+		pause_button.SetActive(true);
 	}
 	
-	private void hidePauseHint ()
+	private void hidePauseButton ()
 	{
-		pause_hint.SetActive(false);
+		pause_button.SetActive(false);
 	}
 	
 	private void load_roadName3D_prefab ()
