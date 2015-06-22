@@ -171,7 +171,7 @@ public class SimulationUIController : MonoBehaviour
 	 */
 	public void updateAverageDriversValue ()
 	{
-		updateDriversSliders (average_drivers_slider, good_drivers_slider, bad_drivers_slider);
+		updateDriversSliders (average_drivers_slider, bad_drivers_slider, good_drivers_slider);
 	}
 	
 	/**
