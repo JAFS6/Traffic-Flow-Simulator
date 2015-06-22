@@ -130,6 +130,9 @@ public class SimulationUIController : MonoBehaviour
 		}
 	}
 	
+	/**
+	 * @brief Updates second slider value accordingly with first, if second value reach 0, it updates third slider value.
+	 */
 	private void updateDriversSliders (GameObject first, GameObject second, GameObject third)
 	{
 		float first_value 	= first.GetComponent<Slider>().value;
@@ -155,21 +158,33 @@ public class SimulationUIController : MonoBehaviour
 		}
 	}
 	
+	/**
+	 * @brief Callback for good drivers slider.
+	 */
 	public void updateGoodDriversValue ()
 	{
 		updateDriversSliders (good_drivers_slider, average_drivers_slider, bad_drivers_slider);
 	}
 	
+	/**
+	 * @brief Callback for average drivers slider.
+	 */
 	public void updateAverageDriversValue ()
 	{
 		updateDriversSliders (average_drivers_slider, good_drivers_slider, bad_drivers_slider);
 	}
 	
+	/**
+	 * @brief Callback for bad drivers slider.
+	 */
 	public void updateBadDriversValue ()
 	{
 		updateDriversSliders (bad_drivers_slider, average_drivers_slider, good_drivers_slider);
 	}
 	
+	/**
+	 * @brief Callback for public vehicles slider.
+	 */
 	public void updatePublicVehiclesValue ()
 	{
 		float public_value  = public_vehicles_slider.GetComponent<Slider>().value;
@@ -183,6 +198,9 @@ public class SimulationUIController : MonoBehaviour
 		}
 	}
 	
+	/**
+	 * @brief Callback for private vehicles slider.
+	 */
 	public void updatePrivateVehiclesValue ()
 	{
 		float public_value  = public_vehicles_slider.GetComponent<Slider>().value;
