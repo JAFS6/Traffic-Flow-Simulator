@@ -187,12 +187,15 @@ public class MapLoader {
 		
 		// Process the edges of the graph. The nodes are not necessary.
 		
-		foreach (xml_Edge e in xml_graphml.xml_Graphs[0].xml_Edges)
+		if (xml_graphml.xml_Graphs[0].xml_Edges != null)
 		{
-			string turn_start = e.src_ID;
-			string turn_end = e.des_ID;
-			
-			SaveTurn (turn_start, turn_end);
+			foreach (xml_Edge e in xml_graphml.xml_Graphs[0].xml_Edges)
+			{
+				string turn_start = e.src_ID;
+				string turn_end = e.des_ID;
+				
+				SaveTurn (turn_start, turn_end);
+			}
 		}
 	}
 	
