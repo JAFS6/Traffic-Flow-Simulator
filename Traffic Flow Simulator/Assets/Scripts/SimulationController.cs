@@ -35,6 +35,12 @@ public class SimulationController : MonoBehaviour {
 	private Dictionary<string, EntryNodeInfo> entryNodes;
 	[SerializeField]
 	private GameObject maxVehicles_slider;
+	[SerializeField]
+	private GameObject publicVehicles_slider;
+	[SerializeField]
+	private GameObject privateVehicles_slider;
+	private int max_vehicles;
+	private int num_spawn_errors = 0;
 
 	// Control variables predetermined positions of the camera
 	private GameObject 	main_camera;
@@ -43,7 +49,8 @@ public class SimulationController : MonoBehaviour {
 	private Vector2[] 	node_positions;
 	
 	// Vehicle on simulation counter
-	private int num_vehicles_running = 0;
+	private int num_private_vehicles_running = 0;
+	private int num_public_vehicles_running = 0;
 
 	// Actions to take when the application starts
 	void Start () {
@@ -142,9 +149,59 @@ public class SimulationController : MonoBehaviour {
 		}
 	}
 	
-	public void vehicleDestroyed ()
+	public void publicVehicleDestroyed ()
 	{
-		num_vehicles_running--;
+		num_public_vehicles_running--;
+	}
+	
+	public void privateVehicleDestroyed ()
+	{
+		num_private_vehicles_running--;
+	}
+	
+	private void updateMaxVehicles ()
+	{
+		max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
+	}
+	
+	private void selectPrefabToSpawn (int num_public_prefabs, int num_private_prefabs, out int selectedType, out int selectedPrefab)
+	{
+		int max_public_vehicles  = Mathf.FloorToInt((float)max_vehicles * (publicVehicles_slider.GetComponent<Slider>().value) );
+		int max_private_vehicles = Mathf.FloorToInt((float)max_vehicles * (privateVehicles_slider.GetComponent<Slider>().value) );
+		
+		int count_error = max_vehicles - max_public_vehicles - max_private_vehicles;
+		
+		if (count_error > 0)
+		{
+			max_private_vehicles += count_error;
+		}
+		
+		bool public_allowed  = (num_public_vehicles_running  < max_public_vehicles);
+		bool private_allowed = (num_private_vehicles_running < max_private_vehicles);
+		
+		if (public_allowed && private_allowed)
+		{
+			selectedType = Random.Range(0,2);
+			
+			if (selectedType == 0) 	// Public
+			{
+				selectedPrefab = Random.Range(0,num_public_prefabs);
+			}
+			else					// Private
+			{
+				selectedPrefab = Random.Range(0,num_private_prefabs);
+			}
+		}
+		else if (public_allowed)
+		{
+			selectedType = 0;
+			selectedPrefab = Random.Range(0,num_public_prefabs);
+		}
+		else
+		{
+			selectedType = 1;
+			selectedPrefab = Random.Range(0,num_private_prefabs);
+		}
 	}
 
 	private IEnumerator spawnVehicles ()
@@ -158,37 +215,47 @@ public class SimulationController : MonoBehaviour {
 		GameObject Taxi_prefab 				= Resources.Load("Prefabs/Vehicles/Checker_Marathon", typeof(GameObject)) as GameObject;
 		Vector2 dir_prefab = new Vector3 (0,1);
 		
-		int num_prefabs = 6;
-		GameObject [] prefab = new GameObject[num_prefabs];
-		prefab[0] = Chevrolet_Camaro_prefab;
-		prefab[1] = green_jeep_prefab;
-		prefab[2] = orange_jeep_prefab;
-		prefab[3] = bus_prefab;
-		prefab[4] = truck1_prefab;
-		prefab[5] = Taxi_prefab;
+		int num_public_prefabs = 2;
+		int num_private_prefabs = 4;
+		GameObject [,] prefab = new GameObject[2,4];
+		prefab[0,0] = bus_prefab;
+		prefab[0,1] = Taxi_prefab;
+		prefab[1,0] = Chevrolet_Camaro_prefab;
+		prefab[1,1] = green_jeep_prefab;
+		prefab[1,2] = orange_jeep_prefab;
+		prefab[1,3] = truck1_prefab;
 		
 		// Get the node ids
 		List<string> node_IDs = RoadMap.getNodeIDs();
 		
-		// Vehicles on simulation
-		int num_spawn_errors = 0;
-		int max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
+		updateMaxVehicles ();
 		
 		while (true)
 		{	
-			Debug.Log("Vehicles: " + num_vehicles_running + " / " + max_vehicles + " --- Spawn errors: " + num_spawn_errors);
+			debugMessage ();
 			
-			while ( num_vehicles_running < max_vehicles )
+			while ( (num_public_vehicles_running + num_private_vehicles_running) < max_vehicles )
 			{
-				Debug.Log("Vehicles: " + num_vehicles_running + " / " + max_vehicles + " --- Spawn errors: " + num_spawn_errors);
+				debugMessage ();
 				
 				if (!SimulationUIController.is_paused)
 				{
-					GameObject spawned_vehicle = spawnVehicle (prefab[Random.Range(0,num_prefabs)], dir_prefab, node_IDs[Random.Range(0,node_IDs.Count)]);
+					int selectedType, selectedPrefab;
+					selectPrefabToSpawn (num_public_prefabs, num_private_prefabs, out selectedType, out selectedPrefab);
+					GameObject spawned_vehicle = spawnVehicle (prefab[selectedType,selectedPrefab], dir_prefab, node_IDs[Random.Range(0,node_IDs.Count)]);
 					
 					if (spawned_vehicle != null)
 					{
-						num_vehicles_running++;
+						TransportType v_tt = spawned_vehicle.GetComponent<VehicleController>().getTransportType();
+						
+						if (v_tt == TransportType.Public)
+						{
+							num_public_vehicles_running++;
+						}
+						else
+						{
+							num_private_vehicles_running++;
+						}
 					}
 					else
 					{
@@ -196,11 +263,20 @@ public class SimulationController : MonoBehaviour {
 					}
 				}
 				yield return new WaitForSeconds(0.1f); // Time between spawns
-				max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
+				updateMaxVehicles ();
 			}
 			yield return new WaitForSeconds(1); // Time between attempts of spawn
-			max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
+			updateMaxVehicles ();
 		}
+	}
+	
+	private void debugMessage ()
+	{
+		Debug.Log("Vehicles: Public (" +
+		          num_public_vehicles_running + ") + Private (" +
+		          num_private_vehicles_running+ ") = " + 
+		          (num_public_vehicles_running + num_private_vehicles_running) + " / " +
+		          max_vehicles + " --- Spawn errors: " + num_spawn_errors);
 	}
 
 	/**

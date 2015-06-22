@@ -238,7 +238,16 @@ public class VehicleController : MonoBehaviour
 	
 	private void destroyVehicle ()
 	{
-		GameObject.Find("SimulationController").GetComponent<SimulationController>().vehicleDestroyed();
+		GameObject SimCtrl = GameObject.Find("SimulationController");
+		
+		if (this.transport_type == TransportType.Public)
+		{
+			SimCtrl.GetComponent<SimulationController>().publicVehicleDestroyed();
+		}
+		else
+		{
+			SimCtrl.GetComponent<SimulationController>().privateVehicleDestroyed();
+		}
 		Destroy(this.gameObject);
 	}
 }
