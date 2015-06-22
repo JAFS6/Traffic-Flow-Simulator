@@ -60,7 +60,7 @@ public class VehicleController : MonoBehaviour
 			if (onTarget())
 			{
 				// Choose target randomly between the candidates
-				List<GameObject> candidates = target.GetComponent<GuideNode>().getNextGuideNodes();
+				List<GameObject> candidates = selectPosibleNextGuideNodes ();
 				GameObject next_target = null;
 				
 				if (candidates.Count > 0)
@@ -212,5 +212,27 @@ public class VehicleController : MonoBehaviour
 		target_distance = newDistance;
 		
 		return isOnTarget;
+	}
+	
+	/**
+	 * @brief Gets the list of next guide nodes for the current target and returns those ones who match vehicle transport type.
+	 * @return The filtered list.
+	 */
+	private List<GameObject> selectPosibleNextGuideNodes ()
+	{
+		List<GameObject> candidates = target.GetComponent<GuideNode>().getNextGuideNodes();
+		List<GameObject> filtered = new List<GameObject>();
+		
+		foreach (GameObject candidate in candidates)
+		{
+			TransportType candidate_tt = candidate.GetComponent<GuideNode>().getGuideNodeTransportType();
+			
+			if ((this.transport_type == TransportType.Public) || 
+			    (this.transport_type == TransportType.Private && (candidate_tt == TransportType.Private || candidate_tt == TransportType.PublicAndPrivate)))
+			{
+				filtered.Add(candidate);
+			}
+		}
+		return filtered;
 	}
 }
