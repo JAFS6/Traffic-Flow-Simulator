@@ -468,4 +468,25 @@ public static class MyMathClass : object {
 		
 		return intersection_point;
 	}
+	
+	/**
+	 * @brief Clamps the value passed as an argument to the interval [min,max]
+	 * @param[in] number The number to clamp.
+	 * @param[in] min The minimum value of the interval.
+	 * @param[in] max The maximum value of the interval.
+	 * @return min if the numer is under the mimimum value, max if the numer is over the maximum value,
+	 * or the number if it is on the interval.
+	 */
+	public static float clampTo (float number, float min, float max)
+	{
+		if (number < min)
+		{
+			return min;
+		}
+		if (number > max)
+		{
+			return max;
+		}
+		return number;
+	}
 }

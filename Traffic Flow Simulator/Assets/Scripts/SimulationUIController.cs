@@ -35,6 +35,16 @@ public class SimulationUIController : MonoBehaviour
 	private GameObject roadNames_group;
 	[SerializeField]
 	private GameObject roadNames_toggle;
+	[SerializeField]
+	private GameObject good_drivers_slider;
+	[SerializeField]
+	private GameObject average_drivers_slider;
+	[SerializeField]
+	private GameObject bad_drivers_slider;
+	[SerializeField]
+	private GameObject public_vehicles_slider;
+	[SerializeField]
+	private GameObject private_vehicles_slider;
 	
 	// Prefabs
 	private static GameObject roadName3D_prefab;
@@ -117,6 +127,90 @@ public class SimulationUIController : MonoBehaviour
 		else
 		{
 			showRoadNames ();
+		}
+	}
+	
+	/**
+	 * @brief Updates second slider value accordingly with first, if second value reach 0, it updates third slider value.
+	 */
+	private void updateDriversSliders (GameObject first, GameObject second, GameObject third)
+	{
+		float first_value 	= first.GetComponent<Slider>().value;
+		float second_value 	= second.GetComponent<Slider>().value;
+		float third_value 	= third.GetComponent<Slider>().value;
+		
+		float new_second_value = 1 - first_value - third_value;
+		
+		if (new_second_value < 0)
+		{
+			float new_third_value = 1 - first_value - Mathf.Abs(new_second_value);
+			new_second_value = 0;
+			
+			if (third_value != new_third_value)
+			{
+				third.GetComponent<Slider>().value = new_third_value;
+			}
+		}
+		
+		if (second_value != new_second_value)
+		{
+			second.GetComponent<Slider>().value = new_second_value;
+		}
+	}
+	
+	/**
+	 * @brief Callback for good drivers slider.
+	 */
+	public void updateGoodDriversValue ()
+	{
+		updateDriversSliders (good_drivers_slider, average_drivers_slider, bad_drivers_slider);
+	}
+	
+	/**
+	 * @brief Callback for average drivers slider.
+	 */
+	public void updateAverageDriversValue ()
+	{
+		updateDriversSliders (average_drivers_slider, bad_drivers_slider, good_drivers_slider);
+	}
+	
+	/**
+	 * @brief Callback for bad drivers slider.
+	 */
+	public void updateBadDriversValue ()
+	{
+		updateDriversSliders (bad_drivers_slider, average_drivers_slider, good_drivers_slider);
+	}
+	
+	/**
+	 * @brief Callback for public vehicles slider.
+	 */
+	public void updatePublicVehiclesValue ()
+	{
+		float public_value  = public_vehicles_slider.GetComponent<Slider>().value;
+		float private_value = private_vehicles_slider.GetComponent<Slider>().value;
+		
+		float new_private_value = 1 - public_value;
+		
+		if (private_value != new_private_value)
+		{
+			private_vehicles_slider.GetComponent<Slider>().value = new_private_value;
+		}
+	}
+	
+	/**
+	 * @brief Callback for private vehicles slider.
+	 */
+	public void updatePrivateVehiclesValue ()
+	{
+		float public_value  = public_vehicles_slider.GetComponent<Slider>().value;
+		float private_value = private_vehicles_slider.GetComponent<Slider>().value;
+		
+		float new_public_value = 1 - private_value;
+		
+		if (public_value != new_public_value)
+		{
+			public_vehicles_slider.GetComponent<Slider>().value = new_public_value;
 		}
 	}
 	
