@@ -41,6 +41,9 @@ public class SimulationController : MonoBehaviour {
 	private Vector3 	initial_camera_position;
 	private Vector3 	initial_camera_direction;
 	private Vector2[] 	node_positions;
+	
+	// Vehicle on simulation counter
+	private int num_vehicles_running = 0;
 
 	// Actions to take when the application starts
 	void Start () {
@@ -138,6 +141,11 @@ public class SimulationController : MonoBehaviour {
 			}
 		}
 	}
+	
+	public void vehicleDestroyed ()
+	{
+		num_vehicles_running--;
+	}
 
 	private IEnumerator spawnVehicles ()
 	{
@@ -163,17 +171,16 @@ public class SimulationController : MonoBehaviour {
 		List<string> node_IDs = RoadMap.getNodeIDs();
 		
 		// Vehicles on simulation
-		int num_vehicles_running = 0;
 		int num_spawn_errors = 0;
 		int max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
 		
 		while (true)
 		{	
-			Debug.Log("num_vehicles_running: " + (num_vehicles_running+1) + ", num_spawn_errors: " + (num_spawn_errors+1) + ", max_vehicles: "+ max_vehicles);
+			Debug.Log("Vehicles: " + num_vehicles_running + " / " + max_vehicles + " --- Spawn errors: " + num_spawn_errors);
 			
 			while ( num_vehicles_running < max_vehicles )
 			{
-				Debug.Log("num_vehicles_running: " + (num_vehicles_running+1) + ", num_spawn_errors: " + (num_spawn_errors+1) + ", max_vehicles: "+ max_vehicles);
+				Debug.Log("Vehicles: " + num_vehicles_running + " / " + max_vehicles + " --- Spawn errors: " + num_spawn_errors);
 				
 				if (!SimulationUIController.is_paused)
 				{
@@ -188,7 +195,7 @@ public class SimulationController : MonoBehaviour {
 						num_spawn_errors++;
 					}
 				}
-				yield return new WaitForSeconds(0.25f); // Time between spawns
+				yield return new WaitForSeconds(0.1f); // Time between spawns
 				max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
 			}
 			yield return new WaitForSeconds(1); // Time between attempts of spawn
