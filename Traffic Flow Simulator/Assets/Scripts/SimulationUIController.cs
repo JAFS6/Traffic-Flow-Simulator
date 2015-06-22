@@ -46,11 +46,6 @@ public class SimulationUIController : MonoBehaviour
 	[SerializeField]
 	private GameObject private_vehicles_slider;
 	
-	// Variables to save values between updates
-	private float good_drivers_old_value 	= 0.6f;
-	private float average_drivers_old_value = 0.35f;
-	private float bad_drivers_old_value 	= 0.05f;
-	
 	// Prefabs
 	private static GameObject roadName3D_prefab;
 	
@@ -135,65 +130,44 @@ public class SimulationUIController : MonoBehaviour
 		}
 	}
 	
+	private void updateDriversSliders (GameObject first, GameObject second, GameObject third)
+	{
+		float first_value 	= first.GetComponent<Slider>().value;
+		float second_value 	= second.GetComponent<Slider>().value;
+		float third_value 	= third.GetComponent<Slider>().value;
+		
+		float new_second_value = 1 - first_value - third_value;
+		
+		if (new_second_value < 0)
+		{
+			float new_third_value = 1 - first_value - Mathf.Abs(new_second_value);
+			new_second_value = 0;
+			
+			if (third_value != new_third_value)
+			{
+				third.GetComponent<Slider>().value = new_third_value;
+			}
+		}
+		
+		if (second_value != new_second_value)
+		{
+			second.GetComponent<Slider>().value = new_second_value;
+		}
+	}
+	
 	public void updateGoodDriversValue ()
 	{
-		float good_value 	= good_drivers_slider.GetComponent<Slider>().value;
-		float average_value = average_drivers_slider.GetComponent<Slider>().value;
-		float bad_value 	= bad_drivers_slider.GetComponent<Slider>().value;
-		
-		float d_good_value = good_value - good_drivers_old_value;
-		
-		float new_average_value = average_value + (d_good_value * 0.7f);
-		
-		if (average_value != new_average_value)
-		{
-			average_drivers_slider.GetComponent<Slider>().value = new_average_value;
-		}
-		
-		float new_bad_value = bad_value + (d_good_value * 0.3f);
-		
-		if (bad_value != new_bad_value)
-		{
-			bad_drivers_slider.GetComponent<Slider>().value = new_bad_value;
-		}
-		
-		good_drivers_old_value = good_value;
+		updateDriversSliders (good_drivers_slider, average_drivers_slider, bad_drivers_slider);
 	}
 	
 	public void updateAverageDriversValue ()
 	{
-		float good_value 	= good_drivers_slider.GetComponent<Slider>().value;
-		float average_value = average_drivers_slider.GetComponent<Slider>().value;
-		float bad_value 	= bad_drivers_slider.GetComponent<Slider>().value;
-		
-		float d_average_value = average_value - average_drivers_old_value;
-		
-		float new_good_value = good_value + (d_average_value * 0.7f);
-		
-		if (good_value != new_good_value)
-		{
-			good_drivers_slider.GetComponent<Slider>().value = new_good_value;
-		}
-		
-		float new_bad_value = bad_value + (d_average_value * 0.3f);
-		
-		if (bad_value != new_bad_value)
-		{
-			bad_drivers_slider.GetComponent<Slider>().value = new_bad_value;
-		}
-		
-		average_drivers_old_value = average_value;
+		updateDriversSliders (average_drivers_slider, good_drivers_slider, bad_drivers_slider);
 	}
 	
 	public void updateBadDriversValue ()
 	{
-		float good_value 	= good_drivers_slider.GetComponent<Slider>().value;
-		float average_value = average_drivers_slider.GetComponent<Slider>().value;
-		float bad_value 	= bad_drivers_slider.GetComponent<Slider>().value;
-		
-		
-		
-		bad_drivers_old_value = bad_value;
+		updateDriversSliders (bad_drivers_slider, average_drivers_slider, good_drivers_slider);
 	}
 	
 	public void updatePublicVehiclesValue ()
