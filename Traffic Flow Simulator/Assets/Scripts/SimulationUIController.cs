@@ -35,6 +35,10 @@ public class SimulationUIController : MonoBehaviour
 	private GameObject roadNames_group;
 	[SerializeField]
 	private GameObject roadNames_toggle;
+	[SerializeField]
+	private GameObject public_vehicles_slider;
+	[SerializeField]
+	private GameObject private_vehicles_slider;
 	
 	// Prefabs
 	private static GameObject roadName3D_prefab;
@@ -117,6 +121,32 @@ public class SimulationUIController : MonoBehaviour
 		else
 		{
 			showRoadNames ();
+		}
+	}
+	
+	public void updatePublicVehiclesValue ()
+	{
+		float public_value  = public_vehicles_slider.GetComponent<Slider>().value;
+		float private_value = private_vehicles_slider.GetComponent<Slider>().value;
+		
+		float new_private_value = 1 - public_value;
+		
+		if (private_value != new_private_value)
+		{
+			private_vehicles_slider.GetComponent<Slider>().value = new_private_value;
+		}
+	}
+	
+	public void updatePrivateVehiclesValue ()
+	{
+		float public_value  = public_vehicles_slider.GetComponent<Slider>().value;
+		float private_value = private_vehicles_slider.GetComponent<Slider>().value;
+		
+		float new_public_value = 1 - private_value;
+		
+		if (public_value != new_public_value)
+		{
+			public_vehicles_slider.GetComponent<Slider>().value = new_public_value;
 		}
 	}
 	
