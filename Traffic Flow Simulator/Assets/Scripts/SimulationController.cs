@@ -310,13 +310,14 @@ public class SimulationController : MonoBehaviour {
 		if (candidates.Count > 0)
 		{
 			GameObject selected_guide_node = candidates[Random.Range(0,candidates.Count)];
+			Vector2 dir_road = RoadMap.entryOrientation(node_id);
+			Vector3 dir_road3D = new Vector3(dir_road.x,0,dir_road.y);
 			
-			Collider[] hitColliders = Physics.OverlapSphere(selected_guide_node.transform.position, Constants.lane_width/2, LayerMask.NameToLayer(Constants.Layer_Vehicles));
-			
-			if (hitColliders.Length == 0)
+			if (!Physics.CheckCapsule(selected_guide_node.transform.position - dir_road3D,
+			                         selected_guide_node.transform.position + dir_road3D,
+			                         Constants.lane_width,
+			                         1 << LayerMask.NameToLayer(Constants.Layer_Vehicles)))
 			{
-				Vector2 dir_road = RoadMap.entryOrientation(node_id);
-				Vector3 dir_road3D = new Vector3(dir_road.x,0,dir_road.y);
 				GameObject vehicle = GameObject.Instantiate (prefab, selected_guide_node.transform.position, Quaternion.LookRotation(dir_road3D)) as GameObject;
 				vehicle.tag = Constants.Tag_Vehicle;
 				vehicle.GetComponent<VehicleController>().setGuideNode(selected_guide_node);

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+	<key id="node_type" for="node" attr.name="Node_type" attr.type="int">
+		<default>1</default>
+	</key>
+	<key id="pos_x" for="node" attr.name="Coordinate_X" attr.type="double"/>
+	<key id="pos_y" for="node" attr.name="Coordinate_Y" attr.type="double"/>
+	<key id="crossing_type" for="node" attr.name="Crossing_type" attr.type="int">
+		<default>0</default>
+	</key>
+	<key id="road_name" for="edge" attr.name="Road_name" attr.type="string">
+		<default></default>
+	</key>
+	<key id="src_des" for="edge" attr.name="Lanes_on_source-destination_sense" attr.type="string">
+		<default>0</default>
+	</key>
+	<key id="des_src" for="edge" attr.name="Lanes_on_destination-source_sense" attr.type="string">
+		<default>0</default>
+	</key>
+	<graph id="SingleRoad" edgedefault="undirected">
+		<node id="n0">
+			<data key="node_type">1</data>
+			<data key="pos_x">0</data>
+			<data key="pos_y">500</data>
+		</node>
+		<node id="n1">
+			<data key="node_type">1</data>
+			<data key="pos_x">100</data>
+			<data key="pos_y">500</data>
+		</node>
+		<edge id="a0" source="n0" target="n1">
+			<data key="src_des">PNN</data>
+		</edge>
+	</graph>
+</graphml>
