@@ -28,6 +28,7 @@ public static class DrawEnviroment
 		GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
 		ground.name = Constants.Name_Ground;
 		ground.tag = Constants.Tag_Ground;
+		ground.layer = LayerMask.NameToLayer(Constants.Layer_Roads);
 		// Ground scale is divided by 10 because measurements of the plane are 10x10 in Unity
 		ground.transform.localScale = new Vector3((RoadMap.max_x-RoadMap.min_x)/10, 1, (RoadMap.max_z-RoadMap.min_z)/10);
 		ground.GetComponent<Renderer>().material = grass_material;

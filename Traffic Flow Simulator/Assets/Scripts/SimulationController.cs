@@ -225,9 +225,6 @@ public class SimulationController : MonoBehaviour {
 		prefab[1,2] = orange_jeep_prefab;
 		prefab[1,3] = truck1_prefab;
 		
-		// Get the node ids
-		List<string> node_IDs = RoadMap.getNodeIDs();
-		
 		updateMaxVehicles ();
 		
 		while (true)
@@ -242,7 +239,9 @@ public class SimulationController : MonoBehaviour {
 				{
 					int selectedType, selectedPrefab;
 					selectPrefabToSpawn (num_public_prefabs, num_private_prefabs, out selectedType, out selectedPrefab);
-					GameObject spawned_vehicle = spawnVehicle (prefab[selectedType,selectedPrefab], dir_prefab, node_IDs[Random.Range(0,node_IDs.Count)]);
+					GameObject selected_prefab = prefab[selectedType,selectedPrefab];
+					List<string> candidates = selectCandidateNodesToSpawn (selected_prefab.GetComponent<VehicleController>().getTransportType());
+					GameObject spawned_vehicle = spawnVehicle (selected_prefab, dir_prefab, candidates[Random.Range(0,candidates.Count)]);
 					
 					if (spawned_vehicle != null)
 					{
@@ -290,52 +289,69 @@ public class SimulationController : MonoBehaviour {
 	 */
 	private GameObject spawnVehicle (GameObject prefab, Vector2 prefab_orientation, string node_id)
 	{
-		NodeType node_type = RoadMap.getNodeType (node_id);
-		TransportType valid_transports_types;
-
-		if (RoadMap.existsNode(node_id) && node_type == NodeType.Limit && RoadMap.isEntryNode(node_id, out valid_transports_types))
+		TransportType vehicle_tt = prefab.GetComponent<VehicleController>().getTransportType();
+		
+		// Get the entry points to the lanes
+		List<GameObject> startPoints = RoadMap.getLaneStartPoints(node_id);
+		
+		// Select the lane it will enter
+		// If there are multiple lanes of the required type, select randomly
+		List<GameObject> candidates = new List<GameObject>();
+		
+		foreach (GameObject point in startPoints)
 		{
-			// Get the type of vehicle
-			TransportType vehicle_tt = prefab.GetComponent<VehicleController>().getTransportType();
-			
-			// Check if it can instantiate the vehicle due to their type
-			if (valid_transports_types == vehicle_tt || valid_transports_types == TransportType.PublicAndPrivate)
+			if ((point.name.Contains(Constants.Lane_Name_Public) && vehicle_tt == TransportType.Public) || 
+			    (point.name.Contains(Constants.Lane_Name_Normal) && vehicle_tt == TransportType.Private))
 			{
-				// Get the entry points to the lanes
-				List<GameObject> startPoints = RoadMap.getLaneStartPoints(node_id);
-				
-				// Select the lane it will enter
-				// If there are multiple lanes of the required type, select randomly
-				List<GameObject> candidates = new List<GameObject>();
-				
-				foreach (GameObject point in startPoints)
-				{
-					if ((point.name.Contains(Constants.Lane_Name_Public) && vehicle_tt == TransportType.Public) || 
-					    (point.name.Contains(Constants.Lane_Name_Normal) && vehicle_tt == TransportType.Private))
-					{
-						candidates.Add (point);
-					}
-				}
-				
-				if (candidates.Count > 0)
-				{
-					GameObject selected_guide_node = candidates[Random.Range(0,candidates.Count)];
-					Vector2 dir_road = RoadMap.entryOrientation(node_id);
-					Vector3 dir_road3D = new Vector3(dir_road.x,0,dir_road.y);
-					GameObject vehicle = GameObject.Instantiate (prefab, selected_guide_node.transform.position, Quaternion.LookRotation(dir_road3D)) as GameObject;
-					vehicle.tag = Constants.Tag_Vehicle;
-					vehicle.GetComponent<VehicleController>().setGuideNode(selected_guide_node);
-					MyUtilities.MoveToLayer(vehicle.transform,LayerMask.NameToLayer(Constants.Layer_Vehicles));
-					return vehicle;
-				}
-				else
-				{
-					Debug.LogWarning("There are no candidates for spawn vehicle.");
-					return null;
-				}
+				candidates.Add (point);
 			}
-			else { return null; }
 		}
-		return null;
+		
+		if (candidates.Count > 0)
+		{
+			GameObject selected_guide_node = candidates[Random.Range(0,candidates.Count)];
+			Vector2 dir_road = RoadMap.entryOrientation(node_id);
+			Vector3 dir_road3D = new Vector3(dir_road.x,0,dir_road.y);
+			
+			Vector3 outPosition = selected_guide_node.transform.position - (dir_road3D * 3f); // Position outside of the lane
+			Vector3 in_Position = selected_guide_node.transform.position + (dir_road3D * 5f); // Position inside of the lane
+			
+			// Check if it is possible spawn the vehicle
+			if (!Physics.CheckCapsule(outPosition, in_Position, Constants.lane_width / 2, 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles)))
+			{
+				GameObject vehicle = GameObject.Instantiate (prefab, selected_guide_node.transform.position, Quaternion.LookRotation(dir_road3D)) as GameObject;
+				vehicle.tag = Constants.Tag_Vehicle;
+				vehicle.GetComponent<VehicleController>().setGuideNode(selected_guide_node);
+				vehicle.GetComponent<VehicleController>().setCurrentSpeed(Constants.urban_speed_limit);
+				MyUtilities.MoveToLayer(vehicle.transform,LayerMask.NameToLayer(Constants.Layer_Vehicles));
+				return vehicle;
+			}
+			else
+			{
+				Debug.LogWarning("Spawn point is occupied.");
+				return null;
+			}
+		}
+		else
+		{
+			Debug.LogWarning("There are no candidates for spawn vehicle.");
+			return null;
+		}
+	}
+	
+	private List<string> selectCandidateNodesToSpawn (TransportType vehicle_tt)
+	{
+		List<string> candidates = new List<string>();
+		
+		foreach (KeyValuePair<string,EntryNodeInfo> node in entryNodes)
+		{
+			TransportType node_tt = node.Value.tt;
+			
+			if (node_tt == TransportType.PublicAndPrivate || node_tt == vehicle_tt)
+			{
+				candidates.Add(node.Value.id);
+			}
+		}
+		return candidates;
 	}
 }
