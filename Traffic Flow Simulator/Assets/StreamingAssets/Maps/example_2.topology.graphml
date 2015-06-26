@@ -23,7 +23,7 @@ http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
 	<graph id="example_2" edgedefault="undirected">
 		<node id="n0">
 			<data key="node_type">2</data>
-			<data key="pos_x">510</data>
+			<data key="pos_x">500</data>
 			<data key="pos_y">600</data>
 		</node>
 		<node id="n1">
