@@ -313,14 +313,16 @@ public class SimulationController : MonoBehaviour {
 			Vector2 dir_road = RoadMap.entryOrientation(node_id);
 			Vector3 dir_road3D = new Vector3(dir_road.x,0,dir_road.y);
 			
-			if (!Physics.CheckCapsule(selected_guide_node.transform.position - dir_road3D,
-			                         selected_guide_node.transform.position + dir_road3D,
-			                         Constants.lane_width,
-			                         1 << LayerMask.NameToLayer(Constants.Layer_Vehicles)))
+			Vector3 outPosition = selected_guide_node.transform.position - (dir_road3D * 3f); // Position outside of the lane
+			Vector3 in_Position = selected_guide_node.transform.position + (dir_road3D * 5f); // Position inside of the lane
+			
+			// Check if it is possible spawn the vehicle
+			if (!Physics.CheckCapsule(outPosition, in_Position, Constants.lane_width / 2, 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles)))
 			{
 				GameObject vehicle = GameObject.Instantiate (prefab, selected_guide_node.transform.position, Quaternion.LookRotation(dir_road3D)) as GameObject;
 				vehicle.tag = Constants.Tag_Vehicle;
 				vehicle.GetComponent<VehicleController>().setGuideNode(selected_guide_node);
+				vehicle.GetComponent<VehicleController>().setCurrentSpeed(Constants.urban_speed_limit);
 				MyUtilities.MoveToLayer(vehicle.transform,LayerMask.NameToLayer(Constants.Layer_Vehicles));
 				return vehicle;
 			}

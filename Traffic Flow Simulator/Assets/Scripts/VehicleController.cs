@@ -28,6 +28,8 @@ public class VehicleController : MonoBehaviour
 	private  TransportType 	transport_type;		// Transport type
 	[SerializeField]
 	private  float 			acceleration = 0.1f;// Vehicle acceleration
+	[SerializeField]
+	private bool debug_stop = false;
 
 	// Control variables of the vehicle
 	private float 		current_speed; 				// Current speed in meters per second
@@ -40,12 +42,14 @@ public class VehicleController : MonoBehaviour
 	private Vector3 collision_ray_pos;
 	private Vector3 collision_ray_dir;
 	private RaycastHit collision_ray_hit;
+	private GameObject FrontDetection;
 	
 	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
 	
 	void Start ()
 	{
-		this.current_speed = Constants.urban_speed_limit;
+		this.current_speed = 0;
+		this.FrontDetection = this.transform.Find("FrontDetection").gameObject;
 	}
 	
 	void Update ()
@@ -89,18 +93,17 @@ public class VehicleController : MonoBehaviour
 			
 			if (!SimulationUIController.is_paused)
 			{
-				Debug.DrawLine(this.transform.position + new Vector3(0,0.5f,0), 
-				               (this.transform.position + (this.transform.forward * 6)) + new Vector3(0,0.5f,0), Color.magenta);
+				Debug.DrawLine(FrontDetection.transform.position + new Vector3(0,0.5f,0), 
+				              (FrontDetection.transform.position + (this.transform.forward * 6)) + new Vector3(0,0.5f,0), Color.magenta);
 				
 				// Colission
-				Vector3 collision_ray_pos = new Vector3 (this.transform.position.x,
-				                                         this.transform.position.y + 0.1f,
-				                                         this.transform.position.z);
+				Vector3 collision_ray_pos = new Vector3 (FrontDetection.transform.position.x,
+				                                         FrontDetection.transform.position.y + 0.1f,
+				                                         FrontDetection.transform.position.z);
 				Vector3 collision_ray_dir = new Vector3 ();
 				collision_ray_dir = Vector3.Normalize (this.transform.forward);
 				
-				// Collision ray check
-				// Vehicles layer
+				// Collision ray check on Vehicles layer
 				this.obstacle_detected = false;
 				
 				if (Physics.Raycast(collision_ray_pos,collision_ray_dir, out collision_ray_hit,sensor_length,vehicles_layer_mask))
@@ -115,7 +118,7 @@ public class VehicleController : MonoBehaviour
 				
 				if (!this.obstacle_detected)
 				{
-					// Increase speed
+					// Increase speed if the current speed is under the urban speed limit
 					if (this.current_speed < Constants.urban_speed_limit)
 					{
 						this.current_speed += acceleration * Time.deltaTime;
@@ -130,7 +133,7 @@ public class VehicleController : MonoBehaviour
 				{
 					if (this.current_speed > 0)
 					{
-						this.current_speed -= 2 * acceleration * Time.deltaTime;
+						this.current_speed -= (current_speed) * Time.deltaTime;
 						
 						if (this.current_speed < 0)
 						{
@@ -138,14 +141,25 @@ public class VehicleController : MonoBehaviour
 						}
 					}
 				}
+				if (!debug_stop)
+				{
 				// Movement
 				Vector3 position = this.transform.position;
 				position += this.transform.forward * this.current_speed * Time.deltaTime;
 				this.transform.position = position;
+				}
 				
 			} // End if (!SimulationUIController.is_paused)
 		}
 	} // End void Update
+	
+	public void OnTriggerEnter (Collider other)
+	{
+		if (other.gameObject.tag == Constants.Tag_Vehicle)
+		{
+			other.gameObject.GetComponent<VehicleController>().setCurrentSpeed(0f);
+		}
+	}
 	
 	/**
 	 * @brief Sets transport type.
@@ -158,11 +172,29 @@ public class VehicleController : MonoBehaviour
 	
 	/**
 	 * @brief Gets transport type.
-	 * @return The vehicle transport type.
+	 * @return The vehicle's transport type.
 	 */
 	public TransportType getTransportType ()
 	{
 		return this.transport_type;
+	}
+	
+	/**
+	 * @brief Sets the current speed.
+	 * @param[in] newSpeed The new current speed.
+	 */
+	public void setCurrentSpeed (float newSpeed)
+	{
+		this.current_speed = newSpeed;
+	}
+	
+	/**
+	 * @brief Gets the current speed.
+	 * @return The vehicle's current speed.
+	 */
+	public float getCurrentSpeed ()
+	{
+		return this.current_speed;
 	}
 	
 	/**
