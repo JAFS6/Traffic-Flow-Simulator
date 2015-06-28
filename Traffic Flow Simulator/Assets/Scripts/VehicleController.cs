@@ -36,6 +36,8 @@ public class VehicleController : MonoBehaviour
 	private GameObject 	target; 					// Current target GuideNode
 	private float 		target_distance;			// Last distance to target
 	private bool 		obstacle_detected = false;
+	public bool			crashed = false;
+	public float		crashTime;
 	
 	// Sensors (raycasting)
 	private const float sensor_length = 10f; // Sensor range
@@ -58,6 +60,15 @@ public class VehicleController : MonoBehaviour
 		{
 			Debug.LogWarning(vehicle_type.ToString()+" has reached map border.");
 			destroyVehicle ();
+		}
+		else if (this.crashed)
+		{
+			float now = Time.time;
+			
+			if (now - this.crashTime >= 5)
+			{
+				this.destroyVehicle();
+			}
 		}
 		else
 		{
@@ -141,12 +152,12 @@ public class VehicleController : MonoBehaviour
 						}
 					}
 				}
-				if (!debug_stop)
+				if (!debug_stop && !this.crashed)
 				{
-				// Movement
-				Vector3 position = this.transform.position;
-				position += this.transform.forward * this.current_speed * Time.deltaTime;
-				this.transform.position = position;
+					// Movement
+					Vector3 position = this.transform.position;
+					position += this.transform.forward * this.current_speed * Time.deltaTime;
+					this.transform.position = position;
 				}
 				
 			} // End if (!SimulationUIController.is_paused)
@@ -157,7 +168,13 @@ public class VehicleController : MonoBehaviour
 	{
 		if (other.gameObject.tag == Constants.Tag_Vehicle)
 		{
-			other.gameObject.GetComponent<VehicleController>().setCurrentSpeed(0f);
+			float crashTime_aux = Time.time;
+			other.gameObject.GetComponent<VehicleController>().crashed = true;
+			other.gameObject.GetComponent<VehicleController>().current_speed = 0f;
+			other.gameObject.GetComponent<VehicleController>().crashTime = crashTime_aux;
+			this.crashed = true;
+			this.current_speed = 0f;
+			this.crashTime = crashTime_aux;
 		}
 	}
 	
