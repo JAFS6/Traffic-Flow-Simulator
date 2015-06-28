@@ -111,16 +111,12 @@ public class VehicleController : MonoBehaviour
 				If the target is closer than sensor_lenght, check the next target if it exists. Only for continuation nodes.
 				The intersections will be regulated by semaphores.
 				*/
-				Vector3 source_ray_pos = new Vector3 (FrontDetection.transform.position.x, FrontDetection.transform.position.y + 0.1f, FrontDetection.transform.position.z);
-				Vector3 target_ray_pos = target.transform.position;
-				
-				// Collision ray check on Vehicles layer
 				this.obstacle_detected = false;
 				float distanceToObstacle = distanceToNextVehicle (sensor_lenght, this.transform.position, target, out collision_ray_hit);
 				
 				if (distanceToObstacle < sensor_lenght)
 				{
-					Debug.DrawLine(source_ray_pos, collision_ray_hit.point, Color.yellow);
+					Debug.DrawLine(this.transform.position + (Vector3.up * 0.1f), collision_ray_hit.point, Color.yellow);
 					
 					this.obstacle_detected = true;
 					this.maxSpeedAllowed = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
@@ -360,11 +356,13 @@ public class VehicleController : MonoBehaviour
 				
 				foreach (GameObject guideNode in nextGuideNodes)
 				{
-					float distanceToObstacle = PositionToTargetGuideNodeDist + distanceToNextVehicle (remainingSensorLenght, TargetGuideNode.transform.position, guideNode, out hit);
+					RaycastHit collision_ray_hit2;
+					float distanceToObstacle = PositionToTargetGuideNodeDist + distanceToNextVehicle (remainingSensorLenght, TargetGuideNode.transform.position, guideNode, out collision_ray_hit2);
 					
 					if (distanceToObstacle < min_distanceToObstacle)
 					{
 						min_distanceToObstacle = distanceToObstacle;
+						hit = collision_ray_hit2;
 					}
 				}
 			}
