@@ -29,6 +29,8 @@ public class VehicleController : MonoBehaviour
 	[SerializeField]
 	private  float 			acceleration = 0.1f;// Vehicle acceleration
 	[SerializeField]
+	private  float 			vehicleLength = 2f; // Lenght of this vehicle
+	[SerializeField]
 	private bool debug_stop = false;
 
 	// Control variables of the vehicle
@@ -46,6 +48,7 @@ public class VehicleController : MonoBehaviour
 	private RaycastHit collision_ray_hit;
 	private GameObject FrontDetection;
 	
+	private float maxSpeedAllowed;
 	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
 	
 	void Start ()
@@ -116,6 +119,7 @@ public class VehicleController : MonoBehaviour
 				
 				// Collision ray check on Vehicles layer
 				this.obstacle_detected = false;
+				float distanceToObstacle = 0f;
 				
 				if (Physics.Raycast(collision_ray_pos,collision_ray_dir, out collision_ray_hit,sensor_length,vehicles_layer_mask))
 				{
@@ -124,13 +128,29 @@ public class VehicleController : MonoBehaviour
 					if (collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
 					{
 						this.obstacle_detected = true;
+						this.maxSpeedAllowed = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
+						distanceToObstacle = MyMathClass.Distance(this.transform.position, collision_ray_hit.transform.position);
+						float otherVehicleLength = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getVehicleLength();
+						
+						if (distanceToObstacle - (otherVehicleLength/2) - (this.vehicleLength/2) > 1 && this.maxSpeedAllowed <= 0)
+						{
+							this.maxSpeedAllowed = 0.2f;
+						}
+						else
+						{
+							this.maxSpeedAllowed = 0f;
+						}
 					}
+				}
+				else
+				{
+					this.maxSpeedAllowed = Constants.urban_speed_limit;
 				}
 				
 				if (!this.obstacle_detected)
 				{
-					// Increase speed if the current speed is under the urban speed limit
-					if (this.current_speed < Constants.urban_speed_limit)
+					// Increase speed if the current speed is under the max speed
+					if (this.current_speed < this.maxSpeedAllowed)
 					{
 						this.current_speed += acceleration * Time.deltaTime;
 						
@@ -142,9 +162,9 @@ public class VehicleController : MonoBehaviour
 				}
 				else
 				{
-					if (this.current_speed > 0)
+					if (this.current_speed > this.maxSpeedAllowed)
 					{
-						this.current_speed -= (current_speed) * Time.deltaTime;
+						this.current_speed -= 10 * this.acceleration * Time.deltaTime;
 						
 						if (this.current_speed < 0)
 						{
@@ -152,6 +172,7 @@ public class VehicleController : MonoBehaviour
 						}
 					}
 				}
+				
 				if (!debug_stop && !this.crashed)
 				{
 					// Movement
@@ -212,6 +233,15 @@ public class VehicleController : MonoBehaviour
 	public float getCurrentSpeed ()
 	{
 		return this.current_speed;
+	}
+	
+	/**
+	 * @brief Gets the lenght of the vehicle.
+	 * @return The vehicle's lenght.
+	 */
+	public float getVehicleLength ()
+	{
+		return this.vehicleLength;
 	}
 	
 	/**
