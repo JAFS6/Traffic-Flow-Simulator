@@ -42,9 +42,7 @@ public class VehicleController : MonoBehaviour
 	public float		crashTime;
 	
 	// Sensors (raycasting)
-	private const float sensor_length = 10f; // Sensor range
-	private Vector3 collision_ray_pos;
-	private Vector3 collision_ray_dir;
+	private const float sensor_lenght = 10f;
 	private RaycastHit collision_ray_hit;
 	private GameObject FrontDetection;
 	
@@ -107,39 +105,57 @@ public class VehicleController : MonoBehaviour
 			
 			if (!SimulationUIController.is_paused)
 			{
-				Debug.DrawLine(FrontDetection.transform.position + new Vector3(0,0.5f,0), 
-				              (FrontDetection.transform.position + (this.transform.forward * 6)) + new Vector3(0,0.5f,0), Color.magenta);
-				
-				// Colission
-				Vector3 collision_ray_pos = new Vector3 (FrontDetection.transform.position.x,
-				                                         FrontDetection.transform.position.y + 0.1f,
-				                                         FrontDetection.transform.position.z);
-				Vector3 collision_ray_dir = new Vector3 ();
-				collision_ray_dir = Vector3.Normalize (this.transform.forward);
+				/*
+				Check if there are any object (vehicle) on vehicle's layer between this vehicle and the target
+				guide node at a distance from this vehicle lower than sensor_lenght.
+				If the target is closer than sensor_lenght, check the next target if it exists.
+				*/
+				Vector3 source_ray_pos = new Vector3 (FrontDetection.transform.position.x, FrontDetection.transform.position.y + 0.1f, FrontDetection.transform.position.z);
+				Vector3 target_ray_pos = target.transform.position;
 				
 				// Collision ray check on Vehicles layer
 				this.obstacle_detected = false;
 				float distanceToObstacle = 0f;
+				bool lineCastHit = Physics.Linecast (source_ray_pos, target_ray_pos, out collision_ray_hit, vehicles_layer_mask);
 				
-				if (Physics.Raycast(collision_ray_pos,collision_ray_dir, out collision_ray_hit,sensor_length,vehicles_layer_mask))
+				if (lineCastHit && collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
 				{
-					Debug.DrawLine(collision_ray_pos,collision_ray_hit.point,Color.yellow);
+					float otherVehicleLength = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getVehicleLength();
+					distanceToObstacle = MyMathClass.Distance(this.transform.position, collision_ray_hit.transform.position) - (otherVehicleLength / 2) - (this.vehicleLength / 2);
+				}
+				else
+				{
+					distanceToObstacle = 1000000; // Infinity
+				}
+				/*
+				float distance_source_ray_to_Target = MyMathClass.Distance(source_ray_pos, target_ray_pos);
+				List<string> next_guide_nodes = target.GetComponent<GuideNode>().getNextGuideNodes();
+				
+				if (distance_source_ray_to_Target < sensor_lenght && next_guide_nodes.Count > 0)
+				{
+					float remain_sensor_length = sensor_lenght - distance_source_ray_to_Target;
 					
-					if (collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
+					foreach (string next in next_guide_nodes)
 					{
-						this.obstacle_detected = true;
-						this.maxSpeedAllowed = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
-						distanceToObstacle = MyMathClass.Distance(this.transform.position, collision_ray_hit.transform.position);
-						float otherVehicleLength = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getVehicleLength();
-						
-						if (distanceToObstacle - (otherVehicleLength/2) - (this.vehicleLength/2) > 1 && this.maxSpeedAllowed <= 0)
-						{
-							this.maxSpeedAllowed = 0.2f;
-						}
-						else
-						{
-							this.maxSpeedAllowed = 0f;
-						}
+						lineCastHit = Physics.Linecast (source_ray_pos, target_ray_pos, out collision_ray_hit, vehicles_layer_mask);
+					}
+				}*/
+				
+				if (lineCastHit && distanceToObstacle < sensor_lenght)
+				{
+					Debug.DrawLine(source_ray_pos, collision_ray_hit.point, Color.yellow);
+					
+					this.obstacle_detected = true;
+					this.maxSpeedAllowed = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
+					
+					
+					if (distanceToObstacle > 1)
+					{
+						this.maxSpeedAllowed = 0.2f;
+					}
+					else
+					{
+						this.maxSpeedAllowed = 0f;
 					}
 				}
 				else
@@ -198,6 +214,20 @@ public class VehicleController : MonoBehaviour
 			this.crashTime = crashTime_aux;
 		}
 	}
+	/*
+	void OnCollisionEnter(Collision collision)
+	{
+		if (collision.gameObject.tag == Constants.Tag_Vehicle)
+		{
+			float crashTime_aux = Time.time;
+			collision.gameObject.GetComponent<VehicleController>().crashed = true;
+			collision.gameObject.GetComponent<VehicleController>().current_speed = 0f;
+			collision.gameObject.GetComponent<VehicleController>().crashTime = crashTime_aux;
+			this.crashed = true;
+			this.current_speed = 0f;
+			this.crashTime = crashTime_aux;
+		}
+	}*/
 	
 	/**
 	 * @brief Sets transport type.
