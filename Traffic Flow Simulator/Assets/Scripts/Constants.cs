@@ -169,5 +169,6 @@ public static class Constants : object {
 	#region Precision measures
 	public const float bezier_precision = 400f;
 	public const float Guide_Node_padding = 0.5f;
+	public const float infinite = 999999999;
 	#endregion
 }

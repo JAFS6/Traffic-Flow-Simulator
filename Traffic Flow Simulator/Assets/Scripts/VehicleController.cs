@@ -43,7 +43,6 @@ public class VehicleController : MonoBehaviour
 	
 	// Sensors (raycasting)
 	private const float sensor_lenght = 10f;
-	private RaycastHit collision_ray_hit;
 	private GameObject FrontDetection;
 	
 	private float maxSpeedAllowed;
@@ -105,43 +104,21 @@ public class VehicleController : MonoBehaviour
 			
 			if (!SimulationUIController.is_paused)
 			{
+				RaycastHit collision_ray_hit;
 				/*
 				Check if there are any object (vehicle) on vehicle's layer between this vehicle and the target
 				guide node at a distance from this vehicle lower than sensor_lenght.
-				If the target is closer than sensor_lenght, check the next target if it exists.
+				If the target is closer than sensor_lenght, check the next target if it exists. Only for continuation nodes.
+				The intersections will be regulated by semaphores.
 				*/
 				Vector3 source_ray_pos = new Vector3 (FrontDetection.transform.position.x, FrontDetection.transform.position.y + 0.1f, FrontDetection.transform.position.z);
 				Vector3 target_ray_pos = target.transform.position;
 				
 				// Collision ray check on Vehicles layer
 				this.obstacle_detected = false;
-				float distanceToObstacle = 0f;
-				bool lineCastHit = Physics.Linecast (source_ray_pos, target_ray_pos, out collision_ray_hit, vehicles_layer_mask);
+				float distanceToObstacle = distanceToNextVehicle (sensor_lenght, this.transform.position, target, out collision_ray_hit);
 				
-				if (lineCastHit && collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
-				{
-					float otherVehicleLength = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getVehicleLength();
-					distanceToObstacle = MyMathClass.Distance(this.transform.position, collision_ray_hit.transform.position) - (otherVehicleLength / 2) - (this.vehicleLength / 2);
-				}
-				else
-				{
-					distanceToObstacle = 1000000; // Infinity
-				}
-				/*
-				float distance_source_ray_to_Target = MyMathClass.Distance(source_ray_pos, target_ray_pos);
-				List<string> next_guide_nodes = target.GetComponent<GuideNode>().getNextGuideNodes();
-				
-				if (distance_source_ray_to_Target < sensor_lenght && next_guide_nodes.Count > 0)
-				{
-					float remain_sensor_length = sensor_lenght - distance_source_ray_to_Target;
-					
-					foreach (string next in next_guide_nodes)
-					{
-						lineCastHit = Physics.Linecast (source_ray_pos, target_ray_pos, out collision_ray_hit, vehicles_layer_mask);
-					}
-				}*/
-				
-				if (lineCastHit && distanceToObstacle < sensor_lenght)
+				if (distanceToObstacle < sensor_lenght)
 				{
 					Debug.DrawLine(source_ray_pos, collision_ray_hit.point, Color.yellow);
 					
@@ -358,5 +335,40 @@ public class VehicleController : MonoBehaviour
 			SimCtrl.GetComponent<SimulationController>().privateVehicleDestroyed();
 		}
 		Destroy(this.gameObject);
+	}
+	
+	private float distanceToNextVehicle (float sensorLenght, Vector3 position, GameObject TargetGuideNode, out RaycastHit hit)
+	{
+		float min_distanceToObstacle = Constants.infinite;
+		
+		RaycastHit collision_ray_hit;
+		bool lineCastHit = Physics.Linecast (position, TargetGuideNode.transform.position, out collision_ray_hit, vehicles_layer_mask);
+		
+		if (lineCastHit && collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
+		{
+			min_distanceToObstacle = collision_ray_hit.distance - (this.vehicleLength / 2);
+			hit = collision_ray_hit;
+		}
+		else
+		{
+			float PositionToTargetGuideNodeDist = MyMathClass.Distance(position, TargetGuideNode.transform.position);
+			
+			if (sensorLenght > PositionToTargetGuideNodeDist)
+			{
+				float remainingSensorLenght = sensorLenght - PositionToTargetGuideNodeDist;
+				List<GameObject> nextGuideNodes = TargetGuideNode.GetComponent<GuideNode>().getNextGuideNodes();
+				
+				foreach (GameObject guideNode in nextGuideNodes)
+				{
+					float distanceToObstacle = PositionToTargetGuideNodeDist + distanceToNextVehicle (remainingSensorLenght, TargetGuideNode.transform.position, guideNode, out hit);
+					
+					if (distanceToObstacle < min_distanceToObstacle)
+					{
+						min_distanceToObstacle = distanceToObstacle;
+					}
+				}
+			}
+		}
+		return min_distanceToObstacle;
 	}
 }
