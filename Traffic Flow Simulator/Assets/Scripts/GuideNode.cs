@@ -99,4 +99,9 @@ public class GuideNode : MonoBehaviour
 		
 		return ret;
 	}
+	
+	public int getNextGuideNodesCount ()
+	{
+		return next_GuideNodes.Count;
+	}
 }
