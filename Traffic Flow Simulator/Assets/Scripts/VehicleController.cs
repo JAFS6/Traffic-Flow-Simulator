@@ -108,15 +108,40 @@ public class VehicleController : MonoBehaviour
 				The intersections will be regulated by semaphores.
 				*/
 				this.obstacle_detected = false;
-				RaycastHit collision_ray_hit;
-				float distanceToObstacle = distanceToNextVehicle (this.vehicleLength, sensor_lenght, this.transform.position, target, out collision_ray_hit);
+				RaycastHit hit;
+				float distanceToObstacle = distanceToNextVehicle (this.vehicleLength, sensor_lenght, this.transform.position, target, out hit);
+				
+				RaycastHit forwardLeftRayHit;
+				RaycastHit forwardRightRayHit;
+				Vector3 frontPosition = this.transform.position + (this.transform.forward * (this.vehicleLength/2));
+				float rayDistance = 1.5f;
+				
+				if (Physics.Raycast(frontPosition + (Vector3.up * 0.2f), this.transform.forward + (-this.transform.right * 0.5f), out forwardLeftRayHit, rayDistance, Constants.vehicles_layer_mask))
+				{
+					if (forwardLeftRayHit.distance < distanceToObstacle)
+					{
+						distanceToObstacle = forwardLeftRayHit.distance;
+						hit = forwardLeftRayHit;
+						this.current_speed = 0;
+					}
+				}
+				
+				if (Physics.Raycast(frontPosition + (Vector3.up * 0.2f), this.transform.forward + ( this.transform.right * 0.5f), out forwardRightRayHit, rayDistance, Constants.vehicles_layer_mask))
+				{
+					if (forwardRightRayHit.distance < distanceToObstacle)
+					{
+						distanceToObstacle = forwardRightRayHit.distance;
+						hit = forwardRightRayHit;
+						this.current_speed = 0;
+					}
+				}
 				
 				if (distanceToObstacle < sensor_lenght)
 				{
-					Debug.DrawLine(this.transform.position + (Vector3.up * 0.2f), collision_ray_hit.point, Color.yellow);
+					Debug.DrawLine(this.transform.position + (Vector3.up * 0.2f), hit.point, Color.yellow);
 					
 					this.obstacle_detected = true;
-					this.maxSpeedAllowed = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
+					this.maxSpeedAllowed = hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
 					
 					
 					if (distanceToObstacle > 1)
