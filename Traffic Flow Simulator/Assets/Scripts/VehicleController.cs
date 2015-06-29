@@ -113,7 +113,7 @@ public class VehicleController : MonoBehaviour
 				
 				if (distanceToObstacle < sensor_lenght)
 				{
-					Debug.DrawLine(this.transform.position + (Vector3.up * 0.1f), collision_ray_hit.point, Color.yellow);
+					Debug.DrawLine(this.transform.position + (Vector3.up * 0.2f), collision_ray_hit.point, Color.yellow);
 					
 					this.obstacle_detected = true;
 					this.maxSpeedAllowed = collision_ray_hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
