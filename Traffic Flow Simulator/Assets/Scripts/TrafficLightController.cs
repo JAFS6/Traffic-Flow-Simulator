@@ -25,13 +25,13 @@ public class TrafficLightController : MonoBehaviour
 	[SerializeField]
 	private GameObject 	Light_Green;
 	[SerializeField]
-	private Texture		Texture_Red;
+	private Material	Material_Red;
 	[SerializeField]
-	private Texture		Texture_Orange;
+	private Material	Material_Orange;
 	[SerializeField]
-	private Texture		Texture_Green;
+	private Material	Material_Green;
 	[SerializeField]
-	private Texture		Texture_Inactive;
+	private Material	Material_Inactive;
 	
 	public void Start ()
 	{
@@ -40,16 +40,22 @@ public class TrafficLightController : MonoBehaviour
 	
 	public void setRed ()
 	{
-		
+		Light_Red.GetComponent<MeshRenderer>().material 	= Material_Red;
+		Light_Orange.GetComponent<MeshRenderer>().material 	= Material_Inactive;
+		Light_Green.GetComponent<MeshRenderer>().material 	= Material_Inactive;
 	}
 	
 	public void setOrange ()
 	{
-		
+		Light_Red.GetComponent<MeshRenderer>().material 	= Material_Inactive;
+		Light_Orange.GetComponent<MeshRenderer>().material 	= Material_Orange;
+		Light_Green.GetComponent<MeshRenderer>().material 	= Material_Inactive;
 	}
 	
 	public void setGreen ()
 	{
-		
+		Light_Red.GetComponent<MeshRenderer>().material 	= Material_Inactive;
+		Light_Orange.GetComponent<MeshRenderer>().material 	= Material_Inactive;
+		Light_Green.GetComponent<MeshRenderer>().material 	= Material_Green;
 	}
 }
