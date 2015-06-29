@@ -109,7 +109,7 @@ public class VehicleController : MonoBehaviour
 				*/
 				this.obstacle_detected = false;
 				RaycastHit collision_ray_hit;
-				float distanceToObstacle = distanceToNextVehicle (sensor_lenght, this.transform.position, target, out collision_ray_hit);
+				float distanceToObstacle = distanceToNextVehicle (this.vehicleLength, sensor_lenght, this.transform.position, target, out collision_ray_hit);
 				
 				if (distanceToObstacle < sensor_lenght)
 				{
@@ -335,7 +335,7 @@ public class VehicleController : MonoBehaviour
 		Destroy(this.gameObject);
 	}
 	
-	private float distanceToNextVehicle (float sensorLenght, Vector3 position, GameObject TargetGuideNode, out RaycastHit hit)
+	public static float distanceToNextVehicle (float vehicleLenght, float sensorLenght, Vector3 position, GameObject TargetGuideNode, out RaycastHit hit)
 	{
 		float min_distanceToObstacle = Constants.infinite;
 		
@@ -348,7 +348,7 @@ public class VehicleController : MonoBehaviour
 		
 		if (lineCastHit && collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
 		{
-			min_distanceToObstacle = collision_ray_hit.distance - (this.vehicleLength / 2);
+			min_distanceToObstacle = collision_ray_hit.distance - (vehicleLenght / 2);
 			hit = collision_ray_hit;
 		}
 		else
@@ -363,7 +363,7 @@ public class VehicleController : MonoBehaviour
 				foreach (GameObject guideNode in nextGuideNodes)
 				{
 					RaycastHit collision_ray_hit2;
-					float distanceToObstacle = PositionToTargetGuideNodeDist + distanceToNextVehicle (remainingSensorLenght, TargetGuideNode.transform.position, guideNode, out collision_ray_hit2);
+					float distanceToObstacle = PositionToTargetGuideNodeDist + distanceToNextVehicle (vehicleLenght, remainingSensorLenght, TargetGuideNode.transform.position, guideNode, out collision_ray_hit2);
 					
 					if (distanceToObstacle < min_distanceToObstacle)
 					{
