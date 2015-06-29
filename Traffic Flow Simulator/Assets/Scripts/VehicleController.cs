@@ -45,7 +45,6 @@ public class VehicleController : MonoBehaviour
 	private const float sensor_lenght = 10f;
 	
 	private float maxSpeedAllowed;
-	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
 	
 	void Start ()
 	{
@@ -339,7 +338,7 @@ public class VehicleController : MonoBehaviour
 		Vector3 p1 = new Vector3(position.x, 0.2f, position.z);
 		Vector3 p2 = new Vector3(TargetGuideNode.transform.position.x, 0.2f, TargetGuideNode.transform.position.z);
 		
-		bool lineCastHit = Physics.Linecast (p1, p2, out collision_ray_hit, vehicles_layer_mask);
+		bool lineCastHit = Physics.Linecast (p1, p2, out collision_ray_hit, Constants.vehicles_layer_mask);
 		hit = collision_ray_hit;
 		
 		if (lineCastHit && collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
