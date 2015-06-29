@@ -43,7 +43,6 @@ public class VehicleController : MonoBehaviour
 	
 	// Sensors (raycasting)
 	private const float sensor_lenght = 10f;
-	private GameObject FrontDetection;
 	
 	private float maxSpeedAllowed;
 	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
@@ -51,7 +50,6 @@ public class VehicleController : MonoBehaviour
 	void Start ()
 	{
 		this.current_speed = 0;
-		this.FrontDetection = this.transform.Find("FrontDetection").gameObject;
 	}
 	
 	void Update ()
@@ -338,7 +336,11 @@ public class VehicleController : MonoBehaviour
 		float min_distanceToObstacle = Constants.infinite;
 		
 		RaycastHit collision_ray_hit;
-		bool lineCastHit = Physics.Linecast (position, TargetGuideNode.transform.position, out collision_ray_hit, vehicles_layer_mask);
+		Vector3 p1 = new Vector3(position.x, 0.2f, position.z);
+		Vector3 p2 = new Vector3(TargetGuideNode.transform.position.x, 0.2f, TargetGuideNode.transform.position.z);
+		
+		bool lineCastHit = Physics.Linecast (p1, p2, out collision_ray_hit, vehicles_layer_mask);
+		hit = collision_ray_hit;
 		
 		if (lineCastHit && collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
 		{
