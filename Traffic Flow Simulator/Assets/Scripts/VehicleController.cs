@@ -29,6 +29,8 @@ public class VehicleController : MonoBehaviour
 	[SerializeField]
 	private  float 			acceleration = 0.1f;// Vehicle acceleration
 	[SerializeField]
+	private  float 			vehicleLength = 2f; // Lenght of this vehicle
+	[SerializeField]
 	private bool debug_stop = false;
 
 	// Control variables of the vehicle
@@ -36,20 +38,17 @@ public class VehicleController : MonoBehaviour
 	private GameObject 	target; 					// Current target GuideNode
 	private float 		target_distance;			// Last distance to target
 	private bool 		obstacle_detected = false;
+	public bool			crashed = false;
+	public float		crashTime;
 	
 	// Sensors (raycasting)
-	private const float sensor_length = 10f; // Sensor range
-	private Vector3 collision_ray_pos;
-	private Vector3 collision_ray_dir;
-	private RaycastHit collision_ray_hit;
-	private GameObject FrontDetection;
+	private const float sensor_lenght = 10f;
 	
-	private int vehicles_layer_mask = 1 << LayerMask.NameToLayer(Constants.Layer_Vehicles);
+	private float maxSpeedAllowed;
 	
 	void Start ()
 	{
 		this.current_speed = 0;
-		this.FrontDetection = this.transform.Find("FrontDetection").gameObject;
 	}
 	
 	void Update ()
@@ -58,6 +57,15 @@ public class VehicleController : MonoBehaviour
 		{
 			Debug.LogWarning(vehicle_type.ToString()+" has reached map border.");
 			destroyVehicle ();
+		}
+		else if (this.crashed)
+		{
+			float now = Time.time;
+			
+			if (now - this.crashTime >= 5)
+			{
+				this.destroyVehicle();
+			}
 		}
 		else
 		{
@@ -93,33 +101,67 @@ public class VehicleController : MonoBehaviour
 			
 			if (!SimulationUIController.is_paused)
 			{
-				Debug.DrawLine(FrontDetection.transform.position + new Vector3(0,0.5f,0), 
-				              (FrontDetection.transform.position + (this.transform.forward * 6)) + new Vector3(0,0.5f,0), Color.magenta);
-				
-				// Colission
-				Vector3 collision_ray_pos = new Vector3 (FrontDetection.transform.position.x,
-				                                         FrontDetection.transform.position.y + 0.1f,
-				                                         FrontDetection.transform.position.z);
-				Vector3 collision_ray_dir = new Vector3 ();
-				collision_ray_dir = Vector3.Normalize (this.transform.forward);
-				
-				// Collision ray check on Vehicles layer
+				/*
+				Check if there are any object (vehicle) on vehicle's layer between this vehicle and the target
+				guide node at a distance from this vehicle lower than sensor_lenght.
+				If the target is closer than sensor_lenght, check the next target if it exists. Only for continuation nodes.
+				The intersections will be regulated by semaphores.
+				*/
 				this.obstacle_detected = false;
+				RaycastHit hit;
+				float distanceToObstacle = distanceToNextVehicle (this.vehicleLength, sensor_lenght, this.transform.position, target, out hit);
 				
-				if (Physics.Raycast(collision_ray_pos,collision_ray_dir, out collision_ray_hit,sensor_length,vehicles_layer_mask))
+				RaycastHit forwardLeftRayHit;
+				RaycastHit forwardRightRayHit;
+				Vector3 frontPosition = this.transform.position + (this.transform.forward * (this.vehicleLength/2));
+				float rayDistance = 1.5f;
+				
+				if (Physics.Raycast(frontPosition + (Vector3.up * 0.2f), this.transform.forward + (-this.transform.right * 0.5f), out forwardLeftRayHit, rayDistance, Constants.vehicles_layer_mask))
 				{
-					Debug.DrawLine(collision_ray_pos,collision_ray_hit.point,Color.yellow);
-					
-					if (collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
+					if (forwardLeftRayHit.distance < distanceToObstacle)
 					{
-						this.obstacle_detected = true;
+						distanceToObstacle = forwardLeftRayHit.distance;
+						hit = forwardLeftRayHit;
+						this.current_speed = 0;
 					}
 				}
 				
-				if (!this.obstacle_detected)
+				if (Physics.Raycast(frontPosition + (Vector3.up * 0.2f), this.transform.forward + ( this.transform.right * 0.5f), out forwardRightRayHit, rayDistance, Constants.vehicles_layer_mask))
 				{
-					// Increase speed if the current speed is under the urban speed limit
-					if (this.current_speed < Constants.urban_speed_limit)
+					if (forwardRightRayHit.distance < distanceToObstacle)
+					{
+						distanceToObstacle = forwardRightRayHit.distance;
+						hit = forwardRightRayHit;
+						this.current_speed = 0;
+					}
+				}
+				
+				if (distanceToObstacle < sensor_lenght)
+				{
+					Debug.DrawLine(this.transform.position + (Vector3.up * 0.2f), hit.point, Color.yellow);
+					
+					this.obstacle_detected = true;
+					this.maxSpeedAllowed = hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
+					
+					
+					if (distanceToObstacle > 1)
+					{
+						this.maxSpeedAllowed = 1f;
+					}
+					else
+					{
+						this.maxSpeedAllowed = 0f;
+					}
+				}
+				else
+				{
+					this.maxSpeedAllowed = Constants.urban_speed_limit;
+				}
+				
+				if (!this.obstacle_detected || (this.obstacle_detected && this.current_speed < this.maxSpeedAllowed))
+				{
+					// Increase speed if the current speed is under the max speed
+					if (this.current_speed < this.maxSpeedAllowed)
 					{
 						this.current_speed += acceleration * Time.deltaTime;
 						
@@ -131,9 +173,9 @@ public class VehicleController : MonoBehaviour
 				}
 				else
 				{
-					if (this.current_speed > 0)
+					if (this.current_speed > this.maxSpeedAllowed)
 					{
-						this.current_speed -= (current_speed) * Time.deltaTime;
+						this.current_speed -= 10 * this.acceleration * Time.deltaTime;
 						
 						if (this.current_speed < 0)
 						{
@@ -141,12 +183,18 @@ public class VehicleController : MonoBehaviour
 						}
 					}
 				}
-				if (!debug_stop)
+				
+				if (debug_stop)
 				{
-				// Movement
-				Vector3 position = this.transform.position;
-				position += this.transform.forward * this.current_speed * Time.deltaTime;
-				this.transform.position = position;
+					this.current_speed = 0;
+				}
+				
+				if (!this.crashed)
+				{
+					// Movement
+					Vector3 position = this.transform.position;
+					position += this.transform.forward * this.current_speed * Time.deltaTime;
+					this.transform.position = position;
 				}
 				
 			} // End if (!SimulationUIController.is_paused)
@@ -157,9 +205,29 @@ public class VehicleController : MonoBehaviour
 	{
 		if (other.gameObject.tag == Constants.Tag_Vehicle)
 		{
-			other.gameObject.GetComponent<VehicleController>().setCurrentSpeed(0f);
+			float crashTime_aux = Time.time;
+			other.gameObject.GetComponent<VehicleController>().crashed = true;
+			other.gameObject.GetComponent<VehicleController>().current_speed = 0f;
+			other.gameObject.GetComponent<VehicleController>().crashTime = crashTime_aux;
+			this.crashed = true;
+			this.current_speed = 0f;
+			this.crashTime = crashTime_aux;
 		}
 	}
+	/*
+	void OnCollisionEnter(Collision collision)
+	{
+		if (collision.gameObject.tag == Constants.Tag_Vehicle)
+		{
+			float crashTime_aux = Time.time;
+			collision.gameObject.GetComponent<VehicleController>().crashed = true;
+			collision.gameObject.GetComponent<VehicleController>().current_speed = 0f;
+			collision.gameObject.GetComponent<VehicleController>().crashTime = crashTime_aux;
+			this.crashed = true;
+			this.current_speed = 0f;
+			this.crashTime = crashTime_aux;
+		}
+	}*/
 	
 	/**
 	 * @brief Sets transport type.
@@ -195,6 +263,15 @@ public class VehicleController : MonoBehaviour
 	public float getCurrentSpeed ()
 	{
 		return this.current_speed;
+	}
+	
+	/**
+	 * @brief Gets the lenght of the vehicle.
+	 * @return The vehicle's lenght.
+	 */
+	public float getVehicleLength ()
+	{
+		return this.vehicleLength;
 	}
 	
 	/**
@@ -281,5 +358,46 @@ public class VehicleController : MonoBehaviour
 			SimCtrl.GetComponent<SimulationController>().privateVehicleDestroyed();
 		}
 		Destroy(this.gameObject);
+	}
+	
+	public static float distanceToNextVehicle (float vehicleLenght, float sensorLenght, Vector3 position, GameObject TargetGuideNode, out RaycastHit hit)
+	{
+		float min_distanceToObstacle = Constants.infinite;
+		
+		RaycastHit collision_ray_hit;
+		Vector3 p1 = new Vector3(position.x, 0.2f, position.z);
+		Vector3 p2 = new Vector3(TargetGuideNode.transform.position.x, 0.2f, TargetGuideNode.transform.position.z);
+		
+		bool lineCastHit = Physics.Linecast (p1, p2, out collision_ray_hit, Constants.vehicles_layer_mask);
+		hit = collision_ray_hit;
+		
+		if (lineCastHit && collision_ray_hit.transform.tag == Constants.Tag_Vehicle)
+		{
+			min_distanceToObstacle = collision_ray_hit.distance - (vehicleLenght / 2);
+			hit = collision_ray_hit;
+		}
+		else
+		{
+			float PositionToTargetGuideNodeDist = MyMathClass.Distance(position, TargetGuideNode.transform.position);
+			
+			if (sensorLenght > PositionToTargetGuideNodeDist)
+			{
+				float remainingSensorLenght = sensorLenght - PositionToTargetGuideNodeDist;
+				List<GameObject> nextGuideNodes = TargetGuideNode.GetComponent<GuideNode>().getNextGuideNodes();
+				
+				foreach (GameObject guideNode in nextGuideNodes)
+				{
+					RaycastHit collision_ray_hit2;
+					float distanceToObstacle = PositionToTargetGuideNodeDist + distanceToNextVehicle (vehicleLenght, remainingSensorLenght, TargetGuideNode.transform.position, guideNode, out collision_ray_hit2);
+					
+					if (distanceToObstacle < min_distanceToObstacle)
+					{
+						min_distanceToObstacle = distanceToObstacle;
+						hit = collision_ray_hit2;
+					}
+				}
+			}
+		}
+		return min_distanceToObstacle;
 	}
 }
