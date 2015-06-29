@@ -121,7 +121,7 @@ public class VehicleController : MonoBehaviour
 					
 					if (distanceToObstacle > 1)
 					{
-						this.maxSpeedAllowed = 0.2f;
+						this.maxSpeedAllowed = 1f;
 					}
 					else
 					{
@@ -133,7 +133,7 @@ public class VehicleController : MonoBehaviour
 					this.maxSpeedAllowed = Constants.urban_speed_limit;
 				}
 				
-				if (!this.obstacle_detected)
+				if (!this.obstacle_detected || (this.obstacle_detected && this.current_speed < this.maxSpeedAllowed))
 				{
 					// Increase speed if the current speed is under the max speed
 					if (this.current_speed < this.maxSpeedAllowed)
