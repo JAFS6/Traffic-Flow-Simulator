@@ -115,7 +115,7 @@ public static class Constants : object {
 	#region Layers
 	public const string Layer_Roads = "Roads";
 	public const string Layer_Vehicles = "Vehicles";
-	public const int vehicles_layer_mask = 9;
+	public const int vehicles_layer_mask = 1 << 9;
 	#endregion
 	
 	#region Data strings

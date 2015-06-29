@@ -101,7 +101,6 @@ public class VehicleController : MonoBehaviour
 			
 			if (!SimulationUIController.is_paused)
 			{
-				RaycastHit collision_ray_hit;
 				/*
 				Check if there are any object (vehicle) on vehicle's layer between this vehicle and the target
 				guide node at a distance from this vehicle lower than sensor_lenght.
@@ -109,6 +108,7 @@ public class VehicleController : MonoBehaviour
 				The intersections will be regulated by semaphores.
 				*/
 				this.obstacle_detected = false;
+				RaycastHit collision_ray_hit;
 				float distanceToObstacle = distanceToNextVehicle (sensor_lenght, this.transform.position, target, out collision_ray_hit);
 				
 				if (distanceToObstacle < sensor_lenght)
@@ -159,7 +159,12 @@ public class VehicleController : MonoBehaviour
 					}
 				}
 				
-				if (!debug_stop && !this.crashed)
+				if (debug_stop)
+				{
+					this.current_speed = 0;
+				}
+				
+				if (!this.crashed)
 				{
 					// Movement
 					Vector3 position = this.transform.position;
