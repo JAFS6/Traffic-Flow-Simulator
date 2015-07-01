@@ -1152,19 +1152,35 @@ public static class RoadMap
 		#region Traffic lights
 		GameObject trafficLightPrefab = Resources.Load("Prefabs/RoadMarkings/TrafficLight", typeof(GameObject)) as GameObject;
 		
-		if (nodes[e.destination_id].node_type == NodeType.Intersection && e.src_des != Constants.String_No_Lane)
+		if (nodes[e.destination_id].node_type == NodeType.Intersection && lane_num_src_des > 0)
 		{
 			Vector3 tl_pos = new Vector3(  (e.width/2) - Constants.hard_shoulder_width/2, Constants.vehicles_Y_position,    half_length - 0.3f);
 			GameObject trafficLightObj = GameObject.Instantiate (trafficLightPrefab, tl_pos, Quaternion.Euler(0,180,0)) as GameObject;
 			trafficLightObj.transform.SetParent(edge_root.transform);
+			// Collider size
+			Vector3 collider_size = trafficLightObj.GetComponent<BoxCollider>().size;
+			collider_size.x = lane_num_src_des * (Constants.lane_width + Constants.line_width);
+			trafficLightObj.GetComponent<BoxCollider>().size = collider_size;
+			// Collider center
+			Vector3 collider_center = trafficLightObj.GetComponent<BoxCollider>().center;
+			collider_center.x += (collider_size.x/2) + (Constants.hard_shoulder_width/2);
+			trafficLightObj.GetComponent<BoxCollider>().center = collider_center;
 			addTrafficLight(e.destination_id, trafficLightObj);
 		}
 		
-		if (nodes[e.source_id].node_type == NodeType.Intersection && e.des_src != Constants.String_No_Lane)
+		if (nodes[e.source_id].node_type == NodeType.Intersection && lane_num_des_src > 0)
 		{
 			Vector3 tl_pos = new Vector3(-((e.width/2) - Constants.hard_shoulder_width/2), Constants.vehicles_Y_position, -(half_length - 0.3f));
 			GameObject trafficLightObj = GameObject.Instantiate (trafficLightPrefab, tl_pos, Quaternion.identity) as GameObject;
 			trafficLightObj.transform.SetParent(edge_root.transform);
+			// Collider size
+			Vector3 collider_size = trafficLightObj.GetComponent<BoxCollider>().size;
+			collider_size.x = lane_num_des_src * (Constants.lane_width + Constants.line_width);
+			trafficLightObj.GetComponent<BoxCollider>().size = collider_size;
+			// Collider center
+			Vector3 collider_center = trafficLightObj.GetComponent<BoxCollider>().center;
+			collider_center.x += (collider_size.x/2) + (Constants.hard_shoulder_width/2);
+			trafficLightObj.GetComponent<BoxCollider>().center = collider_center;
 			addTrafficLight(e.source_id, trafficLightObj);
 		}
 		#endregion
