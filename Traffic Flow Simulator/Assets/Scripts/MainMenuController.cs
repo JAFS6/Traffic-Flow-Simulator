@@ -23,6 +23,25 @@ public class MainMenuController : MonoBehaviour
 	[SerializeField]
 	private GameObject MapLoadButtons;
 	
+	private bool isQuiting = false;
+	
+	public void Update ()
+	{
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			exitApplication ();
+		}
+	}
+	
+	public void exitApplication ()
+	{
+		if (!isQuiting)
+		{
+			isQuiting = true;
+			Application.Quit();
+		}
+	}
+	
 	public void loadMap (string filename)
 	{
 		SimulationController.map_filename = filename;
@@ -63,10 +82,5 @@ public class MainMenuController : MonoBehaviour
 				i++;
 			}
 		}
-	}
-	
-	public void exitApplication ()
-	{
-		Application.Quit();
 	}
 }
