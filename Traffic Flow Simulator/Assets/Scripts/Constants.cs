@@ -110,6 +110,7 @@ public static class Constants : object {
 	public const string Tag_Lane_End_Point_Group 	= "LaneEndPointGroup";
 	public const string Tag_Vehicle = "Vehicle";
 	public const string Tag_Ground = "Ground";
+	public const string Tag_TrafficLight = "TrafficLight";
 	#endregion
 	
 	#region Layers

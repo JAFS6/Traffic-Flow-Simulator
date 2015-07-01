@@ -1118,7 +1118,7 @@ public static class RoadMap
 		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , edge_root, Constants.Tag_Lane_End_Point_Group);
 		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , edge_root, Constants.Tag_Lane_End_Point_Group);
 		
-		// Put as many start lane as lanes are.
+		// Put as many start lane and end lane as lanes are.
 		
 		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
 		{
@@ -1144,6 +1144,24 @@ public static class RoadMap
 				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 		}
+		
+		#region Traffic lights
+		GameObject trafficLightPrefab = Resources.Load("Prefabs/RoadMarkings/TrafficLight", typeof(GameObject)) as GameObject;
+		
+		if (nodes[e.destination_id].node_type == NodeType.Intersection && e.src_des != Constants.String_No_Lane)
+		{
+			Vector3 tl_pos = new Vector3(  (e.width/2) - Constants.hard_shoulder_width/2, Constants.vehicles_Y_position,    half_length - 0.3f);
+			GameObject trafficLightObj = GameObject.Instantiate (trafficLightPrefab, tl_pos, Quaternion.Euler(0,180,0)) as GameObject;
+			trafficLightObj.transform.SetParent(edge_root.transform);
+		}
+		
+		if (nodes[e.source_id].node_type == NodeType.Intersection && e.des_src != Constants.String_No_Lane)
+		{
+			Vector3 tl_pos = new Vector3(-((e.width/2) - Constants.hard_shoulder_width/2), Constants.vehicles_Y_position, -(half_length - 0.3f));
+			GameObject trafficLightObj = GameObject.Instantiate (trafficLightPrefab, tl_pos, Quaternion.identity) as GameObject;
+			trafficLightObj.transform.SetParent(edge_root.transform);
+		}
+		#endregion
 		
 		edge_root.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
 		edge_root.transform.position = e.fixed_position;
