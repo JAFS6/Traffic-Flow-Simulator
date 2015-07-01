@@ -173,4 +173,9 @@ public static class Constants : object {
 	public const float Guide_Node_padding = 0.5f;
 	public const float infinite = 999999999;
 	#endregion
+	
+	#region Traffic Light timing
+	public const float timeGreen  =  5f; // Time in seconds that the traffic light will stay green.
+	public const float timeOrange =  2f; // Time in seconds that the traffic light will stay orange.
+	#endregion
 }

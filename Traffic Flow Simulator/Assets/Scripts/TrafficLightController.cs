@@ -38,33 +38,53 @@ public class TrafficLightController : MonoBehaviour
 	private float		timeOrange			= 2f;	// Time in seconds that the traffic light will stay orange.
 	private float		timeRed				= 15f;	// Time in seconds that the traffic light will stay red.
 	
-	float TimeBeforeFirstGreen
+	public float getTimeBeforeFirstGreen ()
 	{
-		get { return this.timeBeforeFirstGreen; }
-		set { this.timeBeforeFirstGreen = value; }
+		return this.timeBeforeFirstGreen;
 	}
 	
-	float TimeGreen
+	public void setTimeBeforeFirstGreen (float value)
 	{
-		get { return this.timeGreen; }
-		set { this.timeGreen = value; }
+		this.timeBeforeFirstGreen = value;
+	}
+	
+	public float getTimeGreen ()
+	{
+		return this.timeGreen;
+	}
+	
+	public void setTimeGreen (float value)
+	{
+		this.timeGreen = value;
 	}
 
-	float TimeOrange
+	public float getTimeOrange ()
 	{
-		get { return this.timeOrange; }
-		set { this.timeOrange = value; }
+		return this.timeOrange;
+	}
+	
+	public void setTimeOrange (float value)
+	{
+		this.timeOrange = value;
 	}
 
-	float TimeRed
+	public float getTimeRed ()
 	{
-		get { return this.timeRed; }
-		set { this.timeRed = value; }
+		return this.timeRed;
+	}
+	
+	public void setTimeRed (float value)
+	{
+		this.timeRed = value;
 	}
 	
 	public void Start ()
 	{
 		setRed ();
+	}
+	
+	public void startCycle ()
+	{
 		StartCoroutine(cycle());
 	}
 	
