@@ -25,6 +25,7 @@ public static class RoadMap
 	private static Dictionary<string, Node> nodes;
 	private static Dictionary<string, Edge> edges;
 	private static Dictionary<string, AllowedDirections> allowedDirections;
+	private static Dictionary<string, List<GameObject> > groupedTrafficLights; // <intersection_node_id, List of traffic lights>
 	
 	public static float max_x,min_x,max_z,min_z; // Ground limits
 
@@ -34,6 +35,7 @@ public static class RoadMap
 		nodes = new Dictionary<string, Node> ();
 		edges = new Dictionary<string, Edge> ();
 		allowedDirections = new Dictionary<string, AllowedDirections> ();
+		groupedTrafficLights = new Dictionary<string, List<GameObject> >();
 	}
 	
 	/**
@@ -579,6 +581,8 @@ public static class RoadMap
 		}
 		// Connect guide nodes
 		connectGuideNodes ();
+		// Synchronize traffic lights
+		synchronizeTrafficLights ();
 	}
 	
 	/**
@@ -1118,7 +1122,7 @@ public static class RoadMap
 		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , edge_root, Constants.Tag_Lane_End_Point_Group);
 		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , edge_root, Constants.Tag_Lane_End_Point_Group);
 		
-		// Put as many start lane as lanes are.
+		// Put as many start lane and end lane as lanes are.
 		
 		for (int i=0; i < lane_num_src_des || i < lane_num_des_src; i++)
 		{
@@ -1144,6 +1148,42 @@ public static class RoadMap
 				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
 			}
 		}
+		
+		#region Traffic lights
+		GameObject trafficLightPrefab = Resources.Load("Prefabs/RoadMarkings/TrafficLight", typeof(GameObject)) as GameObject;
+		
+		if (nodes[e.destination_id].node_type == NodeType.Intersection && lane_num_src_des > 0)
+		{
+			Vector3 tl_pos = new Vector3(  (e.width/2) - Constants.hard_shoulder_width/2, Constants.vehicles_Y_position,    half_length - 0.3f);
+			GameObject trafficLightObj = GameObject.Instantiate (trafficLightPrefab, tl_pos, Quaternion.Euler(0,180,0)) as GameObject;
+			trafficLightObj.transform.SetParent(edge_root.transform);
+			// Collider size
+			Vector3 collider_size = trafficLightObj.GetComponent<BoxCollider>().size;
+			collider_size.x = lane_num_src_des * (Constants.lane_width + Constants.line_width);
+			trafficLightObj.GetComponent<BoxCollider>().size = collider_size;
+			// Collider center
+			Vector3 collider_center = trafficLightObj.GetComponent<BoxCollider>().center;
+			collider_center.x += (collider_size.x/2) + (Constants.hard_shoulder_width/2);
+			trafficLightObj.GetComponent<BoxCollider>().center = collider_center;
+			addTrafficLight(e.destination_id, trafficLightObj);
+		}
+		
+		if (nodes[e.source_id].node_type == NodeType.Intersection && lane_num_des_src > 0)
+		{
+			Vector3 tl_pos = new Vector3(-((e.width/2) - Constants.hard_shoulder_width/2), Constants.vehicles_Y_position, -(half_length - 0.3f));
+			GameObject trafficLightObj = GameObject.Instantiate (trafficLightPrefab, tl_pos, Quaternion.identity) as GameObject;
+			trafficLightObj.transform.SetParent(edge_root.transform);
+			// Collider size
+			Vector3 collider_size = trafficLightObj.GetComponent<BoxCollider>().size;
+			collider_size.x = lane_num_des_src * (Constants.lane_width + Constants.line_width);
+			trafficLightObj.GetComponent<BoxCollider>().size = collider_size;
+			// Collider center
+			Vector3 collider_center = trafficLightObj.GetComponent<BoxCollider>().center;
+			collider_center.x += (collider_size.x/2) + (Constants.hard_shoulder_width/2);
+			trafficLightObj.GetComponent<BoxCollider>().center = collider_center;
+			addTrafficLight(e.source_id, trafficLightObj);
+		}
+		#endregion
 		
 		edge_root.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down);  // Vector (0,1) is the orientation of the newly drawn edge
 		edge_root.transform.position = e.fixed_position;
@@ -1703,6 +1743,59 @@ public static class RoadMap
 				GameObject endPoint = MyUtilities.getGameObjectWithNameInHierarchy(str, start_points_group);
 				startPoint.GetComponent<GuideNode>().addNextGuideNode(endPoint);
 			}
+		}
+	}
+	
+	private static void addTrafficLight (string intersectionNodeID, GameObject traffigLight)
+	{
+		if (!groupedTrafficLights.ContainsKey(intersectionNodeID))
+		{
+			List<GameObject> l = new List<GameObject>();
+			l.Add(traffigLight);
+			groupedTrafficLights.Add(intersectionNodeID, l);
+		}
+		else
+		{
+			List<GameObject> l = groupedTrafficLights[intersectionNodeID];
+			l.Add(traffigLight);
+			groupedTrafficLights[intersectionNodeID] = l;
+		}
+	}
+	
+	private static void synchronizeTrafficLights ()
+	{
+		List<string> nodeIDs = new List<string>(groupedTrafficLights.Keys);
+		
+		foreach (string ID in nodeIDs)
+		{
+			List<GameObject> l = groupedTrafficLights[ID];
+			int num_traffic_lights = l.Count;
+			float cycleTime = Constants.timeGreen + Constants.timeOrange;
+			// Time in seconds that the traffic light will stay red.
+			float timeRed = (num_traffic_lights-1) * cycleTime;
+			int i=0;
+			
+			l.ForEach
+			(
+				delegate(GameObject obj)
+				{
+					TrafficLightController controller = obj.GetComponent<TrafficLightController>();
+					controller.setTimeGreen (Constants.timeGreen);
+					controller.setTimeOrange(Constants.timeOrange);
+					controller.setTimeRed   (timeRed);
+					controller.setTimeBeforeFirstGreen (i*cycleTime);
+					i++;
+				}
+			);
+		}
+		
+		GameObject[] trafficLightsObjs;
+		trafficLightsObjs = GameObject.FindGameObjectsWithTag(Constants.Tag_TrafficLight); 
+		int tlCount = trafficLightsObjs.Length;
+		
+		for(int i = 0; i<tlCount; i++)
+		{
+			trafficLightsObjs[i].SendMessage("startCycle");
 		}
 	}
 }

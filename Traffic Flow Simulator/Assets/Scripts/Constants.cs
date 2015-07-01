@@ -110,6 +110,7 @@ public static class Constants : object {
 	public const string Tag_Lane_End_Point_Group 	= "LaneEndPointGroup";
 	public const string Tag_Vehicle = "Vehicle";
 	public const string Tag_Ground = "Ground";
+	public const string Tag_TrafficLight = "TrafficLight";
 	#endregion
 	
 	#region Layers
@@ -171,5 +172,10 @@ public static class Constants : object {
 	public const float bezier_precision = 400f;
 	public const float Guide_Node_padding = 0.5f;
 	public const float infinite = 999999999;
+	#endregion
+	
+	#region Traffic Light timing
+	public const float timeGreen  =  5f; // Time in seconds that the traffic light will stay green.
+	public const float timeOrange =  2f; // Time in seconds that the traffic light will stay orange.
 	#endregion
 }
