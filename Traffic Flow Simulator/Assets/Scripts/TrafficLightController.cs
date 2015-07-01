@@ -33,9 +33,16 @@ public class TrafficLightController : MonoBehaviour
 	[SerializeField]
 	private Material	Material_Inactive;
 	
-	private float		timeGreen 	= 5f;	// Time in seconds that the traffic light will stay green.
-	private float		timeOrange = 2f;	// Time in seconds that the traffic light will stay orange.
-	private float		timeRed	= 15f;	// Time in seconds that the traffic light will stay red.
+	private float		timeBeforeFirstGreen= 2f;	// Time in seconds that the traffic light will stay red before change to green for first time.
+	private float		timeGreen			= 5f;	// Time in seconds that the traffic light will stay green.
+	private float		timeOrange			= 2f;	// Time in seconds that the traffic light will stay orange.
+	private float		timeRed				= 15f;	// Time in seconds that the traffic light will stay red.
+	
+	float TimeBeforeFirstGreen
+	{
+		get { return this.timeBeforeFirstGreen; }
+		set { this.timeBeforeFirstGreen = value; }
+	}
 	
 	float TimeGreen
 	{
@@ -63,14 +70,16 @@ public class TrafficLightController : MonoBehaviour
 	
 	private IEnumerator cycle ()
 	{
+		yield return new WaitForSeconds(timeBeforeFirstGreen);
+		
 		while (true)
 		{
-			setRed ();
-			yield return new WaitForSeconds(timeRed);
 			setGreen ();
 			yield return new WaitForSeconds(timeGreen);
 			setOrange ();
 			yield return new WaitForSeconds(timeOrange);
+			setRed ();
+			yield return new WaitForSeconds(timeRed);
 		}
 	}
 	
