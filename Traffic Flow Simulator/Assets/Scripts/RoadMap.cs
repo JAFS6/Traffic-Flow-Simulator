@@ -1793,11 +1793,10 @@ public static class RoadMap
 		
 		GameObject[] trafficLightsObjs;
 		trafficLightsObjs = GameObject.FindGameObjectsWithTag(Constants.Tag_TrafficLight); 
-		int tlCount = trafficLightsObjs.Length;
 		
-		for(int i = 0; i<tlCount; i++)
+		foreach(GameObject tl in trafficLightsObjs)
 		{
-			trafficLightsObjs[i].SendMessage("startCycle");
+			tl.SendMessage("startCycle");
 		}
 	}
 }
