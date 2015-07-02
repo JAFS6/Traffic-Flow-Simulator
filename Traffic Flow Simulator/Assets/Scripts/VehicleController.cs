@@ -224,6 +224,11 @@ public class VehicleController : MonoBehaviour
 			this.crashed = true;
 			this.current_speed = 0f;
 			this.crashTime = crashTime_aux;
+			
+			GameObject CrashMarker_prefab = Resources.Load("Prefabs/CrashMarker", typeof(GameObject)) as GameObject;
+			GameObject marker = GameObject.Instantiate (CrashMarker_prefab, this.transform.position + (Vector3.up * 6), Quaternion.identity) as GameObject;
+			marker.GetComponent<LockLookTo>().setTarget( GameObject.Find("Main Camera") );
+			marker.GetComponent<DestroyAfterTime>().setAliveTime( destroyTime_slider.GetComponent<Slider>().value );
 		}
 	}
 	
