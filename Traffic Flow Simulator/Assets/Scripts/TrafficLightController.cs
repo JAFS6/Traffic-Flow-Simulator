@@ -33,6 +33,8 @@ public class TrafficLightController : MonoBehaviour
 	[SerializeField]
 	private Material	Material_Inactive;
 	
+	private TrafficLightStatus status;
+	
 	private float		timeBeforeFirstGreen= 2f;	// Time in seconds that the traffic light will stay red before change to green for first time.
 	private float		timeGreen			= 5f;	// Time in seconds that the traffic light will stay green.
 	private float		timeOrange			= 2f;	// Time in seconds that the traffic light will stay orange.
@@ -88,6 +90,11 @@ public class TrafficLightController : MonoBehaviour
 		StartCoroutine(cycle());
 	}
 	
+	public TrafficLightStatus getTrafficLightStatus ()
+	{
+		return this.status;
+	}
+	
 	private IEnumerator cycle ()
 	{
 		yield return new WaitForSeconds(timeBeforeFirstGreen);
@@ -105,6 +112,7 @@ public class TrafficLightController : MonoBehaviour
 	
 	private void setRed ()
 	{
+		status = TrafficLightStatus.Red;
 		Light_Red.GetComponent<MeshRenderer>().material 	= Material_Red;
 		Light_Orange.GetComponent<MeshRenderer>().material 	= Material_Inactive;
 		Light_Green.GetComponent<MeshRenderer>().material 	= Material_Inactive;
@@ -112,6 +120,7 @@ public class TrafficLightController : MonoBehaviour
 	
 	private void setOrange ()
 	{
+		status = TrafficLightStatus.Orange;
 		Light_Red.GetComponent<MeshRenderer>().material 	= Material_Inactive;
 		Light_Orange.GetComponent<MeshRenderer>().material 	= Material_Orange;
 		Light_Green.GetComponent<MeshRenderer>().material 	= Material_Inactive;
@@ -119,6 +128,7 @@ public class TrafficLightController : MonoBehaviour
 	
 	private void setGreen ()
 	{
+		status = TrafficLightStatus.Green;
 		Light_Red.GetComponent<MeshRenderer>().material 	= Material_Inactive;
 		Light_Orange.GetComponent<MeshRenderer>().material 	= Material_Inactive;
 		Light_Green.GetComponent<MeshRenderer>().material 	= Material_Green;
