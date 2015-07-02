@@ -17,13 +17,14 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public enum NodeType		: byte {Intersection, Limit, Continuation};
-public enum IntersectionType: byte {Normal, Roundabout};
-public enum TransportType	: byte {Public, Private, PublicAndPrivate};
-public enum DirectionType	: byte {Source_Destination, Destination_Source};
-public enum TurnSide		: byte {Left, Right};
-public enum GuideNodeType 	: byte {Lane_start, Lane_end, OnLane};
-public enum DriverType		: byte {Good, Average, Bad};
+public enum NodeType			: byte {Intersection, Limit, Continuation};
+public enum IntersectionType	: byte {Normal, Roundabout};
+public enum TransportType		: byte {Public, Private, PublicAndPrivate};
+public enum DirectionType		: byte {Source_Destination, Destination_Source};
+public enum TurnSide			: byte {Left, Right};
+public enum GuideNodeType 		: byte {Lane_start, Lane_end, OnLane};
+public enum DriverType			: byte {Good, Average, Bad};
+public enum TrafficLightStatus	: byte {Green, Orange, Red};
 
 /*
  * @brief Saves the information related to a node.
@@ -115,9 +116,10 @@ public static class Constants : object {
 	#endregion
 	
 	#region Layers
-	public const string Layer_Roads = "Roads";
-	public const string Layer_Vehicles = "Vehicles";
-	public const int vehicles_layer_mask = 1 << 9;
+	public const string Layer_Roads 	= "Roads";
+	public const string Layer_Vehicles 	= "Vehicles";
+	public const int vehicles_layer_mask= 1 << 9;
+	public const int roads_layer_mask 	= 1 << 8;
 	#endregion
 	
 	#region Data strings

@@ -116,7 +116,7 @@ public class VehicleController : MonoBehaviour
 				/*
 				Check if there are any object (vehicle) on vehicle's layer between this vehicle and the target
 				guide node at a distance from this vehicle lower than sensor_lenght.
-				If the target is closer than sensor_lenght, check the next target if it exists. Only for continuation nodes.
+				If the target is closer than sensor_lenght, check the next target if it exists.
 				The intersections will be regulated by semaphores.
 				*/
 				this.obstacle_detected = false;
@@ -148,29 +148,66 @@ public class VehicleController : MonoBehaviour
 					}
 				}
 				
+				RaycastHit trafficLightHit;
+				bool trafficLight_detected = false; // True if the traffic light is not green
+				
+				if (Physics.Raycast(frontPosition + (Vector3.up * 0.2f), this.transform.forward, out trafficLightHit, sensor_lenght, Constants.roads_layer_mask))
+				{
+					GameObject trafficLightObj = trafficLightHit.transform.gameObject;
+					
+					if (trafficLightObj.tag == Constants.Tag_TrafficLight)
+					{
+						if (trafficLightObj.GetComponent<TrafficLightController>().getTrafficLightStatus() != TrafficLightStatus.Green)
+						{
+							int random = Random.Range(0,100);
+							
+							if (driver_type == DriverType.Good || (driver_type == DriverType.Average && random >= 50))
+							{
+								trafficLight_detected = true;
+							}
+						}
+					}
+				}
+				
 				if (distanceToObstacle < sensor_lenght)
 				{
-					Debug.DrawLine(this.transform.position + (Vector3.up * 0.2f), hit.point, Color.yellow);
-					
 					this.obstacle_detected = true;
-					this.maxSpeedAllowed = hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
-					
-					
-					if (distanceToObstacle > 1)
+				}
+				
+				if (this.obstacle_detected && trafficLight_detected)
+				{
+					if (distanceToObstacle < trafficLightHit.distance)
 					{
-						this.maxSpeedAllowed = 1f;
+						trafficLight_detected = false;
 					}
 					else
 					{
-						this.maxSpeedAllowed = 0f;
+						this.obstacle_detected = false;
 					}
+				}
+				
+				if (this.obstacle_detected && !trafficLight_detected)
+				{
+					Debug.DrawLine(this.transform.position + (Vector3.up * 0.2f), hit.point, Color.yellow);
+					
+					this.maxSpeedAllowed = hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
+					
+					if (distanceToObstacle > 1) { this.maxSpeedAllowed = 1f; }
+					else						{ this.maxSpeedAllowed = 0f; }
+				}
+				else if (!this.obstacle_detected && trafficLight_detected)
+				{
+					Debug.DrawLine(this.transform.position + (Vector3.up * 0.2f), trafficLightHit.point, Color.magenta);
+					
+					if (trafficLightHit.distance > 1 && trafficLightHit.distance < 3) { this.maxSpeedAllowed = 1f; }
+					else if (trafficLightHit.distance < 1)							  { this.current_speed = 0; }
 				}
 				else
 				{
 					this.maxSpeedAllowed = Constants.urban_speed_limit;
 				}
 				
-				if (!this.obstacle_detected || (this.obstacle_detected && this.current_speed < this.maxSpeedAllowed))
+				if ((!trafficLight_detected && !this.obstacle_detected) || (trafficLight_detected && this.obstacle_detected && this.current_speed < this.maxSpeedAllowed))
 				{
 					// Increase speed if the current speed is under the max speed
 					if (this.current_speed < this.maxSpeedAllowed)
