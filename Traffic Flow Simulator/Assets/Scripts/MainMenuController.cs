@@ -54,7 +54,9 @@ public class MainMenuController : MonoBehaviour
 		GameObject [] buttons = GameObject.FindGameObjectsWithTag ("LoadMapButton");
 		
 		foreach (GameObject item in buttons)
+		{
 			Destroy(item);
+		}
 		
 		// Search maps available and add a load map button for each one
 		DirectoryInfo info = new DirectoryInfo(Application.dataPath + Constants.maps_path);
