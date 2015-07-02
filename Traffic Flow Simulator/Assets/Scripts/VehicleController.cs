@@ -214,20 +214,6 @@ public class VehicleController : MonoBehaviour
 			this.crashTime = crashTime_aux;
 		}
 	}
-	/*
-	void OnCollisionEnter(Collision collision)
-	{
-		if (collision.gameObject.tag == Constants.Tag_Vehicle)
-		{
-			float crashTime_aux = Time.time;
-			collision.gameObject.GetComponent<VehicleController>().crashed = true;
-			collision.gameObject.GetComponent<VehicleController>().current_speed = 0f;
-			collision.gameObject.GetComponent<VehicleController>().crashTime = crashTime_aux;
-			this.crashed = true;
-			this.current_speed = 0f;
-			this.crashTime = crashTime_aux;
-		}
-	}*/
 	
 	/**
 	 * @brief Sets transport type.
@@ -358,6 +344,11 @@ public class VehicleController : MonoBehaviour
 			SimCtrl.GetComponent<SimulationController>().privateVehicleDestroyed();
 		}
 		Destroy(this.gameObject);
+		
+		if (crashed)
+		{
+			SimCtrl.GetComponent<SimulationUIController>().vehicleCrashed ();
+		}
 	}
 	
 	public static float distanceToNextVehicle (float vehicleLenght, float sensorLenght, Vector3 position, GameObject TargetGuideNode, out RaycastHit hit)
