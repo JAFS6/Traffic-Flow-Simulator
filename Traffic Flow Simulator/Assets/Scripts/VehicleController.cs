@@ -32,6 +32,9 @@ public class VehicleController : MonoBehaviour
 	private  float 			vehicleLength = 2f; // Lenght of this vehicle
 	[SerializeField]
 	private bool debug_stop = false;
+	
+	// Driver type
+	private DriverType driver_type; // Driver type
 
 	// Control variables of the vehicle
 	private float 		current_speed; 				// Current speed in meters per second
@@ -234,6 +237,24 @@ public class VehicleController : MonoBehaviour
 	}
 	
 	/**
+	 * @brief Sets driver type.
+	 * @param[in] t The new driver type.
+	 */
+	public void setDriverType (DriverType t)
+	{
+		this.driver_type = t;
+	}
+	
+	/**
+	 * @brief Gets driver type.
+	 * @return The vehicle's driver type.
+	 */
+	public DriverType getDriverType ()
+	{
+		return this.driver_type;
+	}
+	
+	/**
 	 * @brief Sets the current speed.
 	 * @param[in] newSpeed The new current speed.
 	 */
@@ -334,21 +355,36 @@ public class VehicleController : MonoBehaviour
 	private void destroyVehicle ()
 	{
 		GameObject SimCtrl = GameObject.Find("SimulationController");
+		SimulationController simController = SimCtrl.GetComponent<SimulationController>();
 		
 		if (this.transport_type == TransportType.Public)
 		{
-			SimCtrl.GetComponent<SimulationController>().publicVehicleDestroyed();
+			simController.publicVehicleDestroyed();
 		}
 		else
 		{
-			SimCtrl.GetComponent<SimulationController>().privateVehicleDestroyed();
+			simController.privateVehicleDestroyed();
 		}
-		Destroy(this.gameObject);
+		
+		if (this.driver_type == DriverType.Good)
+		{
+			simController.goodDriverDestroyed();
+		}
+		else if (this.driver_type == DriverType.Average)
+		{
+			simController.averageDriverDestroyed();
+		}
+		else
+		{
+			simController.badDriverDestroyed();
+		}
 		
 		if (crashed)
 		{
 			SimCtrl.GetComponent<SimulationUIController>().vehicleCrashed ();
 		}
+		
+		Destroy(this.gameObject);
 	}
 	
 	public static float distanceToNextVehicle (float vehicleLenght, float sensorLenght, Vector3 position, GameObject TargetGuideNode, out RaycastHit hit)
