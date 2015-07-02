@@ -1305,6 +1305,8 @@ public static class RoadMap
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
 		Vector2 P, PR, PCB;
+		int numGuideNodesOnLane = 7;
+		float interval = 1f / (numGuideNodesOnLane+1);
 		
 		if (e.src_des != Constants.String_No_Lane)
 		{
@@ -1349,17 +1351,17 @@ public static class RoadMap
 				
 				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
 				
-				for (int j=0; j<3; j++)
+				for (int j=0; j<numGuideNodesOnLane; j++)
 				{
 					Vector3 PCB_3D_fixed;
 					
 					if (edges[ref_edge_id].source_id == node_id)
 					{
-						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint((1f-interval) - (interval * j),P_3D,PCB_3D,PCB_3D,PR_3D);
 					}
 					else
 					{
-						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(interval + (interval * j),P_3D,PCB_3D,PCB_3D,PR_3D);
 					}
 					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Source_Destination, i, lane_type, PCB_3D_fixed, source_onlane_points);
 					
@@ -1415,17 +1417,17 @@ public static class RoadMap
 				
 				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
 				
-				for (int j=0; j<3; j++)
+				for (int j=0; j<numGuideNodesOnLane; j++)
 				{
 					Vector3 PCB_3D_fixed;
 					
 					if (edges[ref_edge_id].source_id == node_id)
 					{
-						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.25f + (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(interval + (interval * j),P_3D,PCB_3D,PCB_3D,PR_3D);
 					}
 					else
 					{
-						PCB_3D_fixed = MyMathClass.CalculateBezierPoint(0.75f - (0.25f * j),P_3D,PCB_3D,PCB_3D,PR_3D);
+						PCB_3D_fixed = MyMathClass.CalculateBezierPoint((1f-interval) - (interval * j),P_3D,PCB_3D,PCB_3D,PR_3D);
 					}
 					prev_next_OLP[1] = setOnLanePoint (node_id, DirectionType.Destination_Source, i, lane_type, PCB_3D_fixed, destination_onlane_points);
 					
