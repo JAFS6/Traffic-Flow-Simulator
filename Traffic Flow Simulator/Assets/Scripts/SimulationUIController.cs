@@ -45,6 +45,8 @@ public class SimulationUIController : MonoBehaviour
 	private GameObject public_vehicles_slider;
 	[SerializeField]
 	private GameObject private_vehicles_slider;
+	[SerializeField]
+	private GameObject num_crashes;
 	
 	// Prefabs
 	private static GameObject roadName3D_prefab;
@@ -52,6 +54,7 @@ public class SimulationUIController : MonoBehaviour
 	void Start ()
 	{
 		is_paused = false;
+		num_crashes.GetComponent<Text>().text = 0 + "";
 		load_roadName3D_prefab ();
 	}
 	
@@ -212,6 +215,11 @@ public class SimulationUIController : MonoBehaviour
 		{
 			public_vehicles_slider.GetComponent<Slider>().value = new_public_value;
 		}
+	}
+	
+	public void vehicleCrashed ()
+	{
+		num_crashes.GetComponent<Text>().text = System.Convert.ToInt32(num_crashes.GetComponent<Text>().text) + 1 + "";
 	}
 	
 	private void showPausePanel ()
