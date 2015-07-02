@@ -14,15 +14,16 @@
 	limitations under the License.
 */
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 /*
- * @brief Destroys the GameObject at wich this is attached to after aliveTime seconds
+ * @brief Destroys the GameObject at wich this is attached to after the number of seconds specified by the slider
  */
 public class DestroyAfterTime : MonoBehaviour
 {
-	private float aliveTime = 10f; // seconds
 	private float startTime;
+	private GameObject slider;
 	
 	public void Start ()
 	{
@@ -33,14 +34,14 @@ public class DestroyAfterTime : MonoBehaviour
 	{
 		float now = Time.time;
 		
-		if (now - this.startTime > aliveTime)
+		if (now - this.startTime > slider.GetComponent<Slider>().value)
 		{
 			Destroy(this.gameObject);
 		}
 	}
 	
-	public void setAliveTime (float t)
+	public void setSlider (GameObject s)
 	{
-		aliveTime = t;
+		slider = s;
 	}
 }
