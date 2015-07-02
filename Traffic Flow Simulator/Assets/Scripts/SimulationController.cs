@@ -27,8 +27,8 @@ public struct EntryNodeInfo
 	public float tbs; 		 // Time Between Spawns
 }
 
-public class SimulationController : MonoBehaviour {
-	
+public class SimulationController : MonoBehaviour
+{	
 	public static string map_filename = "";
 	
 	// Control variables to instantiate vehicles
@@ -45,6 +45,8 @@ public class SimulationController : MonoBehaviour {
 	private GameObject averageDrivers_slider;
 	[SerializeField]
 	private GameObject badDrivers_slider;
+	[SerializeField]
+	private GameObject help_panel_toggle;
 	
 	private int max_vehicles;
 	private int num_spawn_errors = 0;
@@ -65,8 +67,13 @@ public class SimulationController : MonoBehaviour {
 	private int num_bad_drivers_running = 0;
 
 	// Actions to take when the application starts
-	void Start () {
-		
+	void Start ()
+	{
+		if (GlobalStatus.isFirstTimeLoadMap)
+		{
+			help_panel_toggle.GetComponent<Toggle>().isOn = true;
+			GlobalStatus.isFirstTimeLoadMap = false;
+		}
 		// Get the reference to the simulator's camera
 		main_camera = GameObject.Find("Main Camera");
 

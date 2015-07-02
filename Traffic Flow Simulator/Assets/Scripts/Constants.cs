@@ -69,8 +69,8 @@ public struct AllowedDirections
 	public List<string> direction_ids;
 }
 
-public static class Constants : object {
-
+public static class Constants : object
+{
 	#region Paths
 	public const string maps_path = "/StreamingAssets/Maps/";
 	#endregion
