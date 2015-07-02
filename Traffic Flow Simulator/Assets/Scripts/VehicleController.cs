@@ -14,6 +14,7 @@
 	limitations under the License.
 */
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -32,6 +33,8 @@ public class VehicleController : MonoBehaviour
 	private  float 			vehicleLength = 2f; // Lenght of this vehicle
 	[SerializeField]
 	private bool debug_stop = false;
+	
+	private GameObject destroyTime_slider;
 	
 	// Driver type
 	private DriverType driver_type; // Driver type
@@ -52,6 +55,7 @@ public class VehicleController : MonoBehaviour
 	void Start ()
 	{
 		this.current_speed = 0;
+		destroyTime_slider = GameObject.Find("DestroyTime_Slider");
 	}
 	
 	void Update ()
@@ -65,7 +69,12 @@ public class VehicleController : MonoBehaviour
 		{
 			float now = Time.time;
 			
-			if (now - this.crashTime >= 5)
+			if (destroyTime_slider == null)
+			{
+				destroyTime_slider = GameObject.Find("DestroyTime_Slider");
+			}
+			
+			if (now - this.crashTime >= destroyTime_slider.GetComponent<Slider>().value)
 			{
 				this.destroyVehicle();
 			}
