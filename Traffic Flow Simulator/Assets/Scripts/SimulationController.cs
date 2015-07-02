@@ -39,6 +39,13 @@ public class SimulationController : MonoBehaviour {
 	private GameObject publicVehicles_slider;
 	[SerializeField]
 	private GameObject privateVehicles_slider;
+	[SerializeField]
+	private GameObject goodDrivers_slider;
+	[SerializeField]
+	private GameObject averageDrivers_slider;
+	[SerializeField]
+	private GameObject badDrivers_slider;
+	
 	private int max_vehicles;
 	private int num_spawn_errors = 0;
 
@@ -48,9 +55,14 @@ public class SimulationController : MonoBehaviour {
 	private Vector3 	initial_camera_direction;
 	private Vector2[] 	node_positions;
 	
-	// Vehicle on simulation counter
+	// Vehicle transport types on simulation
 	private int num_private_vehicles_running = 0;
 	private int num_public_vehicles_running = 0;
+	
+	// Driver types on simulation
+	private int num_good_drivers_running = 0;
+	private int num_average_drivers_running = 0;
+	private int num_bad_drivers_running = 0;
 
 	// Actions to take when the application starts
 	void Start () {
@@ -159,15 +171,120 @@ public class SimulationController : MonoBehaviour {
 		num_private_vehicles_running--;
 	}
 	
+	public void goodDriverDestroyed ()
+	{
+		num_good_drivers_running--;
+	}
+	
+	public void averageDriverDestroyed ()
+	{
+		num_average_drivers_running--;
+	}
+	
+	public void badDriverDestroyed ()
+	{
+		num_bad_drivers_running--;
+	}
+	
 	private void updateMaxVehicles ()
 	{
 		max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);
 	}
 	
+	private DriverType selectDriverToSpawn ()
+	{
+		int max_good_drivers 	= Mathf.FloorToInt( (float)max_vehicles * (goodDrivers_slider.GetComponent<Slider>().value) );
+		int max_average_drivers = Mathf.FloorToInt( (float)max_vehicles * (averageDrivers_slider.GetComponent<Slider>().value) );
+		int max_bad_drivers 	= Mathf.FloorToInt( (float)max_vehicles * (badDrivers_slider.GetComponent<Slider>().value) );
+		
+		int count_error = max_vehicles - max_good_drivers - max_average_drivers - max_bad_drivers;
+		
+		if (count_error > 0)
+		{
+			max_good_drivers += count_error;
+		}
+		
+		bool good_allowed	 = (num_good_drivers_running    < max_good_drivers);
+		bool average_allowed = (num_average_drivers_running < max_average_drivers);
+		bool bad_allowed     = (num_bad_drivers_running     < max_bad_drivers);
+		DriverType selectedType;
+		
+		if (good_allowed && average_allowed && bad_allowed)
+		{
+			int select = Random.Range(0,3);
+			
+			if (select == 0)
+			{
+				selectedType = DriverType.Good;
+			}
+			else if (select == 1)
+			{
+				selectedType = DriverType.Average;
+			}
+			else
+			{
+				selectedType = DriverType.Bad;
+			}
+		}
+		else if (good_allowed && average_allowed)
+		{
+			int select = Random.Range(0,2);
+			
+			if (select == 0)
+			{
+				selectedType = DriverType.Good;
+			}
+			else
+			{
+				selectedType = DriverType.Average;
+			}
+		}
+		else if (good_allowed && bad_allowed)
+		{
+			int select = Random.Range(0,2);
+			
+			if (select == 0)
+			{
+				selectedType = DriverType.Good;
+			}
+			else
+			{
+				selectedType = DriverType.Bad;
+			}
+		}
+		else if (average_allowed && bad_allowed)
+		{
+			int select = Random.Range(0,2);
+			
+			if (select == 0)
+			{
+				selectedType = DriverType.Average;
+			}
+			else
+			{
+				selectedType = DriverType.Bad;
+			}
+		}
+		else if (good_allowed)
+		{
+			selectedType = DriverType.Good;
+		}
+		else if (average_allowed)
+		{
+			selectedType = DriverType.Average;
+		}
+		else
+		{
+			selectedType = DriverType.Bad;
+		}
+		
+		return selectedType;
+	}
+	
 	private void selectPrefabToSpawn (int num_public_prefabs, int num_private_prefabs, out int selectedType, out int selectedPrefab)
 	{
-		int max_public_vehicles  = Mathf.FloorToInt((float)max_vehicles * (publicVehicles_slider.GetComponent<Slider>().value) );
-		int max_private_vehicles = Mathf.FloorToInt((float)max_vehicles * (privateVehicles_slider.GetComponent<Slider>().value) );
+		int max_public_vehicles  = Mathf.FloorToInt( (float)max_vehicles * (publicVehicles_slider.GetComponent<Slider>().value) );
+		int max_private_vehicles = Mathf.FloorToInt( (float)max_vehicles * (privateVehicles_slider.GetComponent<Slider>().value) );
 		
 		int count_error = max_vehicles - max_public_vehicles - max_private_vehicles;
 		
@@ -241,11 +358,13 @@ public class SimulationController : MonoBehaviour {
 					selectPrefabToSpawn (num_public_prefabs, num_private_prefabs, out selectedType, out selectedPrefab);
 					GameObject selected_prefab = prefab[selectedType,selectedPrefab];
 					List<string> candidates = selectCandidateNodesToSpawn (selected_prefab.GetComponent<VehicleController>().getTransportType());
-					GameObject spawned_vehicle = spawnVehicle (selected_prefab, dir_prefab, candidates[Random.Range(0,candidates.Count)]);
+					GameObject spawned_vehicle = spawnVehicle (selected_prefab, dir_prefab, candidates[Random.Range(0,candidates.Count)], selectDriverToSpawn ());
 					
 					if (spawned_vehicle != null)
 					{
-						TransportType v_tt = spawned_vehicle.GetComponent<VehicleController>().getTransportType();
+						VehicleController controller = spawned_vehicle.GetComponent<VehicleController>();
+						
+						TransportType v_tt = controller.getTransportType();
 						
 						if (v_tt == TransportType.Public)
 						{
@@ -254,6 +373,21 @@ public class SimulationController : MonoBehaviour {
 						else
 						{
 							num_private_vehicles_running++;
+						}
+						
+						DriverType dt = controller.getDriverType();
+						
+						if (dt == DriverType.Good)
+						{
+							num_good_drivers_running++;
+						}
+						else if (dt == DriverType.Average)
+						{
+							num_average_drivers_running++;
+						}
+						else
+						{
+							num_bad_drivers_running++;
 						}
 					}
 					else
@@ -271,11 +405,10 @@ public class SimulationController : MonoBehaviour {
 	
 	private void debugMessage ()
 	{
-		Debug.Log("Vehicles: Public (" +
-		          num_public_vehicles_running + ") + Private (" +
-		          num_private_vehicles_running+ ") = " + 
-		          (num_public_vehicles_running + num_private_vehicles_running) + " / " +
-		          max_vehicles + " --- Spawn errors: " + num_spawn_errors);
+		Debug.Log("Vehicles: Public ("+num_public_vehicles_running+") + Private ("+num_private_vehicles_running+ ")"+
+				  " = " + (num_public_vehicles_running + num_private_vehicles_running) + " / " + max_vehicles + "  " +
+				  "Drivers: Good ("+num_good_drivers_running+") Average("+num_average_drivers_running+") Bad("+num_bad_drivers_running+")"+
+				  " --- Spawn errors: " + num_spawn_errors);
 	}
 
 	/**
@@ -283,11 +416,12 @@ public class SimulationController : MonoBehaviour {
 	 * @param[in] prefab The prefab to instantiate
 	 * @param[in] prefab_orientation Orientation of the prefab
 	 * @param[in] node_id The limit node identifier where the vehicle will be instantiated
+	 * @param[in] dt The driver type that will be assigned to the vehicle
 	 * @return Returns a reference to the instantiated object
 	 * @post If node_id not exist or is not a limit node type or not an input node of vehicles,
 	 * no vehicle shall be instantiated
 	 */
-	private GameObject spawnVehicle (GameObject prefab, Vector2 prefab_orientation, string node_id)
+	private GameObject spawnVehicle (GameObject prefab, Vector2 prefab_orientation, string node_id, DriverType dt)
 	{
 		TransportType vehicle_tt = prefab.GetComponent<VehicleController>().getTransportType();
 		
@@ -321,14 +455,16 @@ public class SimulationController : MonoBehaviour {
 			{
 				GameObject vehicle = GameObject.Instantiate (prefab, selected_guide_node.transform.position, Quaternion.LookRotation(dir_road3D)) as GameObject;
 				vehicle.tag = Constants.Tag_Vehicle;
-				vehicle.GetComponent<VehicleController>().setGuideNode(selected_guide_node);
-				vehicle.GetComponent<VehicleController>().setCurrentSpeed(Constants.urban_speed_limit);
+				VehicleController controller = vehicle.GetComponent<VehicleController>();
+				controller.setGuideNode(selected_guide_node);
+				controller.setCurrentSpeed(Constants.urban_speed_limit);
+				controller.setDriverType(dt);
 				MyUtilities.MoveToLayer(vehicle.transform,LayerMask.NameToLayer(Constants.Layer_Vehicles));
 				return vehicle;
 			}
 			else
 			{
-				Debug.LogWarning("Spawn point is occupied.");
+				//Debug.LogWarning("Spawn point is occupied.");
 				return null;
 			}
 		}

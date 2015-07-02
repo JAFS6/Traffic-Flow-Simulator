@@ -23,6 +23,7 @@ public enum TransportType	: byte {Public, Private, PublicAndPrivate};
 public enum DirectionType	: byte {Source_Destination, Destination_Source};
 public enum TurnSide		: byte {Left, Right};
 public enum GuideNodeType 	: byte {Lane_start, Lane_end, OnLane};
+public enum DriverType		: byte {Good, Average, Bad};
 
 /*
  * @brief Saves the information related to a node.
