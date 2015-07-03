@@ -751,14 +751,15 @@ public static class RoadMap
 		{
 			Edge e = edges[getLimitEdge(n.id)];
 			
-			GameObject aux_road = new GameObject();
-			aux_road.name = node_id;
-			aux_road.tag = Constants.Tag_Node_Limit;
-			DrawRoad.nodeLimit(node_id, e.lane_num, aux_road);
-			aux_road.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1),e.direction),Vector3.down); // Vector (0,1) is the orientation of the limit node
-			aux_road.transform.position = pos;
+			GameObject tunnel_prefab = Resources.Load("Prefabs/Tunnel_prefab", typeof(GameObject)) as GameObject;
+			GameObject tunnel = GameObject.Instantiate (tunnel_prefab, pos, Quaternion.identity) as GameObject;
+			tunnel.name = node_id;
+			tunnel.tag = Constants.Tag_Node_Limit;
+			tunnel.transform.localScale = new Vector3(e.lane_num, 1, 1);
+			Vector3 road_entry_direction = MyMathClass.orientationVector(pos, e.fixed_position);
+			tunnel.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1), new Vector2(road_entry_direction.x,road_entry_direction.z)),Vector3.down); // Vector (0,1) is the orientation of the limit node
 			// Place the node in the roads layer
-			MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
+			MyUtilities.MoveToLayer(tunnel.transform, LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
 		else if (n.node_type == NodeType.Continuation) // DRAW CONTINUATION NODE
 		{
