@@ -20,10 +20,10 @@ using System.Xml;
 using System.Xml.Serialization;
 using MapLoaderSerial;
 
-public class MapLoader {
-
-	public void LoadMap (string mapFilename) {
-		
+public class MapLoader
+{
+	public void LoadMap (string mapFilename)
+	{
 		// Prepare filename of the map to load
 		string full_path = Application.dataPath + Constants.maps_path + mapFilename + ".topology.graphml";
 		MapLoaderRoutine (full_path);
@@ -31,8 +31,8 @@ public class MapLoader {
 		MapTurnsLoaderRoutine (full_path);
 	}
 	
-	private void MapLoaderRoutine (string full_path) {
-		
+	private void MapLoaderRoutine (string full_path)
+	{
 		// Variables to take defaults values
 		NodeType node_type_default = NodeType.Intersection;
 		IntersectionType intersection_type_default = IntersectionType.Normal;
@@ -51,54 +51,62 @@ public class MapLoader {
 		
 		// Process the defaults values section of the graph
 		
-		foreach (xml_MapKey k in xml_graphml.xml_Keys) {
-			
-			switch (k.ID) {
+		foreach (xml_MapKey k in xml_graphml.xml_Keys)
+		{
+			switch (k.ID)
+			{
 				case Constants.xml_graphml_key_node_type:
 					
-					if (k.xml_Defaults != null) {
+					if (k.xml_Defaults != null)
+					{
 						node_type_default = stringToNodeType(k.xml_Defaults[0].Value);
 					}
 					break;
 				
 				case Constants.xml_graphml_key_pos_x:
 					
-					if (k.xml_Defaults != null) {
+					if (k.xml_Defaults != null)
+					{
 						x_default = float.Parse(k.xml_Defaults[0].Value, System.Globalization.CultureInfo.InvariantCulture);
 					}
 					break;
 					
 				case Constants.xml_graphml_key_pos_y:
 					
-					if (k.xml_Defaults != null) {
+					if (k.xml_Defaults != null)
+					{
 						y_default = float.Parse(k.xml_Defaults[0].Value, System.Globalization.CultureInfo.InvariantCulture);
 					}
 					break;
 					
 				case Constants.xml_graphml_key_intersection_type:
 					
-					if (k.xml_Defaults != null) {
+					if (k.xml_Defaults != null)
+					{
 						intersection_type_default = stringToIntersectionType(k.xml_Defaults[0].Value);
 					}
 					break;
 					
 				case Constants.xml_graphml_key_road_name:
 					
-					if (k.xml_Defaults != null) {
+					if (k.xml_Defaults != null)
+					{
 						name_default = k.xml_Defaults[0].Value;
 					}
 					break;
 					
 				case Constants.xml_graphml_key_src_des:
 					
-					if (k.xml_Defaults != null) {
+					if (k.xml_Defaults != null)
+					{
 						src_des_default = k.xml_Defaults[0].Value;
 					}
 					break;
 					
 				case Constants.xml_graphml_key_des_src:
 					
-					if (k.xml_Defaults != null) {
+					if (k.xml_Defaults != null)
+					{
 						des_src_default = k.xml_Defaults[0].Value;
 					}
 					break;
@@ -107,18 +115,20 @@ public class MapLoader {
 		
 		// Process the nodes of the graph
 		
-		foreach (xml_Node n in xml_graphml.xml_Graphs[0].xml_Nodes) {
+		foreach (xml_Node n in xml_graphml.xml_Graphs[0].xml_Nodes)
+		{
 			NodeType node_type_value = node_type_default;
 			IntersectionType intersection_type_value = intersection_type_default;
 			float x_value = x_default;
 			float y_value = y_default;
 			string id = n.ID;
 			
-			if (n.xml_Node_datas != null) {
-			
-				foreach (xml_Node_data d in n.xml_Node_datas) {
-					
-					switch (d.key) {
+			if (n.xml_Node_datas != null)
+			{
+				foreach (xml_Node_data d in n.xml_Node_datas)
+				{
+					switch (d.key)
+					{
 						case Constants.xml_graphml_key_node_type:
 							node_type_value = stringToNodeType(d.Value);
 							break;
@@ -135,16 +145,15 @@ public class MapLoader {
 							intersection_type_value = stringToIntersectionType(d.Value);
 							break;
 					}
-				} // foreach (xml_Node_data d in n.xml_Node_datas)
+				}
 			}
-			
 			SaveNode (id, node_type_value, x_value, y_value, intersection_type_value);
-			
-		} // foreach(xml_Node n in xml_graphml.xml_Graphs[0].xml_Nodes)
+		}
 		
 		// Process the edges of the graph
 		
-		foreach (xml_Edge e in xml_graphml.xml_Graphs[0].xml_Edges) {
+		foreach (xml_Edge e in xml_graphml.xml_Graphs[0].xml_Edges)
+		{
 			string id = e.ID;
 			string src_id = e.src_ID;
 			string des_id = e.des_ID;
@@ -152,11 +161,12 @@ public class MapLoader {
 			string src_des_value = src_des_default;
 			string des_src_value = des_src_default;
 			
-			if (e.xml_Edge_datas != null) {
-			
-				foreach (xml_Edge_data d in e.xml_Edge_datas) {
-				
-					switch (d.key) {
+			if (e.xml_Edge_datas != null)
+			{
+				foreach (xml_Edge_data d in e.xml_Edge_datas)
+				{
+					switch (d.key)
+					{
 						case Constants.xml_graphml_key_road_name:
 							name_value = d.Value;
 							break;
@@ -169,12 +179,10 @@ public class MapLoader {
 							des_src_value = d.Value;
 							break;
 					}
-				} // foreach (xml_Edge_data d in e.xml_Edge_datas)
+				}
 			}
-			
 			SaveEdge (id, src_id, des_id, name_value, src_des_value, des_src_value);
-			
-		} // foreach(xml_Edge n in xml_graphml.xml_Graphs[0].xml_Edges)
+		}
 		
 	} // private void MapLoaderRoutine (string full_path)
 	
@@ -199,17 +207,20 @@ public class MapLoader {
 		}
 	}
 	
-	private void SaveNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type) {
-		
-		if (node_type == NodeType.Intersection) {
+	private void SaveNode (string id, NodeType node_type, float x, float y, IntersectionType intersection_type)
+	{
+		if (node_type == NodeType.Intersection)
+		{
 			RoadMap.addNode(id,node_type,x,y,intersection_type);
 		}
-		else {
+		else
+		{
 			RoadMap.addNode(id,node_type,x,y);
 		}
 	}
 	
-	private void SaveEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src) {
+	private void SaveEdge (string id, string source_id, string destination_id, string name, string src_des, string des_src)
+	{
 		RoadMap.addEdge (id, source_id, destination_id, name, src_des, des_src);
 	}
 	
@@ -218,30 +229,39 @@ public class MapLoader {
 		RoadMap.addTurn(turn_start, turn_end);
 	}
 	
-	private NodeType stringToNodeType (string s) {
-		if (s == "0") {
+	private NodeType stringToNodeType (string s)
+	{
+		if (s == "0")
+		{
 			return NodeType.Intersection;
 		}
-		else if (s == "1") {
+		else if (s == "1")
+		{
 			return NodeType.Limit;
 		}
-		else if (s == "2") {
+		else if (s == "2")
+		{
 			return NodeType.Continuation;
 		}
-		else {
+		else
+		{
 			Debug.LogError ("Error on stringToNodeType, invalid string. Returning default.");
 			return NodeType.Limit; // Default return
 		}
 	}
 	
-	private IntersectionType stringToIntersectionType (string s) {
-		if (s == "0") {
+	private IntersectionType stringToIntersectionType (string s)
+	{
+		if (s == "0")
+		{
 			return IntersectionType.Normal;
 		}
-		else if (s == "1") {
+		else if (s == "1")
+		{
 			return IntersectionType.Roundabout;
 		}
-		else {
+		else
+		{
 			Debug.LogError ("Error on stringToIntersectionType, invalid string. Returning default.");
 			return IntersectionType.Normal; // Default return
 		}

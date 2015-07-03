@@ -17,8 +17,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class SliderValue : MonoBehaviour {
-
+public class SliderValue : MonoBehaviour
+{
 	[SerializeField]
 	private GameObject text_obj;
 	[SerializeField]
@@ -28,7 +28,7 @@ public class SliderValue : MonoBehaviour {
 	[SerializeField]
 	private bool isInt;
 	
-	void Update ()
+	public void Update ()
 	{
 		string v_str;
 		

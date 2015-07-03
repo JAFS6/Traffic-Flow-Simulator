@@ -22,7 +22,7 @@ public class Shortcut : MonoBehaviour
 	[SerializeField]
 	private KeyCode key;
 	
-	void Update ()
+	public void Update ()
 	{
 		if (Input.GetKeyDown(key))
 		{

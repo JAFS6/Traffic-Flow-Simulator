@@ -67,7 +67,7 @@ public class SimulationController : MonoBehaviour
 	private int num_bad_drivers_running = 0;
 
 	// Actions to take when the application starts
-	void Start ()
+	public void Start ()
 	{
 		if (GlobalStatus.isFirstTimeLoadMap)
 		{
@@ -104,14 +104,16 @@ public class SimulationController : MonoBehaviour
 		StartCoroutine(spawnVehicles ());
 	}
 
-	private void saveNodePositions () {
+	private void saveNodePositions ()
+	{
 		List<string> node_IDs = RoadMap.getNodeIDs ();
 
 		node_positions = new Vector2[node_IDs.Count];
 
 		int i = 0;
 
-		foreach (string ID in node_IDs) {
+		foreach (string ID in node_IDs)
+		{
 			Vector2 pos = RoadMap.getNodePosition (ID);
 
 			node_positions[i] = new Vector2(pos.x,pos.y);
@@ -119,25 +121,30 @@ public class SimulationController : MonoBehaviour
 		}
 	}
 	
-	private void calculateCameraInitialPosition () {
+	private void calculateCameraInitialPosition ()
+	{
 		float max_x = node_positions[0].x;
 		float min_x = node_positions[0].x;
 		float max_z = node_positions[0].y;
 		float min_z = node_positions[0].y;
 		
-		foreach (Vector2 node in node_positions) {
-			
-			if (node.x > max_x) {
+		foreach (Vector2 node in node_positions)
+		{
+			if (node.x > max_x)
+			{
 				max_x = node.x;
 			}
-			else if (node.x < min_x) {
+			else if (node.x < min_x)
+			{
 				min_x = node.x;
 			}
 			
-			if (node.y > max_z) {
+			if (node.y > max_z)
+			{
 				max_z = node.y;
 			}
-			else if (node.y < min_z) {
+			else if (node.y < min_z)
+			{
 				min_z = node.y;
 			}
 		}
@@ -148,16 +155,17 @@ public class SimulationController : MonoBehaviour
 		main_camera.GetComponent<MainCameraController> ().setLimits (max_x+half_grass_ground_padding,min_x-half_grass_ground_padding,max_z+half_grass_ground_padding,min_z-half_grass_ground_padding);
 	}
 	
-	private void saveEntryNodes () {
+	private void saveEntryNodes ()
+	{
 		entryNodes = new Dictionary<string, EntryNodeInfo>();
 		
 		List<string> node_IDs = RoadMap.getNodeIDs ();
 		TransportType tt;
 		
-		foreach (string ID in node_IDs) {
-		
-			if (RoadMap.isEntryNode(ID, out tt)) {
-				
+		foreach (string ID in node_IDs)
+		{
+			if (RoadMap.isEntryNode(ID, out tt))
+			{
 				EntryNodeInfo new_entry = new EntryNodeInfo();
 				new_entry.id = ID;
 				new_entry.tt = tt;
@@ -284,7 +292,6 @@ public class SimulationController : MonoBehaviour
 		{
 			selectedType = DriverType.Bad;
 		}
-		
 		return selectedType;
 	}
 	

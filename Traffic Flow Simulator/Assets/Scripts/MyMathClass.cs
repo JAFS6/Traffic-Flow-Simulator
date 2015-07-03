@@ -16,15 +16,16 @@
 using UnityEngine;
 using System.Collections;
 
-public static class MyMathClass : object {
-
+public static class MyMathClass : object
+{
 	/**
 	 * @brief Gets the minimum distance between two points in three-dimensional space
 	 * @param[in] p1 A vector (x,y,z) with the coordinates of the first point
 	 * @param[in] p2 A vector (x,y,z) with the coordinates of the second point
 	 * @return The minimum distance between the two points
 	 */
-	public static float Distance (Vector3 p1, Vector3 p2) {
+	public static float Distance (Vector3 p1, Vector3 p2)
+	{
 		float dx = p2.x - p1.x;
 		float dy = p2.y - p1.y;
 		float dz = p2.z - p1.z;
@@ -44,7 +45,8 @@ public static class MyMathClass : object {
 	 * @param[in] p2 A vector (x,y) with the coordinates of the second point
 	 * @return The minimum distance between the two points
 	 */
-	public static float Distance (Vector2 p1, Vector2 p2) {
+	public static float Distance (Vector2 p1, Vector2 p2)
+	{
 		float dx = p2.x - p1.x;
 		float dy = p2.y - p1.y;
 		
@@ -66,26 +68,27 @@ public static class MyMathClass : object {
 	 * @param[in] p3 The end point of the curve
 	 * @return The calculated distance
 	 */
-	public static float DistanceOverBezier (Vector3 a, Vector3 b, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+	public static float DistanceOverBezier (Vector3 a, Vector3 b, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+	{
 		float t_inc = 1 / Constants.bezier_precision;
-		float a_t = MyMathClass.getBezierTNearPoint(a,p0,p1,p2,p3);
-		float b_t = MyMathClass.getBezierTNearPoint(b,p0,p1,p2,p3);
-		float d = 0f;
+		float a_t 	= MyMathClass.getBezierTNearPoint(a,p0,p1,p2,p3);
+		float b_t 	= MyMathClass.getBezierTNearPoint(b,p0,p1,p2,p3);
+		float d 	= 0f;
 		
-		float t =     (a_t < b_t) ? a_t : b_t;
+		float t 	= (a_t < b_t) ? a_t : b_t;
 		float max_t = (a_t > b_t) ? a_t : b_t;
 		
 		Vector3 prev = MyMathClass.CalculateBezierPoint(t,p0,p1,p2,p3);
 		Vector3 next;
 		t += t_inc;
 		
-		while(t <= max_t) {
+		while(t <= max_t)
+		{
 			next = MyMathClass.CalculateBezierPoint(t,p0,p1,p2,p3);
 			d += MyMathClass.Distance(prev, next);
 			t += t_inc;
 			prev = next;
 		}
-		
 		return d;
 	}
 	
@@ -94,7 +97,8 @@ public static class MyMathClass : object {
 	 * @param[in] v A vector of three dimensions
 	 * @return The modulus of v
 	 */
-	public static float module (Vector3 v) {
+	public static float module (Vector3 v)
+	{
 		return Mathf.Sqrt (v.x * v.x + v.y * v.y + v.z * v.z);
 	}
 	
@@ -103,7 +107,8 @@ public static class MyMathClass : object {
 	 * @param[in] v A vector of two dimensions
 	 * @return The modulus of v
 	 */
-	public static float module (Vector2 v) {
+	public static float module (Vector2 v)
+	{
 		return Mathf.Sqrt (v.x * v.x + v.y * v.y);
 	}
 	
@@ -113,7 +118,8 @@ public static class MyMathClass : object {
 	 * @param[in] p2 A vector (x,y,z) with the coordinates of the second point
 	 * @return A vector (x,y,z) with the coordinates of the midpoint
 	 */
-	public static Vector3 middlePoint (Vector3 p1, Vector3 p2) {
+	public static Vector3 middlePoint (Vector3 p1, Vector3 p2)
+	{
 		Vector3 middle_point = new Vector3();
 		middle_point.x = (p1.x + p2.x) / 2;
 		middle_point.y = (p1.y + p2.y) / 2;
@@ -127,7 +133,8 @@ public static class MyMathClass : object {
 	 * @param[in] p2 A vector (x,y) with the coordinates of the second point
 	 * @return A vector (x,y) with the coordinates of the midpoint
 	 */
-	public static Vector2 middlePoint (Vector2 p1, Vector2 p2) {
+	public static Vector2 middlePoint (Vector2 p1, Vector2 p2)
+	{
 		Vector2 middle_point = new Vector2();
 		middle_point.x = (p1.x + p2.x) / 2;
 		middle_point.y = (p1.y + p2.y) / 2;
@@ -140,7 +147,8 @@ public static class MyMathClass : object {
 	 * @param[in] p2 A vector (x,y,z) with the coordinates of the second point
 	 * @return The calculated vector (x,y,z)
 	 */
-	public static Vector3 orientationVector (Vector3 p1, Vector3 p2) {
+	public static Vector3 orientationVector (Vector3 p1, Vector3 p2)
+	{
 		Vector3 orientation = new Vector3();
 		orientation.x = p2.x - p1.x;
 		orientation.y = p2.y - p1.y;
@@ -154,7 +162,8 @@ public static class MyMathClass : object {
 	 * @param[in] p2 A vector (x,y) with the coordinates of the second point
 	 * @return The calculated vector (x,y)
 	 */
-	public static Vector2 orientationVector (Vector2 p1, Vector2 p2) {
+	public static Vector2 orientationVector (Vector2 p1, Vector2 p2)
+	{
 		Vector2 orientation = new Vector2();
 		orientation.x = p2.x - p1.x;
 		orientation.y = p2.y - p1.y;
@@ -167,17 +176,17 @@ public static class MyMathClass : object {
 	 * @param[in] v2 The second vector
 	 * @return The angle calculated in degrees [-180,180]
 	 */
-	public static float RotationAngle (Vector2 v1, Vector2 v2) {
-		
+	public static float RotationAngle (Vector2 v1, Vector2 v2)
+	{
 		float angle = Vector2.Angle(v1,v2);
 		
 		float v1_theta = PolarAngle (v1);
 		float v2_theta = PolarAngle (v2);
 		
-		if (v2_theta < v1_theta) {
+		if (v2_theta < v1_theta)
+		{
 			angle = -angle;
 		}
-		
 		return angle;
 	}
 	
@@ -186,7 +195,8 @@ public static class MyMathClass : object {
 	 * @param[in] deg The measure in degrees
 	 * @return The measure in radians
 	 */
-	public static float degToRad (float deg) {
+	public static float degToRad (float deg)
+	{
 		double r = deg * 0.0174532925d;
 		
 		return (float) r;
@@ -197,7 +207,8 @@ public static class MyMathClass : object {
 	 * @param[in] rad The measure in radians
 	 * @return The measure in degrees
 	 */
-	public static float radToDeg (float rad) {
+	public static float radToDeg (float rad)
+	{
 		double d = rad * 57.2957795;
 		
 		return (float) d;
@@ -209,7 +220,8 @@ public static class MyMathClass : object {
 	 * @param[in] degrees Degrees to rotate
 	 * @return The result of rotating the point
 	 */
-	public static Vector2 rotatePoint (Vector2 p, float degrees) {
+	public static Vector2 rotatePoint (Vector2 p, float degrees)
+	{
 		float radians = (degrees * Mathf.PI) / 180f;
 		
 		Vector2 rotated_point = new Vector2 ();
@@ -224,25 +236,30 @@ public static class MyMathClass : object {
 	 * @param[in] v The vector
 	 * @return The angle calculated in degrees [0,360)
 	 */
-	public static float PolarAngle (Vector2 v) {
-
-		if (v.x == 0 && v.y > 0) {
+	public static float PolarAngle (Vector2 v)
+	{
+		if (v.x == 0 && v.y > 0)
+		{
 			return 90f;
 		}
 
-		if (v.x == 0 && v.y < 0) {
+		if (v.x == 0 && v.y < 0)
+		{
 			return 270f;
 		}
 
 		float angle_rad = 0;
 
-		if (v.x > 0 && v.y >= 0) {
+		if (v.x > 0 && v.y >= 0)
+		{
 			angle_rad = Mathf.Atan (v.y / v.x);
 		}
-		else if (v.x > 0 && v.y < 0) {
+		else if (v.x > 0 && v.y < 0)
+		{
 			angle_rad = Mathf.Atan (v.y / v.x) + 2*Mathf.PI;
 		}
-		else if (v.x < 0) {
+		else if (v.x < 0)
+		{
 			angle_rad = Mathf.Atan (v.y / v.x) + Mathf.PI;
 		}
 
@@ -256,7 +273,8 @@ public static class MyMathClass : object {
 	 * @param[in] magnitude The magnitude of the vector
 	 * @param[in] polar_angle The angle in degrees of polar coordinates
 	 */
-	public static Vector2 PolarToCartesian (float magnitude, float polar_angle) {
+	public static Vector2 PolarToCartesian (float magnitude, float polar_angle)
+	{
 		Vector2 v = new Vector2 ();
 		
 		float polar_angle_rad = (polar_angle * Mathf.PI) / 180;
@@ -279,7 +297,8 @@ public static class MyMathClass : object {
 	 * @return The value of the function is a point on the curve; it depends on the parameter t, and on a set of points,
 	 * called the control points (p0,p1,p2,p3)
 	 */
-	public static Vector3 CalculateBezierPoint (float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+	public static Vector3 CalculateBezierPoint (float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+	{
 		float u = 1f - t;
 		float tt = t*t;
 		float uu = u*u;
@@ -302,14 +321,16 @@ public static class MyMathClass : object {
 	 * @param[in] p3 The end point of the curve
 	 * @return The length of the Bezier curve
 	 */
-	public static float CalculateBezierLength (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+	public static float CalculateBezierLength (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+	{
 		float length = 0f;
 		Vector3 prev = p0;
 		Vector3 next;
 		float t_inc = 1 / Constants.bezier_precision;
 		float t = t_inc;
 		
-		for (int i=0; i<Constants.bezier_precision; i++) {
+		for (int i=0; i<Constants.bezier_precision; i++)
+		{
 			next = CalculateBezierPoint(t, p0, p1, p2, p3);
 			
 			length += Distance(prev, next);
@@ -317,7 +338,6 @@ public static class MyMathClass : object {
 			prev = next;
 			t += t_inc;
 		}
-		
 		return length;
 	}
 	
@@ -331,7 +351,8 @@ public static class MyMathClass : object {
 	 * @param[in] dist The distance of the searched point over the curve
 	 * @return The calculated point
 	 */
-	public static Vector3 CalculateBezierPointWithDistance (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float dist) {
+	public static Vector3 CalculateBezierPointWithDistance (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float dist)
+	{
 		float t_inc = 1 / Constants.bezier_precision;
 		float t = t_inc;
 		Vector3 prev_candidate = p0;
@@ -339,11 +360,13 @@ public static class MyMathClass : object {
 		float prev_candidate_distance = 0f; // Distance from the start point of the Bezier curve
 		float next_candidate_distance;
 		
-		for (int i=0; i<Constants.bezier_precision; i++) {
+		for (int i=0; i<Constants.bezier_precision; i++)
+		{
 			next_candidate = CalculateBezierPoint(t, p0, p1, p2, p3);
 			next_candidate_distance = MyMathClass.DistanceOverBezier(next_candidate, p0, p0, p1, p2, p3);
 			
-			if (Mathf.Abs(dist - prev_candidate_distance) < Mathf.Abs(dist - next_candidate_distance)) {
+			if (Mathf.Abs(dist - prev_candidate_distance) < Mathf.Abs(dist - next_candidate_distance))
+			{
 				break;
 			}
 			
@@ -351,7 +374,6 @@ public static class MyMathClass : object {
 			prev_candidate_distance = next_candidate_distance;
 			t += t_inc;
 		}
-		
 		return prev_candidate;
 	}
 	
@@ -365,7 +387,8 @@ public static class MyMathClass : object {
 	 * @param[in] p3 The end point of the curve
 	 * @return The value of the t parameter
 	 */
-	public static float getBezierTNearPoint (Vector3 point, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+	public static float getBezierTNearPoint (Vector3 point, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+	{
 		float t_inc = 1 / Constants.bezier_precision;
 		float t = 0;
 		
@@ -374,19 +397,21 @@ public static class MyMathClass : object {
 		float best_d = Distance(aux,point);
 		t += t_inc;
 		
-		for (int i=1; i<Constants.bezier_precision; i++) {
+		for (int i=1; i<Constants.bezier_precision; i++)
+		{
 			aux = CalculateBezierPoint(t,p0,p1,p2,p3);
 			float d = Distance(aux,point);
 			
-			if (d > best_d) {
+			if (d > best_d)
+			{
 				break;
 			}
-			else {
+			else
+			{
 				t += t_inc;
 				best_d = d;
 			}
 		}
-		
 		return t;
 	}
 	
@@ -395,7 +420,8 @@ public static class MyMathClass : object {
 	 * @param[in] v The original vector
 	 * @return The calculated vector
 	 */
-	public static Vector2 getRightPerpendicular (Vector2 v) {
+	public static Vector2 getRightPerpendicular (Vector2 v)
+	{
 		Vector2 v2 = new Vector2(v.y,-v.x);
 		return v2;
 	}
@@ -405,7 +431,8 @@ public static class MyMathClass : object {
 	 * @param[in] v The original vector
 	 * @return The calculated vector
 	 */
-	public static Vector2 getLeftPerpendicular (Vector2 v) {
+	public static Vector2 getLeftPerpendicular (Vector2 v)
+	{
 		Vector2 v2 = new Vector2(-v.y,v.x);
 		return v2;
 	}
@@ -419,8 +446,8 @@ public static class MyMathClass : object {
 	 * @return The intersection point calculated. If the vectors are parallel, the returned point
 	 * will be the middle point between point_a and point_b.
 	 */
-	public static Vector2 intersectionPoint (Vector2 point_a, Vector2 vector_a, Vector2 point_b, Vector2 vector_b) {
-		
+	public static Vector2 intersectionPoint (Vector2 point_a, Vector2 vector_a, Vector2 point_b, Vector2 vector_b)
+	{
 		vector_a.Normalize();
 		vector_b.Normalize();
 		
@@ -428,10 +455,12 @@ public static class MyMathClass : object {
 		Vector2 intersection_point;
 		
 		// If they are parallel, it must return the middle point between point_a and point_b
-		if ((vector_a.x == 0 && vector_b.x == 0) || (vector_a.x == vector_b.x && vector_a.y == vector_b.y)) {
+		if ((vector_a.x == 0 && vector_b.x == 0) || (vector_a.x == vector_b.x && vector_a.y == vector_b.y))
+		{
 			return MyMathClass.middlePoint(point_a,point_b);
 		}
-		else if(vector_a.x == 0) {
+		else if(vector_a.x == 0)
+		{
 			m2 = vector_b.y / vector_b.x;
 			b2 = point_b.y - m2 * point_b.x;
 			
@@ -440,7 +469,8 @@ public static class MyMathClass : object {
 			
 			intersection_point = new Vector2(x,y);
 		}
-		else if (vector_b.x == 0) {
+		else if (vector_b.x == 0)
+		{
 			m1 = vector_a.y / vector_a.x;
 			b1 = point_a.y - m1 * point_a.x;
 			
@@ -449,7 +479,8 @@ public static class MyMathClass : object {
 			
 			intersection_point = new Vector2(x,y);
 		}
-		else {
+		else
+		{
 			// Calculate the ecuation of both straights in explicit form Y = mx + b
 			
 			m1 = vector_a.y / vector_a.x;
@@ -465,7 +496,6 @@ public static class MyMathClass : object {
 			
 			intersection_point = new Vector2(x,y);
 		}
-		
 		return intersection_point;
 	}
 	

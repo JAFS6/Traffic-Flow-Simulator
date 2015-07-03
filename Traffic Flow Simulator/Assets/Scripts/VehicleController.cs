@@ -52,13 +52,13 @@ public class VehicleController : MonoBehaviour
 	
 	private float maxSpeedAllowed;
 	
-	void Start ()
+	public void Start ()
 	{
 		this.current_speed = 0;
 		destroyTime_slider = GameObject.Find("DestroyTime_Slider");
 	}
 	
-	void Update ()
+	public void Update ()
 	{	
 		if (outOfBounds())
 		{
@@ -192,8 +192,7 @@ public class VehicleController : MonoBehaviour
 					
 					this.maxSpeedAllowed = hit.transform.gameObject.GetComponent<VehicleController>().getCurrentSpeed();
 					
-					if (distanceToObstacle > 1) { this.maxSpeedAllowed = 1f; }
-					else						{ this.maxSpeedAllowed = 0f; }
+					this.maxSpeedAllowed = (distanceToObstacle > 1) ? 1f : 0f;
 				}
 				else if (!this.obstacle_detected && trafficLight_detected)
 				{

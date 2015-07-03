@@ -17,7 +17,7 @@ using UnityEngine;
 using System.Collections;
 
 public class GlobalStatus : MonoBehaviour
-{	
+{
 	public static bool isFirstTimeLoadMap = true;
 	
 	public void Awake ()

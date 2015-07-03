@@ -28,7 +28,7 @@ public class GuideNode : MonoBehaviour
 		next_GuideNodes = new List<GameObject>();
 	}
 	
-	void Update ()
+	public void Update ()
 	{
 		Color color = Color.yellow;
 		
