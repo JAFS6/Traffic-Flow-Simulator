@@ -47,26 +47,6 @@ public static class DrawRoad
 		bus_taxi_markings_prefab	= Resources.Load ("Prefabs/RoadMarkings/taxi_bus_markings"	, typeof(GameObject	)) as GameObject;
 	}
 	
-	/**
-	 * @brief Draws a node limit oriented to positive Z axis.
-	 * @param[in] name The name for the object.
-	 * @param[in] lane_num The number of lanes on this node.
-	 * @param[in] parent Parent object to which the object will join.
-	 */
-	public static void nodeLimit (string name, int lane_num, GameObject parent)
-	{
-		float width = (lane_num*Constants.lane_width) + 2*Constants.lane_width; // To protrude from both sides
-		
-		GameObject aux_road = GameObject.CreatePrimitive(PrimitiveType.Cube);
-		aux_road.name = name;
-		aux_road.tag = Constants.Tag_Node_Limit;
-		aux_road.transform.SetParent(parent.transform);
-		aux_road.GetComponent<Renderer>().material = black_material;
-		aux_road.transform.localScale = new Vector3(width,Constants.limit_height,Constants.limit_depth);
-		Vector3 pos = new Vector3(0,(Constants.limit_height/2),0);
-		aux_road.transform.position = pos;
-	}
-	
 	public static void edgePlatform (float width, float length, string src_des, string des_src, bool drawSourceDetentionLine, bool drawDestinationDetentionLine, GameObject parent)
 	{
 		#region Platform
