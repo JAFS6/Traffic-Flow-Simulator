@@ -26,7 +26,6 @@ public static class DrawRoad
 	// Materials
 	private static Material white_asphalt_material;
 	private static Material asphalt_material;
-	private static Material black_material;
 	
 	// Prefabs
 	private static GameObject straight_arrow_prefab;
@@ -42,7 +41,6 @@ public static class DrawRoad
 	{
 		white_asphalt_material 		= Resources.Load ("Materials/White_asphalt"					, typeof(Material	)) as Material;
 		asphalt_material 			= Resources.Load ("Materials/Asphalt"						, typeof(Material	)) as Material;
-		black_material 				= Resources.Load ("Materials/Simple_Black"					, typeof(Material	)) as Material;
 		straight_arrow_prefab 		= Resources.Load ("Prefabs/RoadMarkings/straight_arrow"		, typeof(GameObject	)) as GameObject;
 		bus_taxi_markings_prefab	= Resources.Load ("Prefabs/RoadMarkings/taxi_bus_markings"	, typeof(GameObject	)) as GameObject;
 	}
