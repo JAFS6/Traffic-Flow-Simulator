@@ -67,7 +67,6 @@ public static class MyUtilities : object
 		{
 			w += (lane_codes[i].ToString() == Constants.String_Public_Lane) ? Constants.public_transport_line_width : Constants.line_width;
 		}
-		
 		return w;
 	}
 	
@@ -128,7 +127,6 @@ public static class MyUtilities : object
 			i = str.IndexOf("_des_src_");
 			direction = DirectionType.Destination_Source;
 		}
-		
 		edgeID = str.Substring(0,i);
 		lane_order = System.Convert.ToInt32(str.Substring(i+9,str.Length-(i+9)));
 	}

@@ -51,14 +51,14 @@ public class SimulationUIController : MonoBehaviour
 	// Prefabs
 	private static GameObject roadName3D_prefab;
 	
-	void Start ()
+	public void Start ()
 	{
 		is_paused = false;
 		num_crashes.GetComponent<Text>().text = 0 + "";
 		load_roadName3D_prefab ();
 	}
 	
-	void Update ()
+	public void Update ()
 	{
 		if (Input.GetKeyDown(KeyCode.Escape))
 		{

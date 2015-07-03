@@ -25,7 +25,7 @@ public class LockLookTo : MonoBehaviour
 	private Transform target;
 	
 	// Update is called once per frame
-	void Update ()
+	public void Update ()
 	{
 		this.transform.LookAt (target);
 	}

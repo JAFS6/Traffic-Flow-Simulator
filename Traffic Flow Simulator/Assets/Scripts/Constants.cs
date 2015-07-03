@@ -76,17 +76,17 @@ public static class Constants : object
 	#endregion
 	
 	#region Names
-	public const string Line_Name_Hard_Shoulder = "Hard shoulder line";
+	public const string Line_Name_Hard_Shoulder 		= "Hard shoulder line";
 	public const string Line_Name_Public_Transport_Lane = "Public transport lane line";
-	public const string Line_Name_Normal_Lane = "Normal lane line";
-	public const string Line_Name_Center = "Center line";
-	public const string Line_Name_Detention = "Detention line";
+	public const string Line_Name_Normal_Lane 			= "Normal lane line";
+	public const string Line_Name_Center 				= "Center line";
+	public const string Line_Name_Detention 			= "Detention line";
 	
 	public const string Lane_Name_Public = "Public Lane";
 	public const string Lane_Name_Normal = "Normal Lane";
 	
-	public const string Name_Ground = "Ground";
-	public const string Name_Platform = "Platform";
+	public const string Name_Ground 	= "Ground";
+	public const string Name_Platform 	= "Platform";
 	
 	public const string Name_Source_Start_Points 		= "Source Start Points";
 	public const string Name_Destination_Start_Points 	= "Destination Start Points";
@@ -101,18 +101,18 @@ public static class Constants : object
 	#endregion
 	
 	#region Tags
-	public const string Tag_Node_Limit = "Limit_node";
-	public const string Tag_Node_Continuation = "Continuation_node";
-	public const string Tag_Node_Intersection = "Intersection_node";
-	public const string Tag_Edge = "Edge";
-	public const string Tag_Unknown = "Unknown";
+	public const string Tag_Node_Limit 				= "Limit_node";
+	public const string Tag_Node_Continuation 		= "Continuation_node";
+	public const string Tag_Node_Intersection 		= "Intersection_node";
+	public const string Tag_Edge 					= "Edge";
+	public const string Tag_Unknown 				= "Unknown";
 	public const string Tag_Lane_Start_Point 		= "LaneStartPoint";
 	public const string Tag_Lane_Start_Point_Group 	= "LaneStartPointGroup";
 	public const string Tag_Lane_End_Point 			= "LaneEndPoint";
 	public const string Tag_Lane_End_Point_Group 	= "LaneEndPointGroup";
-	public const string Tag_Vehicle = "Vehicle";
-	public const string Tag_Ground = "Ground";
-	public const string Tag_TrafficLight = "TrafficLight";
+	public const string Tag_Vehicle 				= "Vehicle";
+	public const string Tag_Ground 					= "Ground";
+	public const string Tag_TrafficLight 			= "TrafficLight";
 	#endregion
 	
 	#region Layers
@@ -123,40 +123,40 @@ public static class Constants : object
 	#endregion
 	
 	#region Data strings
-	public const string String_No_Lane = "0";
-	public const string String_Normal_Lane = "N";
-	public const string String_Public_Lane = "P";
-	public const string String_Unknown = "Unknown";
+	public const string String_No_Lane 		= "0";
+	public const string String_Normal_Lane 	= "N";
+	public const string String_Public_Lane 	= "P";
+	public const string String_Unknown 		= "Unknown";
 	
 	public const char Char_Normal_Lane = 'N';
 	public const char Char_Public_Lane = 'P';
 	
-	public const string String_graphml_ext = "graphml";
+	public const string String_graphml_ext  = "graphml";
 	public const string String_topology_ext = "topology";
 	
-	public const string xml_graphml_key_node_type = "node_type";
-	public const string xml_graphml_key_pos_x = "pos_x";
-	public const string xml_graphml_key_pos_y = "pos_y";
-	public const string xml_graphml_key_intersection_type = "crossing_type";
-	public const string xml_graphml_key_road_name = "road_name";
-	public const string xml_graphml_key_src_des = "src_des";
-	public const string xml_graphml_key_des_src = "des_src";
+	public const string xml_graphml_key_node_type 			= "node_type";
+	public const string xml_graphml_key_pos_x 				= "pos_x";
+	public const string xml_graphml_key_pos_y 				= "pos_y";
+	public const string xml_graphml_key_intersection_type 	= "crossing_type";
+	public const string xml_graphml_key_road_name 			= "road_name";
+	public const string xml_graphml_key_src_des 			= "src_des";
+	public const string xml_graphml_key_des_src 			= "des_src";
 	#endregion
 	
 	#region Road measures
-	public const float lane_width = 3.5f;
-	public const float line_width = 0.1f;
-	public const float public_transport_line_width = 0.3f;
-	public const float hard_shoulder_width = 1f;
-	public const float limit_height = 10f;
-	public const float limit_depth = 3f;
-	public const float road_thickness = 0.1f;
-	public const float line_thickness = 0.01f;
-	public const float center_lines_separation = 0.2f;
-	public const float discontinuous_line_length = 1.3f;
-	public const float discontinuous_line_min_margin = 0.3f;
-	public const float cont_nodes_lines_extra_length = 0.05f;
-	public const float grass_ground_padding = 100f;
+	public const float lane_width 					= 3.5f;
+	public const float line_width 					= 0.1f;
+	public const float public_transport_line_width 	= 0.3f;
+	public const float hard_shoulder_width 			= 1f;
+	public const float limit_height 				= 10f;
+	public const float limit_depth 					= 3f;
+	public const float road_thickness 				= 0.1f;
+	public const float line_thickness 				= 0.01f;
+	public const float center_lines_separation 		= 0.2f;
+	public const float discontinuous_line_length 	= 1.3f;
+	public const float discontinuous_line_min_margin= 0.3f;
+	public const float cont_nodes_lines_extra_length= 0.05f;
+	public const float grass_ground_padding 		= 100f;
 	
 	public const float ground_Y_position 	= -0.1f;
 	public const float platform_Y_position 	= -0.004f;
@@ -168,13 +168,12 @@ public static class Constants : object
 	
 	#region Speed measures
 	public const float urban_speed_limit = 13.8f; // Meters per second (50 Km/h)
-	//public const float urban_speed_limit = 1.38f; // Meters per second (10 Km/h)
 	#endregion
 	
 	#region Precision measures
-	public const float bezier_precision = 400f;
-	public const float Guide_Node_padding = 0.5f;
-	public const float infinite = 999999999;
+	public const float bezier_precision  = 400f;
+	public const float Guide_Node_padding= 0.5f;
+	public const float infinite 		 = 999999999;
 	#endregion
 	
 	#region Traffic Light timing

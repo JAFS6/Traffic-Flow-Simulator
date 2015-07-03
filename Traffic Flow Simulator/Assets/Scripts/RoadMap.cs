@@ -188,7 +188,6 @@ public static class RoadMap
 			pos.x = nodes [node_id].x;
 			pos.y = nodes [node_id].y;
 		}
-
 		return pos;
 	}
 
@@ -251,7 +250,6 @@ public static class RoadMap
 			pos.x = (src_pos.x+des_pos.x)/2;
 			pos.y = (src_pos.y+des_pos.y)/2;
 		}
-		
 		return pos;
 	}
 	
@@ -277,7 +275,6 @@ public static class RoadMap
 				pos.y = -pos.y;
 			}
 		}
-		
 		return pos;
 	}
 	
@@ -410,7 +407,6 @@ public static class RoadMap
 				{
 					tt = TransportType.Private;
 				}
-				
 				return true;
 			}
 			else if (edges[edge_id].destination_id == node_id && edges[edge_id].des_src != Constants.String_No_Lane)
@@ -427,7 +423,6 @@ public static class RoadMap
 				{
 					tt = TransportType.Private;
 				}
-				
 				return true;
 			}
 			else { return false; }
@@ -514,46 +509,49 @@ public static class RoadMap
 	 * @param[in] entry_edge_id Edge ID through which entered the node
 	 * @param[in] tt Vehicle transport type
 	 */
-	public static List<string> exitPaths (string node_id, string entry_edge_id, TransportType tt) {
-	
+	public static List<string> exitPaths (string node_id, string entry_edge_id, TransportType tt)
+	{
 		List<string> exits = new List<string>();
 		exits.Clear();
 		
-		if (nodes.ContainsKey(node_id) && edges.ContainsKey(entry_edge_id)) {
+		if (nodes.ContainsKey(node_id) && edges.ContainsKey(entry_edge_id))
+		{
 			List<string> edge_keys = new List<string> (edges.Keys);
 			
-			foreach (string edge_id in edge_keys) {
-				
-				if (edge_id != entry_edge_id) { // The edge is not the edge through it has entered
-					
-					if (node_id == edges[edge_id].source_id && edges[edge_id].src_des != Constants.String_No_Lane) { // There is at least one exit lane
-						
+			foreach (string edge_id in edge_keys)
+			{
+				if (edge_id != entry_edge_id) // The edge is not the edge through it has entered
+				{
+					if (node_id == edges[edge_id].source_id && edges[edge_id].src_des != Constants.String_No_Lane) // There is at least one exit lane
+					{
 						if ((tt == TransportType.Public && edges[edge_id].src_des.Contains(Constants.String_Public_Lane)) || 
-							(tt == TransportType.Private && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane))) { // There is at least one lane which corresponds to the vehicle type
-							
+						    (tt == TransportType.Private && edges[edge_id].src_des.Contains(Constants.String_Normal_Lane))) // There is at least one lane which corresponds to the vehicle type
+						{
 							exits.Add(edge_id);
 						}
 					}
-					else if (node_id == edges[edge_id].destination_id && edges[edge_id].des_src != Constants.String_No_Lane) { // There is at least one exit lane
-						
+					else if (node_id == edges[edge_id].destination_id && edges[edge_id].des_src != Constants.String_No_Lane) // There is at least one exit lane
+					{
 						if ((tt == TransportType.Public && edges[edge_id].des_src.Contains(Constants.String_Public_Lane)) || 
-						    (tt == TransportType.Private && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane))) { // There is at least one lane which corresponds to the vehicle type
-							
+						    (tt == TransportType.Private && edges[edge_id].des_src.Contains(Constants.String_Normal_Lane))) // There is at least one lane which corresponds to the vehicle type
+						{
 							exits.Add(edge_id);
 						}
 					}
 				}
 			}
 		}
-		else {
-			if (!nodes.ContainsKey(node_id)) {
+		else
+		{
+			if (!nodes.ContainsKey(node_id))
+			{
 				Debug.LogError("exitPaths error: Node "+node_id+" don't exists.");
 			}
-			if (!edges.ContainsKey(entry_edge_id)) {
+			if (!edges.ContainsKey(entry_edge_id))
+			{
 				Debug.LogError("exitPaths error: Edge "+entry_edge_id+" don't exists.");
 			}
 		}
-		
 		return exits;
 	}
 
@@ -569,12 +567,14 @@ public static class RoadMap
 		prepareEdges ();
 		// Draw the edges
 		List<string> edgeKeys = getEdgeIDs ();
+		
 		foreach (string edgeKey in edgeKeys)
 		{
 			drawEdge (edgeKey);
 		}
 		// Draw the nodes
 		List<string> nodeKeys = getNodeIDs ();
+		
 		foreach (string nodeKey in nodeKeys)
 		{
 			drawNode (nodeKey);
@@ -603,17 +603,21 @@ public static class RoadMap
 		{
 			Vector2 pos = RoadMap.getNodePosition (ID);
 			
-			if (pos.x < min_x) {
+			if (pos.x < min_x)
+			{
 				min_x = pos.x;
 			}
-			else if (pos.x > max_x) {
+			else if (pos.x > max_x)
+			{
 				max_x = pos.x;
 			}
 			
-			if (pos.y < min_z) {
+			if (pos.y < min_z)
+			{
 				min_z = pos.y;
 			}
-			else if (pos.y > max_z) {
+			else if (pos.y > max_z)
+			{
 				max_z = pos.y;
 			}
 		}
@@ -627,12 +631,13 @@ public static class RoadMap
 	 * @brief Processes edges calculating its length, width and number of lanes as well as the length and position adjustment for intersections
 	 * @pre This method must be called before running the method DrawEdge
 	 */
-	private static void prepareEdges () {
-
+	private static void prepareEdges ()
+	{
 		List<string> edge_keys = new List<string> (edges.Keys);
 
 		// Calculate the number of lanes, the edge length, the width of the edge and edge direction vector
-		foreach (string edge_key in edge_keys) {
+		foreach (string edge_key in edge_keys)
+		{
 			Edge e = edges[edge_key];
 			// Number of lanes
 			e.lane_num = lanes (e.id);
@@ -654,15 +659,17 @@ public static class RoadMap
 		// and update continuation nodes if they are of one direction or two.
 		List<string> node_keys = new List<string> (nodes.Keys);
 
-		foreach (string node_key in node_keys) {
+		foreach (string node_key in node_keys)
+		{
 			Node n = nodes[node_key];
 			float best_width = 0f;
 
-			foreach (string edge_key in edge_keys) {
-
-				if (edges[edge_key].source_id == n.id || edges[edge_key].destination_id == n.id) {
-					
-					if (edges[edge_key].width > best_width) {
+			foreach (string edge_key in edge_keys)
+			{
+				if (edges[edge_key].source_id == n.id || edges[edge_key].destination_id == n.id)
+				{	
+					if (edges[edge_key].width > best_width)
+					{
 						best_width = edges[edge_key].width;
 						n.widest_edge_id = edge_key;
 					}
@@ -673,7 +680,8 @@ public static class RoadMap
 		}
 
 		// Calculate the edge vector position adjustment.
-		foreach (string edge_key in edge_keys) {
+		foreach (string edge_key in edge_keys)
+		{
 			Edge e = edges[edge_key];
 			string source_node_id = e.source_id;
 			string destination_node_id = e.destination_id;
@@ -687,28 +695,32 @@ public static class RoadMap
 			string src_id_widest_edge = nodes[source_node_id].widest_edge_id;		// Widest node ID in the source node
 			string dst_id_widest_edge = nodes[destination_node_id].widest_edge_id;	// Widest node ID in the destination node
 
-			if (src_node_type == NodeType.Intersection || src_node_type == NodeType.Continuation) {
+			if (src_node_type == NodeType.Intersection || src_node_type == NodeType.Continuation)
+			{
 				float aux_width = edges[ src_id_widest_edge ].width /2;
 				fixed_length += aux_width; // Displacement in the direction of the edge direction vector
 				e.length -= aux_width;
 			}
-			/*else if (src_node_type == NodeType.Limit) {
-				Do nothing, roads beginning at the center of the limit nodes
+			/*else if (src_node_type == NodeType.Limit)
+			{
+				Do nothing, roads begin at the center of the limit nodes
 			}*/
 
-			if (dst_node_type == NodeType.Intersection || dst_node_type == NodeType.Continuation) {
+			if (dst_node_type == NodeType.Intersection || dst_node_type == NodeType.Continuation)
+			{
 				float aux_width = edges[ dst_id_widest_edge ].width /2;
 				fixed_length -= aux_width; // Displacement in the opposite direction of the edge direction vector
 				e.length -= aux_width;
 			}
 			/*else if (dst_node_type == NodeType.Limit) {
-				Do nothing, roads beginning at the center of the limit nodes
+				Do nothing, roads begin at the center of the limit nodes
 			}*/
 			
 			// Divide in half length-adjusted to match the margins
 			fixed_length = fixed_length / 2;
 
-			if (fixed_length < 0) {
+			if (fixed_length < 0)
+			{
 				fixed_length = Mathf.Abs(fixed_length);
 				polar_angle = (polar_angle + 180) % 360;
 			}
@@ -721,7 +733,6 @@ public static class RoadMap
 			e.fixed_position = new Vector3( (dst_node.x + src_node.x)/2, 0, (dst_node.y + src_node.y)/2);
 			e.fixed_position.x += e.fixed_position_vector.x;
 			e.fixed_position.z += e.fixed_position_vector.y;
-
 			// Update edge
 			edges[e.id] = e;
 		}
@@ -731,12 +742,13 @@ public static class RoadMap
 	 * @brief Draw the node with id "node_id" in the 3D environment
 	 * @param[in] node_id Identifier of the node to draw
 	 */
-	private static void drawNode (string node_id) {
-
+	private static void drawNode (string node_id)
+	{
 		Node n = nodes[node_id];
 		Vector3 pos = new Vector3 (n.x, 0, n.y);
 
-		if (n.node_type == NodeType.Limit) {  // DRAW LIMIT NODE
+		if (n.node_type == NodeType.Limit) // DRAW LIMIT NODE
+		{
 			Edge e = edges[getLimitEdge(n.id)];
 			
 			GameObject aux_road = new GameObject();
@@ -748,7 +760,8 @@ public static class RoadMap
 			// Place the node in the roads layer
 			MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
-		else if (n.node_type == NodeType.Continuation) {  // DRAW CONTINUATION NODE
+		else if (n.node_type == NodeType.Continuation) // DRAW CONTINUATION NODE
+		{
 			GameObject aux_road = new GameObject();
 			aux_road.name = node_id;
 			aux_road.tag = Constants.Tag_Node_Continuation;
@@ -762,7 +775,8 @@ public static class RoadMap
 			string selected_edge = edgeID1;
 			string non_selected_edge = edgeID2;
 			
-			if (edges[edgeID2].fixed_position.x < edges[edgeID1].fixed_position.x) {
+			if (edges[edgeID2].fixed_position.x < edges[edgeID1].fixed_position.x)
+			{
 				selected_edge = edgeID2;
 				non_selected_edge = edgeID1;
 			}
@@ -779,7 +793,8 @@ public static class RoadMap
 			edge_direction.Normalize();
 			float rotation_degrees = Vector2.Angle(new Vector2(0,1),edge_direction); // Vector (0,1) is the orientation of the continuation node
 			
-			if (side == TurnSide.Left) {
+			if (side == TurnSide.Left)
+			{
 				rotation_degrees = -rotation_degrees;
 			}
 			
@@ -788,30 +803,35 @@ public static class RoadMap
 			// Place the node in the roads layer
 			MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
-		else if (n.node_type == NodeType.Intersection) {  // DRAW INTERSECTION NODE
-		
+		else if (n.node_type == NodeType.Intersection) // DRAW INTERSECTION NODE
+		{
 			GameObject road_prefab = Resources.Load("Prefabs/Road", typeof(GameObject)) as GameObject;
 			
-			if (road_prefab == null) {
+			if (road_prefab == null)
+			{
 				Debug.Log ("road_prefab is null");
 			}
-			else {
+			else
+			{
 				pos.y = -0.05f + Constants.platform_Y_position;
 				GameObject aux_road = GameObject.Instantiate (road_prefab, pos, Quaternion.identity) as GameObject;
 				aux_road.transform.localScale = new Vector3(edges[n.widest_edge_id].width,Constants.road_thickness,edges[n.widest_edge_id].width);
 				aux_road.name = node_id;
 				
-				if (n.node_type == NodeType.Intersection) {
+				if (n.node_type == NodeType.Intersection)
+				{
 					aux_road.tag = Constants.Tag_Node_Intersection;
 				}
-				else {
+				else
+				{
 					aux_road.tag = Constants.Tag_Unknown;
 				}
 				// Place the node in the roads layer
 				MyUtilities.MoveToLayer(aux_road.transform,LayerMask.NameToLayer(Constants.Layer_Roads));
 			}
 		}
-		else {
+		else
+		{
 			Debug.Log("Trying to draw invalid node type");
 		}
 		// Update node info
@@ -823,13 +843,14 @@ public static class RoadMap
 	 * @param[in] node_id Continuation node ID
 	 * @return Width searched
 	 */
-	private static float nodeWidth (string node_id) {
-
+	private static float nodeWidth (string node_id)
+	{
 		// Since the width of both edges is the same, as we find the first search stops
 
-		foreach (KeyValuePair<string, Edge> edge in edges) {
-
-			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id) {
+		foreach (KeyValuePair<string, Edge> edge in edges)
+		{
+			if (edge.Value.source_id == node_id || edge.Value.destination_id == node_id)
+			{
 				return edge.Value.width;
 			}
 		}
@@ -846,10 +867,10 @@ public static class RoadMap
 	 * @return The angle calculated in degrees [0,180]
 	 * @post After the execution of this method, the value of side will haven been set
 	 */
-	private static float nodeAngle (string node_id, string ref_edge_id, string edge2_id, out TurnSide side) {
-	
+	private static float nodeAngle (string node_id, string ref_edge_id, string edge2_id, out TurnSide side)
+	{
 		// Position of the node in 2D and 3D
-		Vector2 node_pos_2D = new Vector2(nodes[node_id].x,    nodes[node_id].y);
+		Vector2 node_pos_2D = new Vector2(nodes[node_id].x, nodes[node_id].y);
 		
 		// Position of the reference edge in 2D and 3D
 		Vector2 ref_edge_pos_2D = new Vector2(edges[ref_edge_id].fixed_position.x, edges[ref_edge_id].fixed_position.z);
@@ -890,13 +911,14 @@ public static class RoadMap
 		float distance_left_MP = MyMathClass.Distance(left_point, MP);
 		float distance_right_MP = MyMathClass.Distance(right_point, MP);
 		
-		if (distance_left_MP < distance_right_MP) {
+		if (distance_left_MP < distance_right_MP)
+		{
 			side = TurnSide.Right;
 		}
-		else {
+		else
+		{
 			side = TurnSide.Left;
 		}
-		
 		return angle_deg;
 	}
 	
@@ -1043,23 +1065,23 @@ public static class RoadMap
 		
 		switch (lane_type)
 		{
-		case Constants.Char_Public_Lane:
-			onLane.name = name_base + Constants.Lane_Name_Public;
-			script.setGuideNodeTransportType(TransportType.Public);
-			break;
-		case Constants.Char_Normal_Lane:
-			onLane.name = name_base + Constants.Lane_Name_Normal;
-			script.setGuideNodeTransportType(TransportType.PublicAndPrivate);
-			break;
-		case 'A':
-			Debug.Log("Parking lane start point not designed yet");
-			break;
-		case 'V':
-			Debug.Log("Bus/HOV lane start point not designed yet");
-			break;
-		default:
-			Debug.Log("Trying to draw invalid type of lane");
-			break;
+			case Constants.Char_Public_Lane:
+				onLane.name = name_base + Constants.Lane_Name_Public;
+				script.setGuideNodeTransportType(TransportType.Public);
+				break;
+			case Constants.Char_Normal_Lane:
+				onLane.name = name_base + Constants.Lane_Name_Normal;
+				script.setGuideNodeTransportType(TransportType.PublicAndPrivate);
+				break;
+			case 'A':
+				Debug.Log("Parking lane start point not designed yet");
+				break;
+			case 'V':
+				Debug.Log("Bus/HOV lane start point not designed yet");
+				break;
+			default:
+				Debug.Log("Trying to draw invalid type of lane");
+				break;
 		}
 		return onLane;
 	}
@@ -1069,17 +1091,20 @@ public static class RoadMap
 	 * @param[in] edge_id Edge ID
 	 * @return The total number of lanes of the edge
 	 */
-	private static int lanes (string edge_id) {
+	private static int lanes (string edge_id)
+	{
 		string src_des = edges [edge_id].src_des;
 		string des_src = edges [edge_id].des_src;
 		
 		int lane_num = 0;
 		
-		if (src_des != Constants.String_No_Lane) {
+		if (src_des != Constants.String_No_Lane)
+		{
 			lane_num += src_des.Length;
 		}
 		
-		if (des_src != Constants.String_No_Lane) {
+		if (des_src != Constants.String_No_Lane)
+		{
 			lane_num += des_src.Length;
 		}
 
