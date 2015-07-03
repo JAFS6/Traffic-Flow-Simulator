@@ -1085,6 +1085,41 @@ public static class RoadMap
 		}
 		return onLane;
 	}
+	
+	/**
+	 * @brief Sets a OnIntersection object at the specified position.
+	 * @param[in] edgeID Identifier of the edge or node.
+	 * @param[in] transport_type Transport type (P: Public transportation, N: Normal, A: Parking, V: Bus/HOV)
+	 * @param[in] position Position where the object will be placed.
+	 * @param[in] parent Parent object to which the object will join.
+	 * @return The created object.
+	 */
+	private static GameObject setOnIntersectionPoint (string ID, TransportType transport_type, Vector3 position, GameObject parent)
+	{
+		string name_base = ID + "_";
+		
+		GameObject onLane = new GameObject();
+		onLane.transform.SetParent(parent.transform);
+		onLane.transform.position = position;
+		GuideNode script = onLane.AddComponent<GuideNode>();
+		script.setGuideNodeType(GuideNodeType.OnLane);
+		
+		if (transport_type == TransportType.Public)
+		{
+			onLane.name = name_base + Constants.Name_Intersection + Constants.Lane_Name_Public;
+			script.setGuideNodeTransportType(TransportType.Public);
+		}
+		else if (transport_type == TransportType.Private || transport_type == TransportType.PublicAndPrivate)
+		{
+			onLane.name = name_base + Constants.Name_Intersection + Constants.Lane_Name_Normal;
+			script.setGuideNodeTransportType(TransportType.PublicAndPrivate);
+		}
+		else
+		{
+			Debug.LogError("Trying to create invalid setOnIntersectionPoint");
+		}
+		return onLane;
+	}
 
 	/**
 	 * @brief Calculate the total number of lanes of the edge whose identifier is passed as an argument
@@ -1330,8 +1365,7 @@ public static class RoadMap
 		// Paint as many lines as lanes are in each direction except one 
 		// and put as many start lane as lanes have
 		Vector2 P, PR, PCB;
-		int numGuideNodesOnLane = 7;
-		float interval = 1f / (numGuideNodesOnLane+1);
+		float interval = 1f / (Constants.numBezierTurnGuideNodes + 1);
 		
 		if (e.src_des != Constants.String_No_Lane)
 		{
@@ -1374,9 +1408,9 @@ public static class RoadMap
 					LEP = setLaneEndPoint   (node_id, DirectionType.Source_Destination, i, lane_type, PR_3D, source_end_points);
 				}
 				
-				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
+				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OnLanePoint, 1 is next_OnLanePoint
 				
-				for (int j=0; j<numGuideNodesOnLane; j++)
+				for (int j=0; j<Constants.numBezierTurnGuideNodes; j++)
 				{
 					Vector3 PCB_3D_fixed;
 					
@@ -1440,9 +1474,9 @@ public static class RoadMap
 					LEP = setLaneEndPoint   (node_id, DirectionType.Destination_Source, i, lane_type, P_3D , destination_end_points);
 				}
 				
-				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OLP, 1 is next_OLP
+				GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OnLanePoint, 1 is next_OnLanePoint
 				
-				for (int j=0; j<numGuideNodesOnLane; j++)
+				for (int j=0; j<Constants.numBezierTurnGuideNodes; j++)
 				{
 					Vector3 PCB_3D_fixed;
 					
@@ -1720,14 +1754,14 @@ public static class RoadMap
 	private static void connectIntersectionsGuideNodes ()
 	{
 		List<string> turns_keys = new List<string>(allowedDirections.Keys);
-		string edgeID;
 		DirectionType dir;
 		int lane_order;
 		
 		foreach (string startTurnID in turns_keys)
 		{
-			MyUtilities.splitTurnPointID(startTurnID, out edgeID, out dir, out lane_order);
-			string str = edgeID;
+			string startEdgeID;
+			MyUtilities.splitTurnPointID(startTurnID, out startEdgeID, out dir, out lane_order);
+			string str = startEdgeID;
 			string str_group;
 			
 			if (dir == DirectionType.Source_Destination)
@@ -1743,7 +1777,7 @@ public static class RoadMap
 			
 			str += "lane_" + lane_order;
 			
-			GameObject src_edge_obj = GameObject.Find(edgeID);
+			GameObject src_edge_obj = GameObject.Find(startEdgeID);
 			GameObject end_points_group = src_edge_obj.transform.Find(str_group).gameObject;
 			GameObject startPoint = MyUtilities.getGameObjectWithNameInHierarchy(str, end_points_group);
 			
@@ -1751,8 +1785,9 @@ public static class RoadMap
 			
 			foreach (string n in nexts)
 			{
-				MyUtilities.splitTurnPointID(n, out edgeID, out dir, out lane_order);
-				str = edgeID;
+				string endEdgeID;
+				MyUtilities.splitTurnPointID(n, out endEdgeID, out dir, out lane_order);
+				str = endEdgeID;
 				
 				if (dir == DirectionType.Source_Destination)
 				{
@@ -1765,12 +1800,76 @@ public static class RoadMap
 					str_group = Constants.Name_Destination_Start_Points;
 				}
 				str += "lane_" + lane_order;
-				GameObject des_edge_obj = GameObject.Find(edgeID);
+				GameObject des_edge_obj = GameObject.Find(endEdgeID);
 				GameObject start_points_group = des_edge_obj.transform.Find(str_group).gameObject;
 				GameObject endPoint = MyUtilities.getGameObjectWithNameInHierarchy(str, start_points_group);
-				startPoint.GetComponent<GuideNode>().addNextGuideNode(endPoint);
+				
+				Vector2 controlPoint = MyMathClass.intersectionPoint (new Vector2(startPoint.transform.position.x, startPoint.transform.position.z),
+																	  edges[startEdgeID].direction,
+				                                                      new Vector2(endPoint.transform.position.x, endPoint.transform.position.z),
+																	  edges[endEdgeID].direction);
+											
+				string intersectionNodeID = getIntersectionNode (startEdgeID, endEdgeID);
+				GameObject intersectionNodeObj = GameObject.Find(intersectionNodeID);
+				createBezierOverIntersection (intersectionNodeID, startPoint, endPoint, controlPoint, intersectionNodeObj);
 			}
 		}
+	}
+	
+	/**
+	 * @brief Gets the identifier of the node shared between edge1 and edge2.
+	 * @param[in] edge1 The identifier of the first edge.
+	 * @param[in] edge1 The identifier of the second edge.
+	 * @return The searched identifier or Unknown if the edges do not share any node.
+	 */
+	private static string getIntersectionNode (string edge1, string edge2)
+	{
+		string srcID1 = edges[edge1].source_id;
+		string desID1 = edges[edge1].destination_id;
+		
+		string srcID2 = edges[edge2].source_id;
+		string desID2 = edges[edge2].destination_id;
+		
+		if (srcID1 == srcID2)
+		{
+			return srcID1;
+		}
+		else if (srcID1 == desID2)
+		{
+			return srcID1;
+		}
+		else if (desID1 == srcID2)
+		{
+			return desID1;
+		}
+		else if (desID1 == desID2)
+		{
+			return desID1;
+		}
+		return Constants.String_Unknown;
+	}
+	
+	private static void createBezierOverIntersection (string ID, GameObject startPoint, GameObject endPoint, Vector2 controlPoint, GameObject parent)
+	{
+		GameObject [] prev_next_OLP = new GameObject [2]; // 0 is prev_OnLanePoint, 1 is next_OnLanePoint
+		float interval = 1f / (Constants.numBezierTurnGuideNodes + 1);
+		Vector3 generalControlPoint3D = new Vector3(controlPoint.x, 0, controlPoint.y);
+		
+		for (int j=0; j<Constants.numBezierTurnGuideNodes; j++)
+		{
+			Vector3 OnLanePointPosition = MyMathClass.CalculateBezierPoint(	interval + (interval * j),
+																			startPoint.transform.position,
+																			generalControlPoint3D,
+																			generalControlPoint3D,
+																			endPoint.transform.position);
+			
+			prev_next_OLP[1] = setOnIntersectionPoint (ID, endPoint.GetComponent<GuideNode>().getGuideNodeTransportType(), OnLanePointPosition, parent);
+			
+			if (j == 0){ startPoint.GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+			else { prev_next_OLP[0].GetComponent<GuideNode>().addNextGuideNode(prev_next_OLP[1]); }
+			prev_next_OLP[0] = prev_next_OLP[1];
+		}
+		prev_next_OLP[1].GetComponent<GuideNode>().addNextGuideNode(endPoint);
 	}
 	
 	private static void addTrafficLight (string intersectionNodeID, GameObject traffigLight)

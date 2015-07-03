@@ -98,6 +98,8 @@ public static class Constants : object
 	public const string Name_Turn_Platform = "Turn Platform";
 	
 	public const string Name_Topological_Objects = "Topological objects";
+	
+	public const string Name_Intersection = "Intersection";
 	#endregion
 	
 	#region Tags
@@ -164,6 +166,8 @@ public static class Constants : object
 	public const float vehicles_Y_position 	= 0f;
 	
 	public const float nameSign_Y_position 	= 4f;
+	
+	public const int numBezierTurnGuideNodes = 7;
 	#endregion
 	
 	#region Speed measures
