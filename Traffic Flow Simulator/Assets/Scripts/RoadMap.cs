@@ -1247,23 +1247,26 @@ public static class RoadMap
 			}
 		}
 		
-		// Create lane changes
-		for (int i=0; i<lane_num_src_des-1; i++)
+		if (laneChangeAllowed)
 		{
-			if (e.src_des[i] == e.src_des[i+1])
+			// Create lane changes
+			for (int i=0; i<lane_num_src_des-1; i++)
 			{
-				(src_onLane_guideNodes[i  ,0]).GetComponent<GuideNode>().addNextGuideNode(src_onLane_guideNodes[i+1,1]);
-				(src_onLane_guideNodes[i+1,0]).GetComponent<GuideNode>().addNextGuideNode(src_onLane_guideNodes[i  ,1]);
+				if (e.src_des[i] == e.src_des[i+1])
+				{
+					(src_onLane_guideNodes[i  ,0]).GetComponent<GuideNode>().addNextGuideNode(src_onLane_guideNodes[i+1,1]);
+					(src_onLane_guideNodes[i+1,0]).GetComponent<GuideNode>().addNextGuideNode(src_onLane_guideNodes[i  ,1]);
+				}
 			}
-		}
-		
-		// Create lane changes
-		for (int i=0; i<lane_num_des_src-1; i++)
-		{
-			if (e.des_src[i] == e.des_src[i+1])
+			
+			// Create lane changes
+			for (int i=0; i<lane_num_des_src-1; i++)
 			{
-				(des_onLane_guideNodes[i  ,0]).GetComponent<GuideNode>().addNextGuideNode(des_onLane_guideNodes[i+1,1]);
-				(des_onLane_guideNodes[i+1,0]).GetComponent<GuideNode>().addNextGuideNode(des_onLane_guideNodes[i  ,1]);
+				if (e.des_src[i] == e.des_src[i+1])
+				{
+					(des_onLane_guideNodes[i  ,0]).GetComponent<GuideNode>().addNextGuideNode(des_onLane_guideNodes[i+1,1]);
+					(des_onLane_guideNodes[i+1,0]).GetComponent<GuideNode>().addNextGuideNode(des_onLane_guideNodes[i  ,1]);
+				}
 			}
 		}
 		
