@@ -759,7 +759,7 @@ public static class RoadMap
 			tunnel.tag = Constants.Tag_Node_Limit;
 			tunnel.transform.localScale = new Vector3(e.lane_num, 1, 1);
 			Vector3 road_entry_direction = MyMathClass.orientationVector(pos, e.fixed_position);
-			tunnel.transform.rotation = Quaternion.AngleAxis(MyMathClass.RotationAngle(new Vector2 (0,1), new Vector2(road_entry_direction.x,road_entry_direction.z)),Vector3.down); // Vector (0,1) is the orientation of the limit node
+			tunnel.transform.rotation = Quaternion.LookRotation(road_entry_direction, Vector3.up); // Vector (0,1) is the orientation of the limit node
 			// Place the node in the roads layer
 			MyUtilities.MoveToLayer(tunnel.transform, LayerMask.NameToLayer(Constants.Layer_Roads));
 		}
