@@ -186,7 +186,6 @@ public static class Constants : object
 	#endregion
 	
 	#region Traffic Light timing
-	public const float timeGreen  =  15f; // Time in seconds that the traffic light will stay green.
 	public const float timeOrange =  2f; // Time in seconds that the traffic light will stay orange.
 	#endregion
 }

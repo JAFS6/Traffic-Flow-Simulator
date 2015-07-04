@@ -14,6 +14,7 @@
 	limitations under the License.
 */
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.IO;
 using System.Collections.Generic;
@@ -27,6 +28,7 @@ public static class RoadMap
 	private static Dictionary<string, AllowedDirections> allowedDirections;
 	private static Dictionary<string, List<GameObject> > groupedTrafficLights; // <intersection_node_id, List of traffic lights>
 	
+	private static GameObject GreenTime_slider;
 	public static float max_x,min_x,max_z,min_z; // Ground limits
 
 	public static void CreateNewMap (string name)
@@ -1944,15 +1946,21 @@ public static class RoadMap
 		}
 	}
 	
-	private static void synchronizeTrafficLights ()
+	public static void synchronizeTrafficLights ()
 	{
+		if (GreenTime_slider == null)
+		{
+			GreenTime_slider = GameObject.Find("GreenTime_Slider");
+		}
+	
 		List<string> nodeIDs = new List<string>(groupedTrafficLights.Keys);
 		
 		foreach (string ID in nodeIDs)
 		{
 			List<GameObject> l = groupedTrafficLights[ID];
 			int num_traffic_lights = l.Count;
-			float cycleTime = Constants.timeGreen + Constants.timeOrange;
+			float timeGreen = GreenTime_slider.GetComponent<Slider>().value;
+			float cycleTime = timeGreen + Constants.timeOrange;
 			// Time in seconds that the traffic light will stay red.
 			float timeRed = (num_traffic_lights-1) * cycleTime;
 			int i=0;
@@ -1962,7 +1970,7 @@ public static class RoadMap
 				delegate(GameObject obj)
 				{
 					TrafficLightController controller = obj.GetComponent<TrafficLightController>();
-					controller.setTimeGreen (Constants.timeGreen);
+					controller.setTimeGreen (timeGreen);
 					controller.setTimeOrange(Constants.timeOrange);
 					controller.setTimeRed   (timeRed);
 					controller.setTimeBeforeFirstGreen (i*cycleTime);
