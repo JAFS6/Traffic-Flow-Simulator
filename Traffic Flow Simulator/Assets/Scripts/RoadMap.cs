@@ -1182,6 +1182,13 @@ public static class RoadMap
 		GameObject destination_start_points = MyUtilities.CreateGameObject(Constants.Name_Destination_Start_Points, edge_root, Constants.Tag_Lane_Start_Point_Group);
 		GameObject source_end_points 		= MyUtilities.CreateGameObject(Constants.Name_Source_End_Points		  , edge_root, Constants.Tag_Lane_End_Point_Group);
 		GameObject destination_end_points 	= MyUtilities.CreateGameObject(Constants.Name_Destination_End_Points  , edge_root, Constants.Tag_Lane_End_Point_Group);
+		GameObject source_onLane_points		= MyUtilities.CreateGameObject(Constants.Name_Source_OnLane_Points    , edge_root, Constants.Tag_OnLane_Point_Group);
+		GameObject destination_onLane_points= MyUtilities.CreateGameObject(Constants.Name_Destination_OnLane_Points,edge_root, Constants.Tag_OnLane_Point_Group);
+		
+		bool laneChangeAllowed = (e.length >= 2*Constants.lane_change_lenght);
+		
+		GameObject [,] src_onLane_guideNodes = new GameObject[lane_num_src_des, 2];
+		GameObject [,] des_onLane_guideNodes = new GameObject[lane_num_des_src, 2];
 		
 		// Put as many start lane and end lane as lanes are.
 		
@@ -1196,7 +1203,21 @@ public static class RoadMap
 				
 				GameObject LSP = setLaneStartPoint (edge_id, DirectionType.Source_Destination, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - half_length + Constants.Guide_Node_padding), source_start_points);
 				GameObject LEP = setLaneEndPoint   (edge_id, DirectionType.Source_Destination, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + half_length - Constants.Guide_Node_padding), source_end_points);
-				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+				
+				if (laneChangeAllowed)
+				{
+					GameObject OLP1 = setOnLanePoint    (edge_id, DirectionType.Source_Destination, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, - Constants.lane_change_lenght/2), source_onLane_points);
+					GameObject OLP2 = setOnLanePoint    (edge_id, DirectionType.Source_Destination, i, src_des_lane_type, new Vector3 (src_des_posX + half_lane_width, 0, + Constants.lane_change_lenght/2), source_onLane_points);
+					LSP.GetComponent<GuideNode>().addNextGuideNode(OLP1);
+					OLP1.GetComponent<GuideNode>().addNextGuideNode(OLP2);
+					OLP2.GetComponent<GuideNode>().addNextGuideNode(LEP);
+					src_onLane_guideNodes[i,0] = OLP1;
+					src_onLane_guideNodes[i,1] = OLP2;
+				}
+				else
+				{
+					LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+				}
 			}
 			
 			if (i < lane_num_des_src)
@@ -1206,7 +1227,41 @@ public static class RoadMap
 				
 				GameObject LSP = setLaneStartPoint (edge_id, DirectionType.Destination_Source, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + half_length - Constants.Guide_Node_padding), destination_start_points);
 				GameObject LEP = setLaneEndPoint   (edge_id, DirectionType.Destination_Source, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - half_length + Constants.Guide_Node_padding), destination_end_points);
-				LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+				
+				if (laneChangeAllowed)
+				{
+					GameObject OLP1 = setOnLanePoint    (edge_id, DirectionType.Destination_Source, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, + Constants.lane_change_lenght/2), destination_onLane_points);
+					GameObject OLP2 = setOnLanePoint    (edge_id, DirectionType.Destination_Source, i, des_src_lane_type, new Vector3 (des_src_posX - half_lane_width, 0, - Constants.lane_change_lenght/2), destination_onLane_points);
+					LSP.GetComponent<GuideNode>().addNextGuideNode(OLP1);
+					OLP1.GetComponent<GuideNode>().addNextGuideNode(OLP2);
+					OLP2.GetComponent<GuideNode>().addNextGuideNode(LEP);
+					des_onLane_guideNodes[i,0] = OLP1;
+					des_onLane_guideNodes[i,1] = OLP2;
+				}
+				else
+				{
+					LSP.GetComponent<GuideNode>().addNextGuideNode(LEP);
+				}
+			}
+		}
+		
+		// Create lane changes
+		for (int i=0; i<lane_num_src_des-1; i++)
+		{
+			if (e.src_des[i] == e.src_des[i+1])
+			{
+				(src_onLane_guideNodes[i  ,0]).GetComponent<GuideNode>().addNextGuideNode(src_onLane_guideNodes[i+1,1]);
+				(src_onLane_guideNodes[i+1,0]).GetComponent<GuideNode>().addNextGuideNode(src_onLane_guideNodes[i  ,1]);
+			}
+		}
+		
+		// Create lane changes
+		for (int i=0; i<lane_num_des_src-1; i++)
+		{
+			if (e.des_src[i] == e.des_src[i+1])
+			{
+				(des_onLane_guideNodes[i  ,0]).GetComponent<GuideNode>().addNextGuideNode(des_onLane_guideNodes[i+1,1]);
+				(des_onLane_guideNodes[i+1,0]).GetComponent<GuideNode>().addNextGuideNode(des_onLane_guideNodes[i  ,1]);
 			}
 		}
 		

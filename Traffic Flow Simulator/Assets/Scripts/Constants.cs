@@ -93,6 +93,8 @@ public static class Constants : object
 	public const string Name_Source_End_Points 			= "Source End Points";
 	public const string Name_Destination_End_Points 	= "Destination End Points";
 	public const string Name_OnLane_Points				= "On Lane Points";
+	public const string Name_Source_OnLane_Points		= "Source On Lane Points";
+	public const string Name_Destination_OnLane_Points	= "Destination On Lane Points";
 	
 	public const string Name_Turn_Section  = "Turn Section";
 	public const string Name_Turn_Platform = "Turn Platform";
@@ -112,6 +114,8 @@ public static class Constants : object
 	public const string Tag_Lane_Start_Point_Group 	= "LaneStartPointGroup";
 	public const string Tag_Lane_End_Point 			= "LaneEndPoint";
 	public const string Tag_Lane_End_Point_Group 	= "LaneEndPointGroup";
+	public const string Tag_OnLane_Point			= "OnLanePoint";
+	public const string Tag_OnLane_Point_Group		= "OnLanePointGroup";
 	public const string Tag_Vehicle 				= "Vehicle";
 	public const string Tag_Ground 					= "Ground";
 	public const string Tag_TrafficLight 			= "TrafficLight";
@@ -159,6 +163,7 @@ public static class Constants : object
 	public const float discontinuous_line_min_margin= 0.3f;
 	public const float cont_nodes_lines_extra_length= 0.05f;
 	public const float grass_ground_padding 		= 100f;
+	public const float lane_change_lenght			= 10f;
 	
 	public const float ground_Y_position 	= -0.1f;
 	public const float platform_Y_position 	= -0.004f;
@@ -181,7 +186,7 @@ public static class Constants : object
 	#endregion
 	
 	#region Traffic Light timing
-	public const float timeGreen  =  5f; // Time in seconds that the traffic light will stay green.
+	public const float timeGreen  =  15f; // Time in seconds that the traffic light will stay green.
 	public const float timeOrange =  2f; // Time in seconds that the traffic light will stay orange.
 	#endregion
 }
