@@ -201,6 +201,11 @@ public class SimulationController : MonoBehaviour
 		num_bad_drivers_running--;
 	}
 	
+	public void synchronizeTrafficLights ()
+	{
+		RoadMap.synchronizeTrafficLights();
+	}
+	
 	private void updateMaxVehicles ()
 	{
 		max_vehicles = Mathf.FloorToInt(maxVehicles_slider.GetComponent<Slider>().value);

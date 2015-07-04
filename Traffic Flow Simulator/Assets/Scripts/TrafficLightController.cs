@@ -97,6 +97,7 @@ public class TrafficLightController : MonoBehaviour
 	
 	private IEnumerator cycle ()
 	{
+		setRed ();
 		yield return new WaitForSeconds(timeBeforeFirstGreen);
 		
 		while (true)
