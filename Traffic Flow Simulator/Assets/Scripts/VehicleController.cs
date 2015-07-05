@@ -100,7 +100,7 @@ public class VehicleController : MonoBehaviour
 				}
 				else if (target.GetComponent<GuideNode>().getGuideNodeType() == GuideNodeType.Lane_end)
 				{
-					Debug.LogWarning(vehicle_type.ToString()+" has reached node limit.");
+					//Debug.LogWarning(vehicle_type.ToString()+" has reached node limit.");
 					destroyVehicle ();
 				}
 				else

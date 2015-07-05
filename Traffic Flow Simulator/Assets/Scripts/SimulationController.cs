@@ -365,11 +365,11 @@ public class SimulationController : MonoBehaviour
 		
 		while (true)
 		{	
-			debugMessage ();
+			//debugMessage ();
 			
 			while ( (num_public_vehicles_running + num_private_vehicles_running) < max_vehicles )
 			{
-				debugMessage ();
+				//debugMessage ();
 				
 				if (!SimulationUIController.is_paused)
 				{
