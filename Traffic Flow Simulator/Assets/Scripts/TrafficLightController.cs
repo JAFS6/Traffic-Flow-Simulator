@@ -40,6 +40,13 @@ public class TrafficLightController : MonoBehaviour
 	private float		timeOrange			= 2f;	// Time in seconds that the traffic light will stay orange.
 	private float		timeRed				= 15f;	// Time in seconds that the traffic light will stay red.
 	
+	private bool start   = false;
+	private bool cycling = false;
+	private bool reset   = false;
+	private bool firstStartCycleCall = true;
+	private float time;
+	
+	#region Getters and Setters
 	public float getTimeBeforeFirstGreen ()
 	{
 		return this.timeBeforeFirstGreen;
@@ -79,36 +86,75 @@ public class TrafficLightController : MonoBehaviour
 	{
 		this.timeRed = value;
 	}
+	#endregion
 	
 	public void Start ()
 	{
-		setRed ();
+		setRed();
 	}
 	
 	public void startCycle ()
 	{
-		StartCoroutine(cycle());
+		start = true;
+		time = Time.time;
+		
+		if (firstStartCycleCall)
+		{
+			firstStartCycleCall = false;
+		}
+		else
+		{
+			reset = true;
+		}
 	}
 	
+	public void Update ()
+	{
+		float now = Time.time;
+		
+		if (reset)
+		{
+			setRed();
+			reset = false;
+			cycling = false;
+		}
+		
+		if (start)
+		{
+			if (!cycling) // Time before first green
+			{
+				if (now - time >= timeBeforeFirstGreen)
+				{
+					setGreen();
+					cycling = true;
+					time = now;
+				}
+			}
+			else
+			{
+				if (status == TrafficLightStatus.Green && now - time >= timeGreen)
+				{
+					setOrange();
+					time = now;
+				}
+				else if (status == TrafficLightStatus.Orange && now - time >= timeOrange)
+				{
+					setRed();
+					time = now;
+				}
+				else if (status == TrafficLightStatus.Red && now - time >= timeRed)
+				{
+					setGreen();
+					time = now;
+				}
+			}
+		}
+	}
+	
+	#region Light Status
 	public TrafficLightStatus getTrafficLightStatus ()
 	{
 		return this.status;
-	}
-	
-	private IEnumerator cycle ()
-	{
-		setRed ();
-		yield return new WaitForSeconds(timeBeforeFirstGreen);
-		
-		while (true)
-		{
-			setGreen ();
-			yield return new WaitForSeconds(timeGreen);
-			setOrange ();
-			yield return new WaitForSeconds(timeOrange);
-			setRed ();
-			yield return new WaitForSeconds(timeRed);
-		}
 	}
 	
 	private void setRed ()
@@ -134,4 +180,5 @@ public class TrafficLightController : MonoBehaviour
 		Light_Orange.GetComponent<MeshRenderer>().material 	= Material_Inactive;
 		Light_Green.GetComponent<MeshRenderer>().material 	= Material_Green;
 	}
+	#endregion
 }
