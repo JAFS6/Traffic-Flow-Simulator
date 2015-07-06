@@ -2,7 +2,7 @@
 	En el presente capítulo se abordará el estado del arte de los distintos elementos de los que se hará uso en el desarrollo de este proyecto.
 	
 	\paragraph{}
-	En el apartado \emph{Simuladores de tráfico} se presentará la esencia del proyecto; en el apartado \emph{Representación de redes viarias}, se tratará una manera de trabajar con los mapas de redes viarias de forma que podamos generar el entorno en el que se desenvolverán los vehículos en nuestro simulador; en el apartado \emph{Sistemas de partículas conductistas} se presentará el modelo de interacción utilizado por los vehículos mencionados anteriormente; en el apartado \emph{Modelos de redes viarias reales a partir de imágenes} abordaremos un método mediante el cual podremos extraer la información de las redes viarias a partir de imágenes; finalmente, en el apartado \emph{Herramientas gráficas} veremos las herramientas que se vienen utilizando para la creación de simuladores de tráfico.
+	En el apartado \emph{Simuladores de tráfico} se presentará la esencia del proyecto; en el apartado \emph{Representación de redes viarias}, se tratará una manera de trabajar con los mapas de redes viarias de forma que podamos generar el entorno en el que se desenvolverán los vehículos en nuestro simulador; en el apartado \emph{Sistemas de partículas conductistas} se presentará el modelo de interacción utilizado por los vehículos mencionados anteriormente; finalmente, en el apartado \emph{Herramientas gráficas} veremos las herramientas que se vienen utilizando para la creación de simuladores de tráfico.
 
 \section{Simuladores de tráfico}
 
@@ -101,6 +101,9 @@
 	\label{table:TablaNiveles}
 	\end{table}
 	
+	\paragraph{}
+	Dado que en los objetivos de este proyecto no se encuentra el que los vehículos elijan y sigan un camino concreto a través de la porción de red viaria simulada, no profundizaremos más en el problema de la búsqueda de caminos en una red viaria.
+	
 \section{Sistemas de partículas conductistas}
 	
 	\paragraph{}
@@ -111,30 +114,8 @@
 	
 	\paragraph{}
 	En el caso particular de este proyecto, cada vehículo será una partícula con una serie de características o atributos, lo que nos permitirá modelar distintos tipos de vehículo y distintos tipos de comportamiento de los conductores, con el fin de representar la variedad de los mismos que podemos observar en la realidad.
-
-\section{Modelos de redes viarias reales a partir de imágenes}
-
-	\paragraph{}
-	La obtención de redes viarias a partir de imágenes de satélite es un campo de investigación muy importante debido a la gran cantidad de aplicaciones en las que se puede utilizar (militares, civiles, científicas, etc).
 	
-	\paragraph{}
-	El problema consiste en detectar en una imagen, qué es una carretera (camino o vía) y qué no lo es, de forma que esta información pueda ser extraída y procesada.
-	
-	\paragraph{}
-	En el artículo \emph{Road network extraction and intersection detection from aerial images by tracking road footprints} \cite{JiuxiangHu2007} se describe un método de extracción de redes viarias que proporciona muy buenos resultados.
-	
-	\paragraph{}
-	Este método consta de tres pasos:
-	\begin{enumerate}	
-	\item \emph{Automatic road seeding}: Se analiza el vecindario de todos los píxeles de la imagen y se decide si el pixel es un punto de inicio válido para un segmento de carretera.
-	\item \emph{Road tracking}: Comenzando a partir de todas las semillas, se extienden los segmentos de carretera, iterativamente, en una, dos o más direcciones. Se analizan iterativamente el vecindario local de todos los puntos activos en la red viaria para decidir si parar, continuar en una dirección, o dividir en dos o tres direcciones. Este algoritmo va creando un árbol de carreteras.
-	\item \emph{Road tree prunning}: Los pasos previos producen una red viaria que contiene casi todos los segmentos de carretera, pero sufre de sobreextracción y pérdidas. Los autores del artículo utilizan una regla de decisión bayesiana para eliminar trozos de la red extraída que parezcan no ser carreteras.
-	\end{enumerate}
-	
-	\paragraph{}
-	La inclusión de este método en el proyecto posibilitaría incluir redes viarias reales a la simulación, lo que permitiría probar distintas soluciones de ordenación viaria en entornos reales.
-
 \section{Herramientas gráficas}
 
 	\paragraph{}
-	En el apartado gráfico vamos a contar con dos herramientas que se están utilizando mucho en estos tiempos en el área de la informática gráfica. Por un lado podremos usar Unity3D \cite{Unity_web}, que es un motor gráfico de videojuegos, ya que sus características nos permiten simular un sistema de partículas conductista en un entorno 3D sin mucha dificultad. Por otro lado podremos contar con la herramienta Blender \cite{Blender_web}, que se usa en modelado, y nos permitirá incluir los modelos necesarios en la aplicación. Además, esta última se integra perfectamente con la primera.
+	En el apartado gráfico vamos a contar con dos herramientas que se están utilizando mucho en estos tiempos en el área de la informática gráfica. Por un lado podremos usar Unity3D \cite{Unity_web}, que es un motor gráfico de videojuegos que cuenta con su propio editor y permite programación en C\#, ya que sus características nos permiten simular un sistema de partículas conductista en un entorno 3D, así como realizar una interacción con la aplicación de forma sencilla e intuitiva. Por otro lado podremos contar con la herramienta Blender \cite{Blender_web}, que se usa en modelado, y nos permitirá incluir los modelos necesarios en la aplicación. Además, esta última se integra perfectamente con la primera.

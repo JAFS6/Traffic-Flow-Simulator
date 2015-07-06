@@ -11,10 +11,10 @@
 	\paragraph{}
 	La red viaria con la que trabajará el simulador será una red sencilla, en la cual, habrá puntos por los que entrarán y saldrán los vehículos hacia y desde la porción de red viaria que se esté simulando, habrá intersecciones de mínimo tres vías y máximo cuatro vías y algún mecanismo que nos permita definir curvas sin realizar intersecciones.
 
-\section{Señales de tráfico y peatones}
+\section{Señales de tráfico}
 
 	\paragraph{}
-	
+	Como señales para controlar el flujo de tráfico, la red viaria contará con semáforos en las intersecciones que se encargarán de permitir el paso alternativo de vehículos entre las distintas vías que lleguen a cada una de las intersecciones.
 	
 \section{Vehículos}
 	
@@ -25,22 +25,18 @@
 	Los modelos de estos vehículos serán de poco nivel de detalle con el fin de poder incluir en la simulación tantos como se pueda sin que se vea afectado el rendimiento del sistema.
 	
 	\paragraph{}
-	El usuario podrá cambiar el número de vehículos involucrados en la simulación mediante la interacción con la interfaz gráfica.
+	El usuario podrá variar el número de vehículos involucrados en la simulación así como la proporción del tipo de vehículos (públicos o privados) mediante la interacción con la interfaz gráfica.
 	
 \section{Conductores}
 
 	\paragraph{}
 	Para simular el flujo de tráfico de una forma más realista, el sistema conductista contará con al menos tres tipos de conductores, aquellos que cumplen las normas de circulación siempre, aquellos que las cumplen normalmente y por último, aquellos que casi nunca las cumplen, en menor proporción respecto a los otros dos tipos.
 	
+	\paragraph{}
+	El usuario podrá cambiar la proporción de los tres tipos de conductores mediante la interacción con la interfaz gráfica.
+	
 \section{Entorno}
 	
 	\paragraph{}
-	Para obtener una simulación con cierto nivel de detalle se realizará un entorno de las redes viarias con algunos edificios, árboles, señales, semáforos, rotondas, pasos de peatones y paradas de autobús.
-	
-	\paragraph{}
-	Así mismo contará con un ciclo diario en el que se podrá cambiar la velocidad del paso del tiempo. Las distintas velocidades serán: 1x, 5x, 15x, 30x, 60x, 120x.
-	
-\section{Uso de redes viarias reales}
-
-	\paragraph{}
+	El entorno estará formado por los elementos que conforman las vías de la red (plataforma de la vía, líneas de arcenes, líneas de mediana, líneas de carril taxi bus, líneas discontinuas para los carriles normales, y líneas de detención), señales horizontales para indicar carriles normales y carriles taxi bus, túneles para indicar los puntos por los que los vehículos entrarán y saldrán de la porción de red viaria simulada, y semáforos de tres estados para la regulación del tráfico.
 	
