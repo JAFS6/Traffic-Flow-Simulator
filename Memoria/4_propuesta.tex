@@ -4,12 +4,18 @@
 \section{Objetivo principal del proyecto}
 
 	\paragraph{}
-	Se desarrollará una aplicación gráfica multiplataforma, mediante la herramienta \emph{Unity} utilizando el motor gráfico que incluye, para alojar el simulador de tráfico; y se desarrollará una aplicación [TODO: ¿cómo?] para la obtención de mapas de carreteras reales.
+	Se desarrollará una aplicación gráfica multiplataforma, mediante la herramienta \emph{Unity3D} utilizando el motor gráfico que incluye, para alojar el simulador de tráfico.
+	
+	\paragraph{}
+	Debido a problemas con Unity3D en la generación de la aplicación para sistemas Linux y a la imposibilidad de realizar pruebas sobre el sistema operativo de Apple, la aplicación será finalmente construida para el sistema operativo Windows en sus versiones de 32 y 64 bits.
 
 \section{Red viaria}
 
 	\paragraph{}
-	La red viaria que utilizará el simulador vendrá especificada en un fichero con formato GraphML \cite{GraphML_man}. Dicha red estará determinada por dos grafos, un grafo no dirigido, de topología, en el que los cruces serán los nodos, y las vías serán los arcos; y un grafo dirigido, para indicar los giros, en el que los carrilles de las vías serán los nodos y los giros serán los arcos. Debido a las restricciones que impone la definición de GraphML sobre los identificadores, cada grafo deberá estar en un fichero distinto. Para ello usaremos dos ficheros por cada red viaria, siendo los ficheros *.topology.graphml para el primer tipo de grafo y los ficheros *.turns.graphml para el segundo. El identificador del grafo en cada uno de los ficheros de la pareja de cada grafo será el mismo.
+	La red viaria que utilizará el simulador vendrá especificada en un fichero con formato GraphML \cite{GraphML_man}. Dicha red estará determinada por dos grafos, un grafo no dirigido, de topología, en el que los cruces, las curvas y los nodos límite (los puntos de entrada/salida de vehículos desde y hacia la porción de red viaria simulada) serán los nodos, y las vías serán los arcos; y un grafo dirigido, para indicar los giros, en el que los carrilles de las vías serán los nodos y los giros serán los arcos.
+	
+	\paragraph{}	
+	Debido a las restricciones que impone la definición de GraphML sobre los identificadores, cada grafo deberá estar en un fichero distinto. Para ello usaremos dos ficheros por cada red viaria, siendo los ficheros *.topology.graphml para el primer tipo de grafo y los ficheros *.turns.graphml para el segundo. El identificador del grafo en cada uno de los ficheros de la pareja de cada grafo será el mismo.
 	
 	\paragraph{Nodos del grafo de topología}
 	
@@ -23,7 +29,7 @@
 				\includegraphics[keepaspectratio,height=100px]{Nodo_cruce.jpg}
 		\end{figure}
 	
-		\item \underline{Nodos de límite de vía}: Representan el límite del área simulada en esa vía y le permitirán al usuario configurar el flujo de tráfico de esa vía (en el caso de que la vía asociada tenga algún carril entrante al área de simulación). El grado de este tipo de nodo es igual a uno.
+		\item \underline{Nodos de límite de vía}: Representan el límite del área simulada en esa vía. Será el lugar por el que los vehículos salgan y entren desde y hacia la porción de red viaria simulada. El grado de este tipo de nodo es igual a uno. En el entorno 3D tendrán apariencia de tunel.
 		
 		\begin{figure}[H]
 			\centering
@@ -40,14 +46,14 @@
 	\end{itemize}
 	
 	\paragraph{}
-	Por tanto, cada nodo estará definido por un identificador alfanumérico, el tipo de nodo (0: nodo de cruce, 1: nodo de límite de vía, 2: nodo de continuación), sus coordenadas en el plano bidimensional x,y, y para los nodos de tipo cruce, el tipo de cruce, dado que queremos dar la oportunidad al usuario de elegir entre cruce normal (0) o rotonda (1).
+	Por tanto, cada nodo estará definido por un identificador alfanumérico, el tipo de nodo (0: nodo de cruce, 1: nodo de límite de vía, 2: nodo de continuación), sus coordenadas en el plano bidimensional x,y, y para los nodos de tipo cruce, el tipo de cruce, cruce normal (0) o rotonda (1). Las rotondas se han quedado como punto de ampliación de la aplicación.
 	
 	\paragraph{Arcos del grafo de topología}	
 	\paragraph{}
 	Cada arco estará definido por un identificador alfanumérico, el nodo de origen, el nodo de destino, una cadena de texto para poder dar nombre a la vía, y dos cadenas de texto que servirán para indicar los tipos de carril en cada sentido.
 	
 	\paragraph{}
-	Cada una de las cadenas de tipo de carril especificará el tipo de carril o carriles de ese sentido que haya desde el exterior de la vía hacia el interior de la misma utilizando los códigos: P: para indicar un carril de transporte público, N: un carril normal, A: un carril de aparcamiento, V: un carril de Bus/VAO, o la cadena `0' para indicar que no hay carriles en ese sentido.
+	Cada una de las cadenas de tipo de carril especificará el tipo de carril o carriles de ese sentido que haya desde el exterior de la vía hacia el interior de la misma utilizando los códigos: P: para indicar un carril de transporte público, N: un carril normal, o la cadena `0' para indicar que no hay carriles en ese sentido.
 	
 	\paragraph{Nodos del grafo de giros}
 	
@@ -76,7 +82,10 @@
 	Como se puede apreciar en la imagen, el grafo de topología asociado consta de diez nodos, tres nodos de tipo cruce, un nodo de tipo continuación y seis nodos de tipo límite de vía. Además, el grafo cuenta con diez arcos que representan las vías de la imagen.
 	
 	\paragraph{}
-	Para este ejemplo se ha supuesto que en cada cruce se puede ir en todas las direcciones que admite esta red, el grafo de giros está compuesto por diez nodos, los arcos del grafo de topología, que en este ejemplo están todos presentes en el grafo debido a que todos están unidos a algún nodo de tipo cruce; y treinta y tres arcos que representan los giros.
+	Para este ejemplo se ha supuesto que en cada cruce se puede ir en todas las direcciones que admite esta red, aunque se aprovecha la multiplicidad de carriles para hacer los giros a izquierda desde el carril o carriles situado/s más a la izquierda, y análogamente con los giros a la derecha.
+	
+	\paragraph{}
+	El grafo de giros está compuesto por diez nodos, los arcos del grafo de topología, que en este ejemplo están todos presentes en el grafo debido a que todos están unidos a algún nodo de tipo cruce; y treinta y tres arcos que representan los giros.
 	
 	\paragraph{}
 	A continuación se mostrará la representación de la red viaria con sintaxis de GraphML.
@@ -92,15 +101,19 @@
 	\lstinputlisting{"../Traffic Flow Simulator/Assets/StreamingAssets/Maps/example_1.turns.graphml"}
 	\normalsize
 	
-\section{Señales de tráfico y peatones}
+\section{Señales de tráfico}
 
 	\paragraph{}
+	Como se mencionó anteriormente, las señales con las que cuenta el simulador son semáforos de tres estados. Estos semáforos han sido modelados por mi en Blender \cite{Blender_web} e importados en Unity3D.
 	
+	
+	
+	Su funcionamiento consiste en realizar un ciclo contínuo desde el estado rojo, pasando después a verde, luego a naranja y, finalmente, a rojo de nuevo. El tiempo que tardan en ponerse en verde por primera vez vendrá determinado por el número de semáforos que haya en un cruce. Se decide aleatoriamente el orden en el que se pondrán en verde y a partir de ahí se calcula el tiempo de retardo para comenzar el ciclo de tal forma que cada semáforo del cruce permanecerá en rojo el tiempo que los demás semáforos utilizan para sus estados verde y naranja.
 
 \section{Vehículos}
 	
 	\paragraph{}
-	Se importarán los siguientes modelos mediante la herramienta Blender \cite{Blender_web}:
+	Se importarán los siguientes modelos utilizando la herramienta Blender \cite{Blender_web} o el propio importador de modelos obj de Unity3D:
 	\begin{itemize}
 		\item Bus
 		\item Taxi Checker Marathon
@@ -110,16 +123,28 @@
 		\item Cabeza tractora camión
 	\end{itemize}
 	
+	\paragraph{}	
+	Estos modelos no han sido realizados por mi, han sido tomados de lugares con las licencias adecuadas.
+	
+	\paragraph{}
+	Una vez cargados en Unity3D se han ajustado sus escalas en el editor de forma que respetasen en la medida de lo posible las proporciones en las medidas entre unos vehículos y otros.
+	
 \section{Conductores}
 
 	\paragraph{}
-	La lógica de los conductores se realizará mediante una máquina de estados.
+	Para simular la lógica de los conductores se ha utilizado un modelo muy básico fundamentándose en tres tipos de conductor:
+	
+	\begin{itemize}
+	\item Buenos
+	\item Regulares
+	\item Malos
+	\end{itemize}
+	
+	Los buenos conductores respetan la señalización de los semáforos en todo momento, los conductores regulares la respetan con una probabilidad del 50\%, mientras que los malos conductores no respetarán dicha regulación en ningún momento.
 	
 \section{Entorno}
 
 	\paragraph{}
+	El entorno está formado por un suelo con textura de hierba y un skybox para formar el cielo. Los nodos límite son falsos túneles modelados por mi en Blender \cite{Blender_web} e importados en Unity3D.
 	
-\section{Uso de redes viarias reales}
-
-	\paragraph{}
 	
