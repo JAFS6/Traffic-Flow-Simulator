@@ -1951,15 +1951,17 @@ public static class RoadMap
 	
 	public static void synchronizeTrafficLights ()
 	{
+		// Get slider reference
 		if (GreenTime_slider == null)
 		{
 			GreenTime_slider = GameObject.Find("GreenTime_Slider");
 		}
-	
+		// For each group of traffic lights
 		List<string> nodeIDs = new List<string>(groupedTrafficLights.Keys);
 		
 		foreach (string ID in nodeIDs)
 		{
+			// Synchronize Traffic Lights
 			List<GameObject> l = groupedTrafficLights[ID];
 			int num_traffic_lights = l.Count;
 			float timeGreen = GreenTime_slider.GetComponent<Slider>().value;
@@ -1982,8 +1984,9 @@ public static class RoadMap
 			);
 		}
 		
+		// Start traffic lights cycle
 		GameObject[] trafficLightsObjs;
-		trafficLightsObjs = GameObject.FindGameObjectsWithTag(Constants.Tag_TrafficLight); 
+		trafficLightsObjs = GameObject.FindGameObjectsWithTag(Constants.Tag_TrafficLight);
 		
 		foreach(GameObject tl in trafficLightsObjs)
 		{
