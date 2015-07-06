@@ -106,9 +106,15 @@
 	\paragraph{}
 	Como se mencionó anteriormente, las señales con las que cuenta el simulador son semáforos de tres estados. Estos semáforos han sido modelados por mi en Blender \cite{Blender_web} e importados en Unity3D.
 	
+	\begin{figure}[H]
+		\centering
+			\includegraphics[keepaspectratio,height=150px]{TrafficLightThreeState.jpg}
+	\end{figure}
 	
+	Su funcionamiento consiste en realizar un ciclo contínuo desde el estado rojo, pasando después a verde, luego a naranja y, finalmente, a rojo de nuevo.
 	
-	Su funcionamiento consiste en realizar un ciclo contínuo desde el estado rojo, pasando después a verde, luego a naranja y, finalmente, a rojo de nuevo. El tiempo que tardan en ponerse en verde por primera vez vendrá determinado por el número de semáforos que haya en un cruce. Se decide aleatoriamente el orden en el que se pondrán en verde y a partir de ahí se calcula el tiempo de retardo para comenzar el ciclo de tal forma que cada semáforo del cruce permanecerá en rojo el tiempo que los demás semáforos utilizan para sus estados verde y naranja.
+	\paragraph{}	
+	El tiempo que tardan en ponerse en verde por primera vez vendrá determinado por el número de semáforos que haya en un cruce. Se decide aleatoriamente el orden en el que se pondrán en verde y a partir de ahí se calcula el tiempo de retardo para comenzar el ciclo de tal forma que cada semáforo del cruce permanecerá en rojo el tiempo que los demás semáforos utilizan para sus estados verde y naranja.
 
 \section{Vehículos}
 	
