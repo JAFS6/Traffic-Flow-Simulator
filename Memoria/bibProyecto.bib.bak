@@ -74,6 +74,11 @@
   Volume                   = {145}
 }
 
+@Misc{BezierCurves,
+  Title                    = {Curva de Bézier},
+  Note                     = {\texttt{es.wikipedia.org/wiki/Curva\_de\_Bézier}}
+}
+
 @Misc{Blender_web,
   Title                    = {Blender web page},
   Note                     = {\texttt{www.blender.org}}
@@ -81,7 +86,6 @@
 
 @Misc{Unity_web,
   Title                    = {Unity web page},
-
-  Url                      = {\texttt{unity3d.com/es}}
+  Note                     = {\texttt{unity3d.com/es}}
 }
 
