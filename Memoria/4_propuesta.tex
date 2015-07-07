@@ -102,7 +102,7 @@
 	\normalsize
 	
 \section{Señales de tráfico}
-
+\label{section:trafficSignals}
 	\paragraph{}
 	Como se mencionó anteriormente, las señales con las que cuenta el simulador son semáforos de tres estados. Estos semáforos han sido modelados por mi en Blender \cite{Blender_web} e importados en Unity3D.
 	
@@ -152,5 +152,95 @@
 
 	\paragraph{}
 	El entorno está formado por un suelo con textura de hierba y un skybox para formar el cielo. Los nodos límite son falsos túneles modelados por mi en Blender \cite{Blender_web} e importados en Unity3D.
+	\paragraph{}
+	Los distintos elementos que conforman las vías de la red han sido modelados en base a cubos escalados dada la complicación para dibujar texturas dentro de otras texturas y así obtener un único plano con la vía representada.
 	
+\section{Navegación a través de la aplicación}
+	
+	\subsection{Menú principal}
+	\paragraph{}
+	Una vez iniciada la aplicación y pasada la splash screen de Unity3D (estamos usando la versión gratuita de la herramienta) llegamos al menú principal:
+	
+	\begin{figure}[H]
+		\centering
+			\includegraphics[keepaspectratio,height=150px]{MainMenu.jpg}
+	\end{figure}
+	
+	\paragraph{}
+	Desde aquí podemos cargar algún mapa (Start), ver información de la aplicación (Credits) o salir (Exit).
+
+	\paragraph{}	
+	Cuando vamos a cargar un mapa, la aplicación lee los nombres de los ficheros, que se encuentran en la carpeta
+	\begin{verbatim} "Traffic-Flow-Simulator__x86_Data\StreamingAssets\Maps" \end{verbatim} en el caso de la aplicación para Windows 32 bits o 				\begin{verbatim} "Traffic-Flow-Simulator__x86_64_Data\StreamingAssets\Maps" \end{verbatim} en el caso de la aplicación para Windows 64 bits, y muestra tantos botones como mapas haya, con sus respectivos nombres. Una vez que se pulsa alguno de ellos comienza el proceso de carga y creación de la pantalla de simulación.
+	
+	\subsection{Pantalla de simulación}
+	\paragraph{}
+	Al cargar la pantalla de simulación, tanto el skybox como los controles de la Interfaz de Usuario ya están preparados, a continuación se creará el suelo con las dimensiones del mapa cargado más un margen, se representará la red viaria, se posicionará la cámara y dará comienzo la simulación con la creación de vehículos.
+	
+	\subsection{Representación de los arcos}
+	\paragraph{}
+	La representación de la red viaria comienza con el dibujado de los arcos del grafo (los tramos rectos de red viaria) que se dibujan de la siguiente forma:
+	
+	% Explicación del dibujado de los arcos
+	\paragraph{}
+	Se comienza con una plataforma viaria escalada en el eje Z de forma que el nodo origen del arco se encuentre hacia la parte negativa del eje Z y el nodo destino hacia la parte positiva del eje Z. A continuación se dibujan las líneas de los arcenes. Seguidamente, si el arco tiene carriles en ambas direcciones se dibujan las líneas de mediana (líneas centrales de división de sentidos), atendiendo a que éstas verán modificada su posición desde el centro del arco en función de la diferencia del número de carriles que haya en cada sentido.
+	\paragraph{}
+	A continuación, para cada uno de los sentidos en el que haya carriles, se dibujarán tantas líneas de carril como carriles haya en dicho sentido menos una, desde el exterior del arco hacia el centro, atendiendo al tipo de carril que le haya sido asignado, así, un carril taxi bus será delimitado por la izquierda por una línea contínua ancha mientras que los carriles normales serán delimitados por la izquierda por líneas discontínuas estrechas.
+	\paragraph{}
+	Para finalizar el dibujado de líneas, si los carriles del sentido que se está dibujando llegan a un nodo de intersección, se dibujará una línea de detención perpendicular a las anteriores.
+	\paragraph{}
+	Además, al comienzo de cada carril se dibujarán marcas horizontales que indicarán el tipo de carril: siendo la flecha blanca para los carriles normales y las letras TAXI BUS para los carriles de tipo público.
+	\paragraph{}
+	Por último, se añadirán los semáforos al final del arco en el arcén de cada sentido si se desemboca en un cruce, orientados adecuadamente según el sentido que se esté dibujando.
+	\paragraph{}
+	A continuación podemos ver una imagen que ilustra la explicación anterior:
+	
+	\begin{figure}[H]
+		\centering
+			\includegraphics[keepaspectratio,height=150px]{BuildEdgeExample.jpg}
+	\end{figure}
+	
+	\subsection{Representación de los nodos}
+	\paragraph{}
+	A continuación se dibujan los nodos. Según su tipo, serán dibujados de la siguiente forma:
+	
+	\begin{itemize}
+	\item Nodos límite:
+	% Explicación del dibujado de los nodos límite
+	\newline
+	La representación de los nodos límite es la más sencilla que podemos encontrar, consiste en instanciar un tunel 3D en la posición del nodo límite, escalarlo a lo ancho para abarcar todo el ancho del arco que llegua hasta él y rotarlo de manera que quede alineado con dicho arco.
+	
+	\item Nodos de intersección:
+	% Explicación del dibujado de los nodos de intersección
+	\newline
+	Para representar un nodo de intersección se toma una plataforma viaria vacía, es decir sin líneas ni marcas, se instancia en la posición correspondiente y se escala de tal forma que quede una forma completamente cuadrada cuyos laterales tienen la misma dimensión que la anchura del arco más ancho de los que inciden en dicho nodo.
+	
+	\item Nodos de continuación:
+	\newline	
+	\% Explicación del dibujado de los nodos de continuación
+	
+	\end{itemize}
+	
+	\paragraph{}
+	Como paso final, se unen los nodos guía de final de carril de los arcos con los nodos correspondientes de los nodos de continuación e intersección.
+	
+	\paragraph{}
+	Una vez representada toda la red viaria se sincronizan los semáforos tal y como se explicó en el apartado \emph{\ref{section:trafficSignals} \nameref{section:trafficSignals}}.
+	
+	\paragraph{}
+	Así concluye la representación de la red viaria, a continuación, da comienzo la simulación generando los vehículos atendiendo a los parámetros de la interfaz de usuario.
+	
+	\paragraph{}
+	Dicha interfaz pondrá a disposición del usuario unos controles deslizantes (sliders) para controlar las siguientes variables:
+	
+	\begin{itemize}
+	\item El número de vehículos dentro de la simulación, con un mínimo de 0 y un máximo de 200.
+	\item La proporción de cada tipo de conductor, bueno, regular y malo, con un mínimo de 0\% y un máximo de 100\%, respetándose un total entre los tres tipos del 100\%.
+	\item La proporción de cada tipo de vehículo, público y privado, con un mínimo de 0\% y un máximo de 100\%, respetándose un total entre los dos tipos del 100\%.
+	\item El tiempo que pasan los semáforos en verde, con un mínimo de 5 segundos y un máximo de 60 segundos.
+	\item El tiempo que tardan en eliminarse de la simulación los vehículos accidentados, con un mínimo de 0 segundos y un máximo de 180 segundos.
+	\end{itemize}
+	
+	\paragraph{}
+	Así mismo, la interfaz también dispone de un contador de vehículos accidentados, un botón para pausar/reanudar la simulación o volver al menú principal, un botón para mostrar el panel de ayuda con la información relativa a los controles de la cámara y un botón para mostrar/ocultar los nombres de las calles.
 	
