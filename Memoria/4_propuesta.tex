@@ -26,28 +26,34 @@
 		
 		\begin{figure}[H]
 			\centering
-				\includegraphics[keepaspectratio,height=100px]{Nodo_cruce.jpg}
+				\includegraphics[keepaspectratio,height=200px]{Nodo_cruce.jpg}
+		\caption{Nodo de cruce.}
+		\label{fig:IntersectionNodeSchematic}
 		\end{figure}
 	
 		\item \underline{Nodos de límite de vía}: Representan el límite del área simulada en esa vía. Será el lugar por el que los vehículos salgan y entren desde y hacia la porción de red viaria simulada. El grado de este tipo de nodo es igual a uno. En el entorno 3D tendrán apariencia de tunel.
 		
 		\begin{figure}[H]
 			\centering
-				\includegraphics[keepaspectratio,height=50px]{Nodo_limite.jpg}
+				\includegraphics[keepaspectratio,height=100px]{Nodo_limite.jpg}
+		\caption{Nodo de límite de vía.}
+		\label{fig:LimitNodeSchematic}
 		\end{figure}
-	
+\newpage
 		\item \underline{Nodos de continuación}: Representan ángulos en las vías de tal forma que en ellos no se producirán intersecciones de vías. El grado de este tipo de nodo es igual a dos.
 		
 		\begin{figure}[H]
 			\centering
-				\includegraphics[keepaspectratio,height=50px]{Nodo_continuacion.jpg}
+				\includegraphics[keepaspectratio,height=100px]{Nodo_continuacion.jpg}
+		\caption{Nodo de continuación.}
+		\label{fig:ContinuationNodeSchematic}
 		\end{figure}
 	
 	\end{itemize}
 	
 	\paragraph{}
 	Por tanto, cada nodo estará definido por un identificador alfanumérico, el tipo de nodo (0: nodo de cruce, 1: nodo de límite de vía, 2: nodo de continuación), sus coordenadas en el plano bidimensional x,y, y para los nodos de tipo cruce, el tipo de cruce, cruce normal (0) o rotonda (1). Las rotondas se han quedado como punto de ampliación de la aplicación.
-	\newpage
+
 	\paragraph{Arcos del grafo de topología}	
 	\paragraph{}
 	Cada arco estará definido por un identificador alfanumérico, el nodo de origen, el nodo de destino, una cadena de texto para poder dar nombre a la vía, y dos cadenas de texto que servirán para indicar los tipos de carril en cada sentido.
@@ -76,6 +82,8 @@
 	\begin{figure}[H]
 		\centering
 			\includegraphics[keepaspectratio,width=359px]{Ejemplo_red_vial.jpg}
+	\caption{Ejemplo de red vial.}
+	\label{fig:RoadNetworkSchematic}
 	\end{figure}
 	
 	\paragraph{}
@@ -109,6 +117,8 @@
 	\begin{figure}[H]
 		\centering
 			\includegraphics[keepaspectratio,height=150px]{TrafficLightThreeState.jpg}
+	\caption{Semáforo de tres estados.}
+	\label{fig:ThreeStateTrafficLight}
 	\end{figure}
 	
 	Su funcionamiento consiste en realizar un ciclo contínuo desde el estado rojo, pasando después a verde, luego a naranja y, finalmente, a rojo de nuevo.
@@ -154,7 +164,7 @@
 	El entorno está formado por un suelo con textura de hierba y un skybox para formar el cielo. Los nodos límite son falsos túneles modelados por mi en Blender \cite{Blender_web} e importados en Unity3D.
 	\paragraph{}
 	Los distintos elementos que conforman las vías de la red han sido modelados en base a cubos escalados dada la complicación para dibujar texturas dentro de otras texturas y así obtener un único plano con la vía representada.
-	
+\newpage
 \section{Funcionamiento de la aplicación}
 	
 	\subsection{Menú principal}
@@ -164,6 +174,8 @@
 	\begin{figure}[H]
 		\centering
 			\includegraphics[keepaspectratio,height=150px]{MainMenu.jpg}
+	\caption{Menú principal.}
+	\label{fig:MainMenu}
 	\end{figure}
 	
 	\paragraph{}
@@ -198,6 +210,8 @@
 	\begin{figure}[H]
 		\centering
 			\includegraphics[keepaspectratio,height=150px]{BuildEdgeExample.jpg}
+	\caption{Ejemplo de dibujado de arcos.}
+	\label{fig:BuildEdgeExample}
 	\end{figure}
 	
 	\paragraph{}
@@ -209,6 +223,8 @@
 	\begin{figure}[H]
 		\centering
 			\includegraphics[keepaspectratio,height=150px]{laneCross.jpg}
+	\caption{Ejemplo de nodos guía en un arco.}
+	\label{fig:laneCross}
 	\end{figure}
 	
 	\paragraph{}
@@ -230,6 +246,8 @@
 	\begin{figure}[H]
 		\centering
 			\includegraphics[keepaspectratio,height=150px]{tunnel.jpg}
+	\caption{Ejemplo de túnel.}
+	\label{fig:tunnel}
 	\end{figure}
 	
 	\item Nodos de intersección:
@@ -243,6 +261,8 @@
 	\begin{figure}[H]
 		\centering
 			\includegraphics[keepaspectratio,height=200px]{IntersectionGuideNodes.jpg}
+	\caption{Ejemplo de nodos guía en intersección.}
+	\label{fig:IntersectionGuideNodes}
 	\end{figure}
 	
 	\item Nodos de continuación:
@@ -260,6 +280,8 @@
 	\begin{figure}[H]
 		\centering
 			\includegraphics[keepaspectratio,height=200px]{ContinuationNodeGuideNodes.jpg}
+	\caption{Ejemplo de nodos guía en nodo de continuación.}
+	\label{fig:ContinuationNodeGuideNodes}
 	\end{figure}
 	
 	\end{itemize}
