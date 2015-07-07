@@ -5,6 +5,7 @@
 \usepackage{listings}
 \lstset{basicstyle=\ttfamily}
 \usepackage{float}
+\usepackage{titletoc}
 \hypersetup{
     colorlinks,
     citecolor=black,
@@ -29,9 +30,7 @@
 \renewcommand{\contentsname}{Índice}
 \renewcommand{\chaptername}{Capítulo}
 \renewcommand{\figurename}{Figura}
-\renewcommand{\listfigurename}{Índice de figuras}
 \renewcommand{\tablename}{Tabla}
-\renewcommand{\listtablename}{Índice de tablas}
 \renewcommand\bibname{Bibliografía}
 
 % Portada
@@ -47,6 +46,23 @@
 % Posible inclusión de primera hoja, agradecimientos, licencia,...
 
 \tableofcontents
+\addtocontents{toc}{~\hfill\textbf{Página}\par}
+\begingroup
+\makeatletter
+%\listoffigures
+%\addcontentsline{toc}{chapter}{Índice de figuras y tablas}
+\chapter*{Índice de figuras y tablas}
+\@starttoc{lof}
+\addtocontents{lof}{~\hfill\textbf{Página}\par}
+\let\clearpage\relax
+%\listoftables
+\@starttoc{lot}
+\makeatother
+\endgroup
+%\listoffigures
+%\addtocontents{lof}{~\hfill\textbf{Página}\par}
+%\listoftables
+%\addtocontents{lot}{~\hfill\textbf{Página}\par}
 
 \chapter{Introducción}
 \input{1_introduccion.tex}
