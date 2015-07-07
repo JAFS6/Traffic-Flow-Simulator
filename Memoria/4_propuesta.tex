@@ -10,7 +10,7 @@
 	Debido a problemas con Unity3D en la generación de la aplicación para sistemas Linux y a la imposibilidad de realizar pruebas sobre el sistema operativo de Apple, la aplicación será finalmente construida para el sistema operativo Windows en sus versiones de 32 y 64 bits.
 
 \section{Red viaria}
-
+\label{section:RedViaria}
 	\paragraph{}
 	La red viaria que utilizará el simulador vendrá especificada en un fichero con formato GraphML \cite{GraphML_man}. Dicha red estará determinada por dos grafos, un grafo no dirigido, de topología, en el que los cruces, las curvas y los nodos límite (los puntos de entrada/salida de vehículos desde y hacia la porción de red viaria simulada) serán los nodos, y las vías serán los arcos; y un grafo dirigido, para indicar los giros, en el que los carrilles de las vías serán los nodos y los giros serán los arcos.
 	
@@ -136,7 +136,7 @@
 	Una vez cargados en Unity3D se han ajustado sus escalas en el editor de forma que respetasen en la medida de lo posible las proporciones en las medidas entre unos vehículos y otros.
 	
 \section{Conductores}
-
+\label{section:driverBehaviour}
 	\paragraph{}
 	Para simular la lógica de los conductores se ha utilizado un modelo muy básico fundamentándose en tres tipos de conductor:
 	
@@ -155,7 +155,7 @@
 	\paragraph{}
 	Los distintos elementos que conforman las vías de la red han sido modelados en base a cubos escalados dada la complicación para dibujar texturas dentro de otras texturas y así obtener un único plano con la vía representada.
 	
-\section{Navegación a través de la aplicación}
+\section{Funcionamiento de la aplicación}
 	
 	\subsection{Menú principal}
 	\paragraph{}
@@ -200,6 +200,20 @@
 			\includegraphics[keepaspectratio,height=150px]{BuildEdgeExample.jpg}
 	\end{figure}
 	
+	\paragraph{}
+	Una vez que la representación del arco ha sido construida se coloca en su posición y se orienta para quedar alineada con los nodos origen y destino. La posición no será el punto medio de las posiciones de los nodos ya que según el tipo de nodo que se encuentre en el extremo habrá que realizar un pequeño ajuste de posición. Además la longitud del arco tampoco será la distancia entre los nodos ya que entonces se solaparían las representaciones, esta ha sido calculada de forma que no solape en ninguno de los dos extremos con las representaciones de los nodos.
+	
+	\paragraph{}
+	Además, para el guiado de los vehículos, los arcos contarán con nodos guía (invisibles en la aplicación) al principio y final de cada carril, así como dos nodos guía en el centro que servirán para hacer cambios de carril si los carriles contiguos son del mismo tipo. Veamos un ejemplo:
+	
+	\begin{figure}[H]
+		\centering
+			\includegraphics[keepaspectratio,height=150px]{laneCross.jpg}
+	\end{figure}
+	
+	\paragraph{}
+	Como se puede apreciar en la imagen, los carriles más exteriores no permiten cambio de carril dado que son de tipo público y no hay más carriles de tipo público contiguos a ellos, mientras que los demás si permiten el cambio ya que son contiguos de tipo normal.
+	
 	\subsection{Representación de los nodos}
 	\paragraph{}
 	A continuación se dibujan los nodos. Según su tipo, serán dibujados de la siguiente forma:
@@ -208,19 +222,49 @@
 	\item Nodos límite:
 	% Explicación del dibujado de los nodos límite
 	\newline
-	La representación de los nodos límite es la más sencilla que podemos encontrar, consiste en instanciar un tunel 3D en la posición del nodo límite, escalarlo a lo ancho para abarcar todo el ancho del arco que llegua hasta él y rotarlo de manera que quede alineado con dicho arco.
+	La representación de los nodos límite es la más sencilla que podemos encontrar, consiste en instanciar un tunel 3D en la posición del nodo límite, escalarlo a lo ancho para abarcar todo el ancho del arco que llega hasta él y rotarlo de manera que quede alineado con dicho arco.
+	\newline
+	\newline
+	Este tipo de nodo no afecta en manera alguna la circulación de los vehículos, por tanto, los vehículos se introducirán en el tunel y desaparecerán al llegar al nodo guía de final de carril por no tener ningún nodo guía siguiente.
+	
+	\begin{figure}[H]
+		\centering
+			\includegraphics[keepaspectratio,height=150px]{tunnel.jpg}
+	\end{figure}
 	
 	\item Nodos de intersección:
 	% Explicación del dibujado de los nodos de intersección
 	\newline
 	Para representar un nodo de intersección se toma una plataforma viaria vacía, es decir sin líneas ni marcas, se instancia en la posición correspondiente y se escala de tal forma que quede una forma completamente cuadrada cuyos laterales tienen la misma dimensión que la anchura del arco más ancho de los que inciden en dicho nodo.
+	\newline
+	\newline
+	Además, para el guiado de los vehículos, el nodo de intersección une los nodos guía de final de carril con los de inicio de carril según los giros permitidos indicados en el fichero de giros explicado en la sección \emph{\ref{section:RedViaria} \nameref{section:RedViaria}}. Para ello, traza una curva de Bézier \cite{BezierCurves} con nodos guía intermedios por cada uno de los giros permitidos.
+	
+	\begin{figure}[H]
+		\centering
+			\includegraphics[keepaspectratio,height=200px]{IntersectionGuideNodes.jpg}
+	\end{figure}
 	
 	\item Nodos de continuación:
-	\newline	
-	\% Explicación del dibujado de los nodos de continuación
+	\newline
+	\newline
+	% Explicación del dibujado de los nodos de continuación
+	Los nodos de continuación (tramos curvos) se dibujan de forma análoga a los arcos, con un par de excepciones: en estos nodos no se permite el cambio de carril y en vez de ser una plataforma recta son diez tramos de plataforma con sus líneas correspondientes que conforman la forma curva.
+	\newline
+	\newline
+	Para conseguir la forma curva se ha utilizado una curva de Bézier \cite{BezierCurves} con tres puntos, el punto central de la curva en el extremo del arco de referencia, el punto central de la curva en el extremo del otro arco que incide en el nodo y el punto central en el que se cruzarían los arcos. Este último punto se utiliza como los dos puntos de control propios de una curva de Bézier \cite{BezierCurves}.
+	\newline
+	\newline
+	Además, se incluyen nodos de guiado intermedios para que los vehículos simulen el giro a lo largo de la sección curva. Finalmente se coloca en la posición adecuada y se alinea con los arcos que inciden en el nodo, como se puede apreciar en la siguiente imagen:
+	
+	\begin{figure}[H]
+		\centering
+			\includegraphics[keepaspectratio,height=200px]{ContinuationNodeGuideNodes.jpg}
+	\end{figure}
 	
 	\end{itemize}
 	
+	\subsection{Finalizando la representación}
 	\paragraph{}
 	Como paso final, se unen los nodos guía de final de carril de los arcos con los nodos correspondientes de los nodos de continuación e intersección.
 	
@@ -244,3 +288,15 @@
 	\paragraph{}
 	Así mismo, la interfaz también dispone de un contador de vehículos accidentados, un botón para pausar/reanudar la simulación o volver al menú principal, un botón para mostrar el panel de ayuda con la información relativa a los controles de la cámara y un botón para mostrar/ocultar los nombres de las calles.
 	
+	\subsection{Comportamiento de los vehículos}
+	\paragraph{}
+	Cada vehículo es instanciado en un nodo guía, dentro de un túnel, y se le asigna como objetivo que se desplace al siguiente nodo guía, cuando llega a este, comprueba a cuántos nodos guía puede avanzar atendiendo al tipo de vehículo que puede circular por cada nodo y elige uno de forma aleatoria, repitiendo este ciclo de forma indefinida hasta que llega a un nodo el cual no tiene nodos guía siguientes, lo cual significa que el vehículo se encuentra dentro de un tunel y que debe eliminarse de la simulación. Esto provocará una actualización automática de los contadores de cantidad de vehículos, tipo de vehículos y tipos de conductor, de cara a la instanciación de nuevos vehículos.
+	
+	\paragraph{}
+	Cada vehículo va comprobando constantemente que no haya vehículos en su camino a una distancia inferior a diez metros, en cuyo caso moderará su velocidad para no chocar con el vehículo que tenga inmediatamente delante. Para ello comprueba si existe alguno entre su posición y su nodo guía objetivo, si no hay ninguno y aún no ha comprobado los diez metros, comprobará de forma recursiva desde el nodo guía objetivo hasta cualquiera de los siguientes, y así sucesivamente.
+	
+	\paragraph{}
+	Además, cada vehículo cuenta con dos rayos, para raycasting, de metro y medio en la parte frontal orientados hacia delante y hacia los lados para comprobar que no hay vehículos en las inmediaciones por delante; así como un rayo más en la parte frontal de 10 metros para la detección de los semáforos.
+	
+	\paragraph{}
+	Si un vehículo detecta un semáforo en verde no hará ningún cambio, mientras que si lo detecta en naranja o rojo disminuirá la velocidad hasta detenerse cerca de la línea de detención. Esto ocurrirá para los buenos conductores, ya que, como se mencionó en el apartado \emph{\ref{section:driverBehaviour} \nameref{section:driverBehaviour}}, los malos conductores no lo harán y los conductores regulares se lo pensarán constantemente mientras se acercan al semáforo, ya que en cada frame realizan una evaluación de la situación, pudiendose casi detener y luego reanudar la marcha con el semáforo en un estado distinto al verde.
