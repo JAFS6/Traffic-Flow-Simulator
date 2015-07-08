@@ -44,9 +44,10 @@
 % Fin inserción de página en blanco
 \pagestyle{plain}
 % Posible inclusión de primera hoja, agradecimientos, licencia,...
-
 \tableofcontents
 \addtocontents{toc}{~\hfill\textbf{Página}\par}
+\pagenumbering{arabic}
+\setcounter{page}{1}
 \begingroup
 \makeatletter
 %\listoffigures

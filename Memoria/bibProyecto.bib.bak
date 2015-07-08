@@ -75,8 +75,8 @@
 }
 
 @Misc{BezierCurves,
-  Title                    = {Curva de Bézier},
-  Note                     = {\texttt{es.wikipedia.org/wiki/Curva\_de\_Bézier}}
+  Title                    = {Curva de B\'{e}zier},
+  Note                     = {\texttt{es.wikipedia.org/wiki/Curva\_de\_B\'{e}zier}}
 }
 
 @Misc{Blender_web,
